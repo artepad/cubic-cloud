@@ -9,6 +9,8 @@
                 <p class="profile-text m-t-15 font-16">
                     <?php if(isset($_SESSION['admin'])): ?>
                         <a href="javascript:void(0);"><?= $_SESSION['admin']->nombre ?> <?= $_SESSION['admin']->apellido ?></a>
+                    <?php elseif(isset($_SESSION['usuario'])): ?>
+                        <a href="javascript:void(0);"><?= $_SESSION['usuario']->nombre ?> <?= $_SESSION['usuario']->apellido ?></a>
                     <?php else: ?>
                         <a href="javascript:void(0);">Cubic Cloud</a>
                     <?php endif; ?>
@@ -67,7 +69,13 @@
             <span class="hide-menu">
                 <a href="<?=base_url?>cliente/crear" class="btn btn-info m-b-10 btn-block">Nuevo Cliente</a>
                 <a href="<?=base_url?>evento/crear" class="btn btn-success btn-block">Nuevo Evento</a>
-                <a href="<?=base_url?>admin/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
+                <?php if(isset($_SESSION['admin'])): ?>
+                    <a href="<?=base_url?>admin/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
+                <?php elseif(isset($_SESSION['usuario'])): ?>
+                    <a href="<?=base_url?>usuario/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
+                <?php else: ?>
+                    <a href="<?=base_url?>" class="btn btn-danger m-t-15 btn-block">Volver al inicio</a>
+                <?php endif; ?>
             </span>
         </div>
     </div>

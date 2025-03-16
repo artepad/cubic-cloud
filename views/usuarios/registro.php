@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url ?>assets/plugins/images/favicon.png">
-    <title>Cubic Cloud - Acceso de Usuarios</title>
+    <title>Cubic Cloud - Registro de Usuario</title>
     <!-- ===== Bootstrap CSS ===== -->
     <link href="<?= base_url ?>assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- ===== Animation CSS ===== -->
@@ -28,7 +28,7 @@
         <div class="cssload-speeding-wheel"></div>
     </div>
     <section id="wrapper" class="login-register">
-        <div class="login-box">
+        <div class="login-box" style="max-width: 500px;">
             <div class="white-box">
                 <!-- Mostrar mensajes de error si existen -->
                 <?php if (isset($_SESSION['error_login'])): ?>
@@ -46,12 +46,22 @@
                 <?php unset($_SESSION['success_message']);
                 endif; ?>
 
-                <form class="form-horizontal form-material" id="loginform" action="<?= base_url ?>usuario/validate" method="POST">
-                    <h3 class="box-title m-b-20">Acceso de Usuarios</h3>
-
+                <form class="form-horizontal form-material" id="registerform" action="<?= base_url ?>usuario/save" method="POST">
+                    <h3 class="box-title m-b-20">Registro de Usuarios</h3>
+                    
                     <!-- Token CSRF para seguridad -->
                     <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
-
+                    
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input class="form-control" type="text" required placeholder="Nombre" name="nombre">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input class="form-control" type="text" required placeholder="Apellido" name="apellido">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="col-xs-12">
                             <input class="form-control" type="email" required placeholder="Correo electrónico" name="email">
@@ -59,47 +69,30 @@
                     </div>
                     <div class="form-group">
                         <div class="col-xs-12">
-                            <input class="form-control" type="password" required placeholder="Contraseña" name="password">
+                            <input class="form-control" type="password" required placeholder="Contraseña" name="password" id="password" minlength="8">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input class="form-control" type="password" required placeholder="Confirmar contraseña" name="confirm_password" id="confirm_password" minlength="8">
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-md-12">
-                            <div class="checkbox checkbox-primary pull-left p-t-0">
-                                <input id="checkbox-signup" type="checkbox" name="remember" value="1">
-                                <label for="checkbox-signup"> Recuérdame </label>
+                            <div class="checkbox checkbox-primary p-t-0">
+                                <p>La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula y un número.</p>
                             </div>
-                            <a href="<?= base_url ?>usuario/recover" class="text-dark pull-right"><i class="fa fa-lock m-r-5"></i> ¿Olvidaste la contraseña?</a>
                         </div>
                     </div>
                     <div class="form-group text-center m-t-20">
                         <div class="col-xs-12">
-                            <button class="btn btn-info btn-lg btn-block text-uppercase waves-effect waves-light" type="submit">INICIAR SESIÓN</button>
+                            <button class="btn btn-info btn-lg btn-block text-uppercase waves-effect waves-light" type="submit">REGISTRARSE</button>
                         </div>
                     </div>
-
-                    <!-- Enlace para registro de usuario (si aplica) -->
+                    
                     <div class="form-group m-b-0">
                         <div class="col-sm-12 text-center">
-                            <p>¿No tienes una cuenta? <a href="<?= base_url ?>usuario/registro" class="text-primary m-l-5"><b>Regístrate</b></a></p>
+                            <p>¿Ya tienes una cuenta? <a href="<?= base_url ?>usuario/login" class="text-primary m-l-5"><b>Inicia sesión</b></a></p>
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
-    </section>
-    <!-- jQuery -->
-    <script src="<?= base_url ?>assets/plugins/components/jquery/dist/jquery.min.js"></script>
-    <!-- Bootstrap Core JavaScript -->
-    <script src="<?= base_url ?>assets/bootstrap/dist/js/bootstrap.min.js"></script>
-    <!-- Menu Plugin JavaScript -->
-    <script src="<?= base_url ?>assets/js/sidebarmenu.js"></script>
-    <!--slimscroll JavaScript -->
-    <script src="<?= base_url ?>assets/js/jquery.slimscroll.js"></script>
-    <!--Wave Effects -->
-    <script src="<?= base_url ?>assets/js/waves.js"></script>
-    <!-- Custom Theme JavaScript -->
-    <script src="<?= base_url ?>assets/js/custom.js"></script>
-    <script src="<?= base_url ?>assets/plugins/components/styleswitcher/jQuery.style.switcher.js"></script>
-</body>
-
-</html>
