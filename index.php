@@ -96,7 +96,7 @@ $requiere_auth = !isPublicRoute($controller_name, $action);
 // Si requiere autenticación y no hay ninguna sesión activa, redirigir al login correspondiente
 if ($requiere_auth) {
     // Verificar rutas de administrador
-    if (strpos($controller_name, 'admin') === 0 || $controller_name === 'dashboard') {
+    if (strpos($controller_name, 'admin') === 0 || $controller_name === 'systemDashboard') {
         if (!isAdminLoggedIn() && !$current_is_login) {
             $_SESSION['error_login'] = "Debes iniciar sesión como administrador para acceder a esta sección";
             header("Location: " . base_url . "admin/login");

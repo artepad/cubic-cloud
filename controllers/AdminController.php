@@ -28,7 +28,7 @@ class AdminController
     {
         // Verificar si hay sesión activa de administrador
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "dashboard/index");
+            header("Location: " . base_url . "systemDashboard/index");
             exit();
         }
 
@@ -43,7 +43,7 @@ class AdminController
     {
         // Si ya está logueado como admin, redirigir al dashboard
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "dashboard/index");
+            header("Location: " . base_url . "systemDashboard/index");
             exit();
         }
 
@@ -59,7 +59,7 @@ class AdminController
     {
         // No permitir acceso a esta acción si ya está logueado
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "dashboard/index");
+            header("Location: " . base_url . "systemDashboard/index");
             exit();
         }
 
@@ -107,8 +107,8 @@ class AdminController
                     $this->createRememberMeCookie($admin->id);
                 }
 
-                // Redirigir al dashboard
-                header("Location: " . base_url . "dashboard/welcome");
+                // Redirigir al dashboard - MODIFICADO PARA USAR systemDashboard
+                header("Location: " . base_url . "systemDashboard/welcome");
                 exit();
             } else {
                 // Agregar un pequeño delay para prevenir timing attacks
@@ -128,36 +128,36 @@ class AdminController
      * Cierra la sesión del administrador
      */
     public function logout()
-{
-    // Iniciar buffer de salida para evitar el envío prematuro de headers
-    ob_start();
+    {
+        // Iniciar buffer de salida para evitar el envío prematuro de headers
+        ob_start();
 
-    // Verificar que el administrador está logueado
-    if (isAdminLoggedIn()) {
-        $admin_id = $_SESSION['admin']->id;
+        // Verificar que el administrador está logueado
+        if (isAdminLoggedIn()) {
+            $admin_id = $_SESSION['admin']->id;
 
-        // Registrar el cierre de sesión en la base de datos
-        $this->adminModel->registerLogout($admin_id);
+            // Registrar el cierre de sesión en la base de datos
+            $this->adminModel->registerLogout($admin_id);
 
-        // Limpiar el token de "Recuérdame" 
-        $this->adminModel->clearRememberToken($admin_id);
+            // Limpiar el token de "Recuérdame" 
+            $this->adminModel->clearRememberToken($admin_id);
 
-        // Eliminar la cookie de "Recuérdame"
-        if (isset($_COOKIE['admin_remember'])) {
-            $this->deleteRememberMeCookie();
+            // Eliminar la cookie de "Recuérdame"
+            if (isset($_COOKIE['admin_remember'])) {
+                $this->deleteRememberMeCookie();
+            }
+
+            // Destruir la sesión de forma segura
+            session_unset();
+            session_destroy();
         }
 
-        // Destruir la sesión de forma segura
-        session_unset();
-        session_destroy();
+        // Mostrar la vista de logout
+        require_once 'views/admin/logout.php';
+        
+        // Limpia el buffer y envía el contenido
+        ob_end_flush();
     }
-
-    // Mostrar la vista de logout
-    require_once 'views/admin/logout.php';
-    
-    // Limpia el buffer y envía el contenido
-    ob_end_flush();
-}
 
     /**
      * Muestra el formulario para solicitar recuperación de contraseña
@@ -166,7 +166,7 @@ class AdminController
     {
         // Si ya está logueado, redirigir al dashboard
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "dashboard/index");
+            header("Location: " . base_url . "systemDashboard/index");
             exit();
         }
 
@@ -181,7 +181,7 @@ class AdminController
     {
         // No permitir acceso a esta acción si ya está logueado
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "dashboard/index");
+            header("Location: " . base_url . "systemDashboard/index");
             exit();
         }
 
@@ -236,7 +236,7 @@ class AdminController
     {
         // Si ya está logueado, redirigir al dashboard
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "dashboard/index");
+            header("Location: " . base_url . "systemDashboard/index");
             exit();
         }
 
@@ -270,7 +270,7 @@ class AdminController
     {
         // Si ya está logueado, redirigir al dashboard
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "dashboard/index");
+            header("Location: " . base_url . "systemDashboard/index");
             exit();
         }
 

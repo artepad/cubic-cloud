@@ -15,7 +15,7 @@ $subdirectory = '/cubic-cloud/';
 define("base_url", $protocol . $host . $subdirectory);
 
 // Controlador y acción por defecto
-define("controller_default", "DashboardController");
+define("controller_default", "SystemDashboardController");
 define("action_default", "index");
 
 // Configuración de seguridad
