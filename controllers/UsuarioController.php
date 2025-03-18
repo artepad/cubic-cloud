@@ -53,78 +53,77 @@ class UsuarioController
     }
 
     /**
-     * Valida las credenciales del usuario
-     * Procesa el formulario de login
-     */
-    public function validate()
-    {
-        // No permitir acceso a esta acción si ya está logueado
-        if (isLoggedIn()) {
-            $this->redirectBasedOnUserType();
-            exit();
-        }
+ * Valida las credenciales del usuario
+ * Procesa el formulario de login
+ */
+public function validate()
+{
+    // No permitir acceso a esta acción si ya está logueado
+    if (isLoggedIn()) {
+        $this->redirectBasedOnUserType();
+        exit();
+    }
 
-        if (isset($_POST['email']) && isset($_POST['password'])) {
-            // Validar los campos obligatorios
-            if (empty($_POST['email']) || empty($_POST['password'])) {
-                $this->setLoginError("Todos los campos son obligatorios");
-                header("Location: " . base_url . "usuario/login");
-                exit();
-            }
-
-            // Obtener y sanitizar datos del formulario
-            $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-            $password = $_POST['password']; // No sanitizar contraseña para no alterarla
-            $remember = isset($_POST['remember']) ? true : false;
-
-            // Verificar formato de email
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $this->setLoginError("El formato del email no es válido");
-                header("Location: " . base_url . "usuario/login");
-                exit();
-            }
-
-            // Verificar token CSRF si está habilitado
-            if (isset($_POST['csrf_token'])) {
-                if (!validateCsrfToken($_POST['csrf_token'])) {
-                    $this->setLoginError("Error de seguridad: token inválido");
-                    header("Location: " . base_url . "usuario/login");
-                    exit();
-                }
-            }
-
-            // Usar el método alternativo para verificar las credenciales
-            // Este método soluciona los problemas con hash de contraseñas
-            $usuario = $this->usuarioModel->loginAlternative($email, $password);
-
-            if ($usuario) {
-                // Crear sesión con los datos del usuario
-                $_SESSION['usuario'] = $usuario;
-
-                // Regenerar ID de sesión para prevenir session fixation
-                regenerateSession();
-
-                // Si se seleccionó "Recuérdame", crear token y cookie
-                if ($remember) {
-                    $this->createRememberMeCookie($usuario->id);
-                }
-
-                // Redirigir según el tipo de usuario
-                $this->redirectBasedOnUserType();
-                exit();
-            } else {
-                // Agregar un pequeño delay para prevenir timing attacks
-                sleep(1);
-                $this->setLoginError("Email o contraseña incorrectos");
-                header("Location: " . base_url . "usuario/login");
-                exit();
-            }
-        } else {
+    if (isset($_POST['email']) && isset($_POST['password'])) {
+        // Validar los campos obligatorios
+        if (empty($_POST['email']) || empty($_POST['password'])) {
             $this->setLoginError("Todos los campos son obligatorios");
             header("Location: " . base_url . "usuario/login");
             exit();
         }
+
+        // Obtener y sanitizar datos del formulario
+        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password']; // No sanitizar contraseña para no alterarla
+        $remember = isset($_POST['remember']) ? true : false;
+
+        // Verificar formato de email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->setLoginError("El formato del email no es válido");
+            header("Location: " . base_url . "usuario/login");
+            exit();
+        }
+
+        // Verificar token CSRF si está habilitado
+        if (isset($_POST['csrf_token'])) {
+            if (!validateCsrfToken($_POST['csrf_token'])) {
+                $this->setLoginError("Error de seguridad: token inválido");
+                header("Location: " . base_url . "usuario/login");
+                exit();
+            }
+        }
+
+        // Usar el método alternativo para verificar las credenciales
+        $usuario = $this->usuarioModel->loginAlternative($email, $password);
+
+        if ($usuario) {
+            // Crear sesión con los datos del usuario
+            $_SESSION['usuario'] = $usuario;
+
+            // Regenerar ID de sesión para prevenir session fixation
+            regenerateSession();
+
+            // Si se seleccionó "Recuérdame", crear token y cookie
+            if ($remember) {
+                $this->createRememberMeCookie($usuario->id);
+            }
+
+            // Redirigir según el tipo de usuario
+            $this->redirectBasedOnUserType();
+            exit();
+        } else {
+            // Agregar un pequeño delay para prevenir timing attacks
+            sleep(1);
+            $this->setLoginError("Email o contraseña incorrectos");
+            header("Location: " . base_url . "usuario/login");
+            exit();
+        }
+    } else {
+        $this->setLoginError("Todos los campos son obligatorios");
+        header("Location: " . base_url . "usuario/login");
+        exit();
     }
+}
 
     /**
      * Cierra la sesión del usuario

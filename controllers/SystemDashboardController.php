@@ -150,194 +150,121 @@ class SystemDashboardController
     }
 
     /**
- * Muestra formulario para crear un nuevo usuario
- */
-public function crearUsuario()
-{
-    $pageTitle = "Crear Nuevo Usuario";
-    
-    // Usar un array vacío temporalmente en lugar de llamar a getEmpresas()
-    $empresas = [];
-    
-    // Incluir la vista del formulario
-    require_once 'views/admin_dashboard/crear_usuario.php';
-}
+     * Muestra formulario para crear un nuevo usuario
+     */
+    public function crearUsuario()
+    {
+        $pageTitle = "Crear Nuevo Usuario";
 
-/**
- * Procesa la creación de un nuevo usuario
+        // Usar un array vacío temporalmente en lugar de llamar a getEmpresas()
+        $empresas = [];
+
+        // Incluir la vista del formulario
+        require_once 'views/admin_dashboard/crear_usuario.php';
+    }
+
+    /**
+ * Guarda un nuevo usuario en el sistema
  */
 public function guardarUsuario()
 {
-    // Verificar si es una petición POST
+    // Verificar que los datos vengan por POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['error_message'] = "Método de envío no válido";
         header("Location:" . base_url . "systemDashboard/usuarios");
         exit();
     }
-    
+
     // Verificar token CSRF
     if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
         $_SESSION['error_message'] = "Error de seguridad: token inválido";
-        header("Location:" . base_url . "systemDashboard/crearUsuario");
+        header("Location:" . base_url . "systemDashboard/usuarios");
         exit();
     }
-    
+
     // Validar campos obligatorios
-    $campos_requeridos = ['nombre', 'apellido', 'email', 'estado', 'password', 'confirm_password'];
+    $campos_requeridos = ['nombre', 'apellido', 'email', 'pais', 'tipo_usuario', 'estado', 'password', 'confirm_password'];
     foreach ($campos_requeridos as $campo) {
         if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
-            $_SESSION['error_message'] = "Todos los campos marcados con * son obligatorios";
-            $_SESSION['form_data'] = $_POST; // Guardar datos para repoblar el formulario
+            $_SESSION['error_message'] = "El campo {$campo} es obligatorio";
             header("Location:" . base_url . "systemDashboard/crearUsuario");
             exit();
         }
     }
-    
-    // Validar coincidencia de contraseñas
+
+    // Validar formato de email
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['error_message'] = "El formato del email no es válido";
+        header("Location:" . base_url . "systemDashboard/crearUsuario");
+        exit();
+    }
+
+    // Validar que las contraseñas coincidan
     if ($_POST['password'] !== $_POST['confirm_password']) {
         $_SESSION['error_message'] = "Las contraseñas no coinciden";
-        $_SESSION['form_data'] = $_POST;
         header("Location:" . base_url . "systemDashboard/crearUsuario");
         exit();
     }
-    
-    // Validar fortaleza de contraseña
+
+    // Validar la fortaleza de la contraseña
     if (!validatePasswordStrength($_POST['password'])) {
-        $_SESSION['error_message'] = "La contraseña no cumple con los requisitos mínimos de seguridad";
-        $_SESSION['form_data'] = $_POST;
+        $_SESSION['error_message'] = "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números";
         header("Location:" . base_url . "systemDashboard/crearUsuario");
         exit();
     }
-    
-    // Validar formato de email
-    if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-        $_SESSION['error_message'] = "El formato del email no es válido";
-        $_SESSION['form_data'] = $_POST;
-        header("Location:" . base_url . "systemDashboard/crearUsuario");
-        exit();
-    }
-    
+
+    // Crear instancia del modelo de Usuario
+    $usuarioModel = new Usuario();
+
     // Verificar si el email ya existe
-    if ($this->usuarioExiste($_POST['email'])) {
+    if ($usuarioModel->emailExists($email)) {
         $_SESSION['error_message'] = "El email ya está registrado en el sistema";
-        $_SESSION['form_data'] = $_POST;
         header("Location:" . base_url . "systemDashboard/crearUsuario");
         exit();
     }
-    
-    // Preparar datos del usuario con sanitización
+
+    // Preparar datos del usuario (con sanitización)
     $usuario = [
-        'nombre' => htmlspecialchars(trim($_POST['nombre'])),
-        'apellido' => htmlspecialchars(trim($_POST['apellido'])),
-        'email' => filter_var($_POST['email'], FILTER_SANITIZE_EMAIL),
-        'telefono' => isset($_POST['telefono']) ? htmlspecialchars(trim($_POST['telefono'])) : null,
-        'pais' => htmlspecialchars(trim($_POST['pais'])),
+        'nombre' => htmlspecialchars(trim($_POST['nombre']), ENT_QUOTES, 'UTF-8'),
+        'apellido' => htmlspecialchars(trim($_POST['apellido']), ENT_QUOTES, 'UTF-8'),
+        'email' => $email,
+        'telefono' => isset($_POST['telefono']) ? htmlspecialchars(trim($_POST['telefono']), ENT_QUOTES, 'UTF-8') : null,
+        'pais' => htmlspecialchars(trim($_POST['pais']), ENT_QUOTES, 'UTF-8'),
         'codigo_pais' => $this->getCodigoPais($_POST['pais']),
-        'tipo_identificacion' => isset($_POST['tipo_identificacion']) ? htmlspecialchars(trim($_POST['tipo_identificacion'])) : null,
-        'numero_identificacion' => isset($_POST['numero_identificacion']) ? htmlspecialchars(trim($_POST['numero_identificacion'])) : null,
-        'tipo_usuario' => 'ADMIN', // Forzar el tipo de usuario a ADMIN
-        'estado' => htmlspecialchars(trim($_POST['estado'])),
+        'tipo_identificacion' => isset($_POST['tipo_identificacion']) ? htmlspecialchars(trim($_POST['tipo_identificacion']), ENT_QUOTES, 'UTF-8') : null,
+        'numero_identificacion' => isset($_POST['numero_identificacion']) ? htmlspecialchars(trim($_POST['numero_identificacion']), ENT_QUOTES, 'UTF-8') : null,
+        'tipo_usuario' => htmlspecialchars(trim($_POST['tipo_usuario']), ENT_QUOTES, 'UTF-8'),
         'password' => password_hash($_POST['password'], PASSWORD_BCRYPT, ['cost' => 12]),
-        // Datos adicionales
+        'estado' => htmlspecialchars(trim($_POST['estado']), ENT_QUOTES, 'UTF-8'),
         'notificaciones' => json_encode([
             'email' => isset($_POST['notif_email']) ? true : false,
             'sistema' => isset($_POST['notif_sistema']) ? true : false
         ])
     ];
-    
-    // Guardar el usuario en la base de datos
-    $resultado = $this->guardarUsuarioDB($usuario);
-    
-    if ($resultado) {
-        // Éxito
-        $_SESSION['success_message'] = "Usuario administrador creado correctamente";
+
+    // Guardar el usuario
+    $result = $usuarioModel->save($usuario);
+
+    if ($result) {
+        $_SESSION['success_message'] = "Usuario creado correctamente";
         header("Location:" . base_url . "systemDashboard/usuarios");
     } else {
-        // Error
-        $_SESSION['error_message'] = "Error al crear el usuario. Inténtalo de nuevo";
-        $_SESSION['form_data'] = $_POST;
+        $_SESSION['error_message'] = "Error al crear el usuario. Por favor, inténtalo de nuevo";
         header("Location:" . base_url . "systemDashboard/crearUsuario");
     }
     exit();
 }
 
 /**
- * Guarda un nuevo usuario en la base de datos
+ * Obtiene el código ISO del país a partir del nombre
  * 
- * @param array $usuario Datos del usuario a guardar
- * @return bool True si se guardó correctamente
+ * @param string $nombre_pais Nombre del país
+ * @return string Código ISO de 2 letras
  */
-private function guardarUsuarioDB($usuario)
+private function getCodigoPais($nombre_pais)
 {
-    // Conexión a la base de datos
-    $db = Database::connect();
-    
-    // Consulta preparada
-    $query = "INSERT INTO usuarios (
-                nombre, apellido, email, telefono, pais, codigo_pais,
-                numero_identificacion, tipo_identificacion, tipo_usuario,
-                password, estado, notificaciones
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    $stmt = $db->prepare($query);
-    $stmt->bind_param(
-        'ssssssssssss',
-        $usuario['nombre'],
-        $usuario['apellido'],
-        $usuario['email'],
-        $usuario['telefono'],
-        $usuario['pais'],
-        $usuario['codigo_pais'],
-        $usuario['numero_identificacion'],
-        $usuario['tipo_identificacion'],
-        $usuario['tipo_usuario'],
-        $usuario['password'],
-        $usuario['estado'],
-        $usuario['notificaciones']
-    );
-    
-    $resultado = $stmt->execute();
-    
-    $stmt->close();
-    $db->close();
-    
-    return $resultado;
-}
-
-/**
- * Verifica si ya existe un usuario con el email proporcionado
- * 
- * @param string $email Email a verificar
- * @return bool True si el usuario ya existe
- */
-private function usuarioExiste($email)
-{
-    // Conexión a la base de datos
-    $db = Database::connect();
-    
-    // Consulta preparada
-    $query = "SELECT COUNT(*) AS total FROM usuarios WHERE email = ?";
-    $stmt = $db->prepare($query);
-    $stmt->bind_param('s', $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_object();
-    
-    $stmt->close();
-    $db->close();
-    
-    return ($row->total > 0);
-}
-
-/**
- * Obtiene el código ISO de un país
- * 
- * @param string $nombrePais Nombre del país
- * @return string Código ISO del país
- */
-private function getCodigoPais($nombrePais)
-{
-    // Mapeo de países a códigos ISO
-    $codigosPais = [
+    $codigos = [
         'Chile' => 'CL',
         'Argentina' => 'AR',
         'México' => 'MX',
@@ -346,11 +273,7 @@ private function getCodigoPais($nombrePais)
         'España' => 'ES',
         'Estados Unidos' => 'US'
     ];
-    
-    return isset($codigosPais[$nombrePais]) ? $codigosPais[$nombrePais] : 'XX';
+
+    return isset($codigos[$nombre_pais]) ? $codigos[$nombre_pais] : 'XX';
 }
-
-
 }
-
-
