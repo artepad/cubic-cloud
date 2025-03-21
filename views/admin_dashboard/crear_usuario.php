@@ -4,8 +4,16 @@
             <h3 class="box-title">Crear Nuevo Usuario</h3>
             <p class="text-muted">Ingresa los datos del nuevo usuario para el sistema</p>
 
-            <!-- Formulario de creación de usuario -->
-            <form id="formCrearUsuario" class="form-horizontal m-t-30" method="post" action="<?= base_url ?>systemDashboard/guardarUsuario">
+            <!-- Mensajes de error o éxito -->
+            <?php if (isset($_SESSION['error_message'])): ?>
+                <div class="alert alert-danger">
+                    <?= $_SESSION['error_message'] ?>
+                </div>
+                <?php unset($_SESSION['error_message']); ?>
+            <?php endif; ?>
+
+            <!-- Formulario de creación de usuario - Notar que ahora apunta a redirectAfterSave -->
+            <form id="formCrearUsuario" class="form-horizontal m-t-30" method="post" action="<?= base_url ?>systemDashboard/redirectAfterSave">
                 <!-- Token CSRF para seguridad -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 
@@ -242,12 +250,16 @@ document.addEventListener('DOMContentLoaded', function() {
             event.stopPropagation();
             
             // Mostrar mensaje de error
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de validación',
-                text: 'Por favor, revisa los campos marcados y completa la información requerida',
-                confirmButtonColor: '#3085d6'
-            });
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de validación',
+                    text: 'Por favor, revisa los campos marcados y completa la información requerida',
+                    confirmButtonColor: '#3085d6'
+                });
+            } else {
+                alert('Por favor, revisa los campos marcados y completa la información requerida');
+            }
         }
     });
 });
