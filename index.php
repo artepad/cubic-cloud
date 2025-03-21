@@ -22,26 +22,22 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
 }
 session_start();
 
-// Verificar timeout de sesión si hay un usuario logueado (admin o normal)
-if ((isset($_SESSION['admin']) || isset($_SESSION['usuario'])) && isset($_SESSION['last_activity'])) {
+// Verificar timeout de sesión si hay un admin logueado
+if (isset($_SESSION['admin']) && isset($_SESSION['last_activity'])) {
     if (time() - $_SESSION['last_activity'] > SESSION_TIMEOUT) {
         // La sesión ha expirado
         session_unset();
         session_destroy();
         $_SESSION['error_login'] = "Tu sesión ha expirado por inactividad";
         
-        // Redirigir a la página de login apropiada
-        if (isset($_SESSION['admin'])) {
-            header("Location: " . base_url . "admin/login");
-        } else {
-            header("Location: " . base_url . "usuario/login");
-        }
+        // Redirigir a la página de login de admin
+        header("Location: " . base_url . "admin/login");
         exit();
     }
 }
 
-// Actualizar timestamp de última actividad para cualquier tipo de usuario
-if (isset($_SESSION['admin']) || isset($_SESSION['usuario'])) {
+// Actualizar timestamp de última actividad para el admin
+if (isset($_SESSION['admin'])) {
     $_SESSION['last_activity'] = time();
 }
 
@@ -49,15 +45,10 @@ if (isset($_SESSION['admin']) || isset($_SESSION['usuario'])) {
 header("X-XSS-Protection: 1; mode=block");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:;");
 
 // Verificar cookies de "Recuérdame" si no hay sesión activa
-if (!isset($_SESSION['admin']) && !isset($_SESSION['usuario'])) {
-    // Verificar cookie de usuario normal
-    if (isset($_COOKIE['usuario_remember'])) {
-        $usuarioModel = new Usuario();
-        checkUserRememberCookie($usuarioModel);
-    }
-    
+if (!isset($_SESSION['admin'])) {
     // Verificar cookie de administrador
     if (isset($_COOKIE['admin_remember'])) {
         $adminModel = new SystemAdmin();
@@ -66,13 +57,12 @@ if (!isset($_SESSION['admin']) && !isset($_SESSION['usuario'])) {
 }
 
 // Obtener controlador y acción de la URL
-$controller_name = isset($_GET['controller']) ? htmlspecialchars($_GET['controller'], ENT_QUOTES, 'UTF-8') : null;
-$action_name = isset($_GET['action']) ? htmlspecialchars($_GET['action'], ENT_QUOTES, 'UTF-8') : null;
+$controller_name = isset($_GET['controller']) ? filter_var($_GET['controller'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+$action_name = isset($_GET['action']) ? filter_var($_GET['action'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
 
 // Detectar rutas de login para prevenir bucles de redirección
 $current_is_login = false;
-if (($controller_name == 'admin' && ($action_name == 'login' || $action_name == 'validate')) ||
-    ($controller_name == 'usuario' && ($action_name == 'login' || $action_name == 'validate'))) {
+if ($controller_name == 'admin' && ($action_name == 'login' || $action_name == 'validate')) {
     $current_is_login = true;
 }
 
@@ -100,14 +90,6 @@ if ($requiere_auth) {
         if (!isAdminLoggedIn() && !$current_is_login) {
             $_SESSION['error_login'] = "Debes iniciar sesión como administrador para acceder a esta sección";
             header("Location: " . base_url . "admin/login");
-            exit();
-        }
-    }
-    // Verificar rutas de usuario normal
-    else {
-        if (!isLoggedIn() && !isAdminLoggedIn() && !$current_is_login) {
-            $_SESSION['error_login'] = "Debes iniciar sesión para acceder a esta sección";
-            header("Location: " . base_url . "usuario/login");
             exit();
         }
     }
@@ -159,7 +141,6 @@ function show_error() {
  */
 function determinarSiEsLoginRoute($controller, $action) {
     $login_routes = [
-        'usuario' => ['login', 'registro', 'validate', 'recover', 'requestReset', 'reset', 'doReset'],
         'admin' => ['login', 'validate', 'recover', 'requestReset', 'reset', 'doReset']
     ];
     
