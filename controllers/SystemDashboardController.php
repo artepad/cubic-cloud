@@ -91,7 +91,7 @@ class SystemDashboardController
         $pageTitle = "Gestión de Planes";
         require_once 'views/admin_dashboard/planes.php';
     }
-    
+
     /**
      * Gestión de suscripciones
      */
@@ -100,7 +100,7 @@ class SystemDashboardController
         $pageTitle = "Gestión de Suscripciones";
         require_once 'views/admin_dashboard/suscripciones.php';
     }
-    
+
     /**
      * Configuración del sistema
      */
@@ -149,5 +149,38 @@ class SystemDashboardController
     {
         // En un caso real, esto consultaría la base de datos
         return '$4,500';
+    }
+
+
+    /**
+     * Muestra el formulario para crear un nuevo usuario
+     */
+    public function crearUsuario()
+    {
+        // Validar que el usuario sea superadmin
+        if (!isAdminLoggedIn()) {
+            $_SESSION['error_login'] = "Acceso denegado. Se requiere cuenta de administrador.";
+            header("Location:" . base_url . "admin/login");
+            exit();
+        }
+
+        // Configurar el título de la página
+        $pageTitle = "Crear Nuevo Usuario";
+
+        // Incluir la vista
+        require_once 'views/admin_dashboard/crear_usuario.php';
+    }
+
+    /**
+     * Guarda los datos del nuevo usuario
+     * Este método se implementará más adelante cuando desarrollemos el backend
+     */
+    public function saveUsuario()
+    {
+        // Esta función se implementará cuando desarrollemos la lógica de backend
+        // Por ahora, solo redireccionamos a la página de usuarios
+        $_SESSION['success_message'] = "Esta funcionalidad se implementará próximamente";
+        header("Location:" . base_url . "systemDashboard/usuarios");
+        exit();
     }
 }

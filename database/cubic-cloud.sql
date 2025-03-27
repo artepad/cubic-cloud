@@ -116,11 +116,11 @@ CREATE TABLE usuarios (
     tipo_identificacion VARCHAR(20) DEFAULT 'RUT' COMMENT 'Tipo de documento de identificación (RUT, DNI, Pasaporte, etc.)',
     
     -- Configuración y permisos
-    tipo_usuario ENUM('ADMIN', 'VENDEDOR', 'TOUR_MANAGER') NOT NULL DEFAULT 'VENDEDOR' COMMENT 'Rol del usuario en el sistema',
+    tipo_usuario ENUM('ADMIN') NOT NULL DEFAULT 'ADMIN' COMMENT 'Rol del usuario en el sistema',
     password VARCHAR(255) NOT NULL COMMENT 'Contraseña encriptada',
     estado ENUM('Activo', 'Inactivo') NOT NULL DEFAULT 'Activo' COMMENT 'Estado del usuario',
     
-    -- Seguridad avanzada
+    -- Seguridad básica
     ultimo_login TIMESTAMP NULL COMMENT 'Último inicio de sesión',
     ip_ultimo_acceso VARCHAR(45) NULL COMMENT 'IP del último acceso',
     token_recuperacion VARCHAR(100) NULL COMMENT 'Token para recuperación de contraseña',
@@ -128,8 +128,6 @@ CREATE TABLE usuarios (
     remember_token VARCHAR(100) NULL COMMENT 'Token para funcionalidad Recuérdame',
     remember_token_expires TIMESTAMP NULL COMMENT 'Fecha de expiración del token Recuérdame',
     intentos_fallidos INT DEFAULT 0 COMMENT 'Contador de intentos fallidos de login',
-    two_factor_status ENUM('Activado', 'Desactivado') DEFAULT 'Desactivado' COMMENT 'Estado de autenticación de dos factores',
-    two_factor_secret VARCHAR(32) NULL COMMENT 'Secreto para 2FA',
     
     -- Auditoría
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -138,10 +136,9 @@ CREATE TABLE usuarios (
     PRIMARY KEY (id),
     INDEX idx_usuario_email (email),
     INDEX idx_usuario_estado (estado),
-    INDEX idx_usuario_tipo (tipo_usuario),
     INDEX idx_usuario_identificacion (numero_identificacion),
     INDEX idx_usuario_pais (codigo_pais)
-) ENGINE=InnoDB COMMENT='Usuarios del sistema que gestionan empresas y sus recursos';
+) ENGINE=InnoDB COMMENT='Usuarios administradores del sistema';
 -- ============================================================================
 -- SECCIÓN 2: ESTRUCTURAS MULTI-TENANT - EMPRESAS Y CLIENTES
 -- ============================================================================

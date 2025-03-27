@@ -33,8 +33,7 @@ Router::add('systemDashboard/configuracion', 'SystemDashboardController', 'confi
 Router::add('systemDashboard/crearUsuario', 'SystemDashboardController', 'crearUsuario', 'auth');
 Router::add('systemDashboard/redirectAfterSave', 'SystemDashboardController', 'redirectAfterSave', 'auth');
 
-// Ejemplo de ruta con parámetros
-Router::add('empresa/:id', 'EmpresaController', 'ver', 'auth');
-Router::add('usuario/:id/edit', 'UsuarioController', 'editar', 'auth');
+// Rutas para la gestión de usuarios
+Router::add('systemDashboard/crearUsuario', 'SystemDashboardController', 'crearUsuario', 'auth');
+Router::add('systemDashboard/saveUsuario', 'SystemDashboardController', 'saveUsuario', 'auth');
 
-// Puedes agregar más rutas específicas según tus necesidades...
