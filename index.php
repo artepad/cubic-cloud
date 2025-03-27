@@ -8,7 +8,8 @@
 // Cargar dependencias
 require_once 'config/parameters.php';
 require_once 'autoload.php';
-require_once 'helpers/auth_helper.php'; // Ahora cargamos el helper después del autoload
+require_once 'helpers/auth_helper.php';
+require_once 'core/Router.php';  // Añadir esta línea
 
 // Configurar tiempo de vida de la sesión
 ini_set('session.gc_maxlifetime', SESSION_TIMEOUT);
@@ -56,44 +57,16 @@ if (!isset($_SESSION['admin'])) {
     }
 }
 
-// Obtener controlador y acción de la URL
-$controller_name = isset($_GET['controller']) ? filter_var($_GET['controller'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
-$action_name = isset($_GET['action']) ? filter_var($_GET['action'], FILTER_SANITIZE_SPECIAL_CHARS) : null;
+// Cargar archivo de rutas
+require_once 'routes.php'; // Añadir esta línea
 
-// Detectar rutas de login para prevenir bucles de redirección
-$current_is_login = false;
-if ($controller_name == 'admin' && ($action_name == 'login' || $action_name == 'validate')) {
-    $current_is_login = true;
-}
+// Resolver la ruta actual
+$currentUri = $_SERVER['REQUEST_URI'];
+$routeInfo = Router::resolve($currentUri);
 
-// Determinar controlador a utilizar
-if ($controller_name) {
-    $nombre_controlador = $controller_name . 'Controller';
-} elseif (!$controller_name && !$action_name) {
-    $nombre_controlador = controller_default;
-    $controller_name = str_replace('Controller', '', controller_default);
-} else {
-    show_error();
-    exit();
-}
-
-// Determinar acción a ejecutar
-$action = $action_name ?: action_default;
-
-// Verificar si la ruta requiere autenticación
-$requiere_auth = !isPublicRoute($controller_name, $action);
-
-// Si requiere autenticación y no hay ninguna sesión activa, redirigir al login correspondiente
-if ($requiere_auth) {
-    // Verificar rutas de administrador
-    if (strpos($controller_name, 'admin') === 0 || $controller_name === 'systemDashboard') {
-        if (!isAdminLoggedIn() && !$current_is_login) {
-            $_SESSION['error_login'] = "Debes iniciar sesión como administrador para acceder a esta sección";
-            header("Location: " . base_url . "admin/login");
-            exit();
-        }
-    }
-}
+$controller_name = $routeInfo['controller'];
+$action = $routeInfo['action'];
+$params = $routeInfo['params'];
 
 // Determinar si es una vista de login o parte del sistema principal
 $es_login = determinarSiEsLoginRoute($controller_name, $action);
@@ -104,13 +77,18 @@ if (!$es_login) {
 }
 
 // Verificar si el controlador existe e invocar la acción solicitada
-if (class_exists($nombre_controlador)) {
-    $controlador = new $nombre_controlador();
+if (class_exists($controller_name)) {
+    $controlador = new $controller_name();
 
     // Verificar si existe el método solicitado
     if (method_exists($controlador, $action)) {
-        // Ejecutar la acción del controlador
-        $controlador->$action();
+        // Si hay parámetros, pasarlos a la acción
+        if (!empty($params)) {
+            call_user_func_array([$controlador, $action], $params);
+        } else {
+            // Ejecutar la acción del controlador
+            $controlador->$action();
+        }
     } else {
         show_error();
     }
@@ -141,7 +119,7 @@ function show_error() {
  */
 function determinarSiEsLoginRoute($controller, $action) {
     $login_routes = [
-        'admin' => ['login', 'validate', 'recover', 'requestReset', 'reset', 'doReset']
+        'AdminController' => ['login', 'validate', 'recover', 'requestReset', 'reset', 'doReset']
     ];
     
     return (isset($login_routes[$controller]) && in_array($action, $login_routes[$controller]));

@@ -15,7 +15,8 @@ function controllers_autoload($classname) {
     $paths = [
         'controllers/' . $classname . '.php',
         'models/' . $classname . '.php',
-        'helpers/' . $classname . '.php'
+        'helpers/' . $classname . '.php',
+        'core/' . $classname . '.php'  // Añadir esta línea
     ];
     
     // Buscar la clase en las rutas disponibles
