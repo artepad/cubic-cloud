@@ -173,14 +173,65 @@ class SystemDashboardController
 
     /**
      * Guarda los datos del nuevo usuario
-     * Este método se implementará más adelante cuando desarrollemos el backend
      */
     public function saveUsuario()
     {
-        // Esta función se implementará cuando desarrollemos la lógica de backend
-        // Por ahora, solo redireccionamos a la página de usuarios
-        $_SESSION['success_message'] = "Esta funcionalidad se implementará próximamente";
-        header("Location:" . base_url . "systemDashboard/usuarios");
-        exit();
+        // Validar que el usuario sea superadmin
+        if (!isAdminLoggedIn()) {
+            $_SESSION['error_login'] = "Acceso denegado. Se requiere cuenta de administrador.";
+            header("Location:" . base_url . "admin/login");
+            exit();
+        }
+
+        // Verificar que se han enviado los datos del formulario
+        if (isset($_POST['nombre']) && isset($_POST['apellido']) && isset($_POST['email']) && isset($_POST['password'])) {
+
+            // Crear una instancia del modelo de usuario
+            $usuario = new Usuario();
+
+            // Verificar que el email no exista ya
+            if ($usuario->emailExists($_POST['email'])) {
+                $_SESSION['error_message'] = "El correo electrónico ya está registrado";
+                header("Location:" . base_url . "systemDashboard/crearUsuario");
+                exit();
+            }
+
+            // Verificar que las contraseñas coinciden
+            if ($_POST['password'] !== $_POST['confirm_password']) {
+                $_SESSION['error_message'] = "Las contraseñas no coinciden";
+                header("Location:" . base_url . "systemDashboard/crearUsuario");
+                exit();
+            }
+
+            // Establecer los datos del usuario
+            $usuario->setNombre($_POST['nombre']);
+            $usuario->setApellido($_POST['apellido']);
+            $usuario->setEmail($_POST['email']);
+            $usuario->setPassword($_POST['password']);
+            $usuario->setTelefono($_POST['telefono'] ?? '');
+            $usuario->setPais($_POST['pais'] ?? 'Chile');
+            $usuario->setCodigoPais($_POST['codigo_pais'] ?? 'CL');
+            $usuario->setNumeroIdentificacion($_POST['numero_identificacion'] ?? '');
+            $usuario->setTipoIdentificacion($_POST['tipo_identificacion'] ?? 'RUT');
+            $usuario->setTipoUsuario($_POST['tipo_usuario'] ?? 'ADMIN');
+            $usuario->setEstado($_POST['estado'] ?? 'Activo');
+
+            // Guardar el usuario
+            $save = $usuario->save();
+
+            if ($save) {
+                $_SESSION['success_message'] = "Usuario creado correctamente";
+                header("Location:" . base_url . "systemDashboard/usuarios");
+                exit();
+            } else {
+                $_SESSION['error_message'] = "Error al crear el usuario";
+                header("Location:" . base_url . "systemDashboard/crearUsuario");
+                exit();
+            }
+        } else {
+            $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
+            header("Location:" . base_url . "systemDashboard/crearUsuario");
+            exit();
+        }
     }
 }

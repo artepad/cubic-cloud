@@ -33,7 +33,7 @@ try {
     $nombre = "Miguel";
     $apellido = "Saavedra";
     $email = "admin@admin.cl";
-    $password = "Entrar-03";
+    $password = "8787";
     $telefono = "+56987879312";
     $fecha_actual = date('Y-m-d H:i:s');
     
