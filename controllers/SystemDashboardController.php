@@ -174,12 +174,19 @@ class SystemDashboardController
     /**
      * Guarda los datos del nuevo usuario
      */
+    /**
+     * Guarda los datos del nuevo usuario
+     */
     public function saveUsuario()
     {
+        // Iniciar buffer de salida para evitar problemas de redirección
+        ob_start();
+
         // Validar que el usuario sea superadmin
         if (!isAdminLoggedIn()) {
             $_SESSION['error_login'] = "Acceso denegado. Se requiere cuenta de administrador.";
             header("Location:" . base_url . "admin/login");
+            ob_end_flush();
             exit();
         }
 
@@ -193,6 +200,7 @@ class SystemDashboardController
             if ($usuario->emailExists($_POST['email'])) {
                 $_SESSION['error_message'] = "El correo electrónico ya está registrado";
                 header("Location:" . base_url . "systemDashboard/crearUsuario");
+                ob_end_flush();
                 exit();
             }
 
@@ -200,6 +208,7 @@ class SystemDashboardController
             if ($_POST['password'] !== $_POST['confirm_password']) {
                 $_SESSION['error_message'] = "Las contraseñas no coinciden";
                 header("Location:" . base_url . "systemDashboard/crearUsuario");
+                ob_end_flush();
                 exit();
             }
 
@@ -221,17 +230,30 @@ class SystemDashboardController
 
             if ($save) {
                 $_SESSION['success_message'] = "Usuario creado correctamente";
-                header("Location:" . base_url . "systemDashboard/usuarios");
+
+                // Usar una redirección JavaScript como respaldo en caso de que header() falle
+                echo "<script>window.location.href = '" . base_url . "systemDashboard/usuarios';</script>";
+
+                // Intentar redirección normal
+                header("Location: " . base_url . "systemDashboard/usuarios");
+                ob_end_flush();
                 exit();
             } else {
                 $_SESSION['error_message'] = "Error al crear el usuario";
-                header("Location:" . base_url . "systemDashboard/crearUsuario");
+                header("Location: " . base_url . "systemDashboard/crearUsuario");
+                ob_end_flush();
                 exit();
             }
         } else {
             $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
-            header("Location:" . base_url . "systemDashboard/crearUsuario");
+            header("Location: " . base_url . "systemDashboard/crearUsuario");
+            ob_end_flush();
             exit();
         }
+
+        // Si algo falla, mostrar una página de redirección manual
+        require_once 'views/admin_dashboard/redirect.php';
+        ob_end_flush();
+        exit();
     }
 }
