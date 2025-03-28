@@ -22,13 +22,13 @@
                 <?php if(isset($_SESSION['admin'])): ?>
                     <!-- Menú específico para superadmin -->
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>systemDashboard/index" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>admin/dashboard" aria-expanded="false">
                             <i class="icon-screen-desktop fa-fw"></i>
                             <span class="hide-menu"> Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>systemDashboard/usuarios" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>admin/usuarios" aria-expanded="false">
                             <i class="icon-people fa-fw"></i>
                             <span class="hide-menu"> Usuarios
                                 <span class="label label-rounded label-success pull-right">54</span>
@@ -36,7 +36,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>systemDashboard/empresas" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>admin/empresas" aria-expanded="false">
                             <i class="icon-briefcase fa-fw"></i>
                             <span class="hide-menu"> Empresas
                                 <span class="label label-rounded label-info pull-right">15</span>
@@ -44,19 +44,19 @@
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>systemDashboard/planes" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>admin/planes" aria-expanded="false">
                             <i class="icon-layers fa-fw"></i>
                             <span class="hide-menu"> Planes</span>
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>systemDashboard/suscripciones" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>admin/suscripciones" aria-expanded="false">
                             <i class="icon-credit-card fa-fw"></i>
                             <span class="hide-menu"> Suscripciones</span>
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>systemDashboard/configuracion" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>admin/configuracion" aria-expanded="false">
                             <i class="icon-settings fa-fw"></i>
                             <span class="hide-menu"> Configuración</span>
                         </a>
@@ -176,8 +176,8 @@
         <div class="p-30">
             <span class="hide-menu">
                 <?php if(isset($_SESSION['admin'])): ?>
-                    <a href="<?=base_url?>systemDashboard/crearUsuario" class="btn btn-success m-b-10 btn-block">Nuevo Usuario</a>
-                    <a href="<?=base_url?>systemDashboard/empresas" class="btn btn-info m-b-10 btn-block">Nueva Empresa</a>
+                    <a href="<?=base_url?>admin/crearUsuario" class="btn btn-success m-b-10 btn-block">Nuevo Usuario</a>
+                    <a href="<?=base_url?>admin/empresas" class="btn btn-info m-b-10 btn-block">Nueva Empresa</a>
                     <a href="<?=base_url?>admin/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
                 <?php elseif(isset($_SESSION['usuario'])): ?>
                     <?php if($_SESSION['usuario']->tipo_usuario == 'ADMIN' || $_SESSION['usuario']->tipo_usuario == 'VENDEDOR'): ?>

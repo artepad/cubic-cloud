@@ -3,13 +3,13 @@
 /**
  * AdminController
  * 
- * Controlador para la gestión de sesiones de administradores del sistema,
- * incluyendo login, logout y recuperación de contraseñas.
+ * Controlador unificado para gestión de superadministradores, incluyendo login, logout,
+ * recuperación de contraseñas y todas las funcionalidades del dashboard.
  */
 class AdminController
 {
     private $adminModel;
-
+    
     /**
      * Constructor
      * Inicializa el modelo de administrador
@@ -18,6 +18,17 @@ class AdminController
     {
         // Cargar el modelo
         $this->adminModel = new SystemAdmin();
+        
+        // Verificar autenticación para las acciones del dashboard
+        // No aplicar esta verificación para acciones de login/autenticación
+        $publicMethods = ['index', 'login', 'validate', 'recover', 'requestReset', 'reset', 'doReset'];
+        $currentMethod = isset($_GET['action']) ? $_GET['action'] : 'index';
+        
+        if (!in_array($currentMethod, $publicMethods) && !isAdminLoggedIn()) {
+            $_SESSION['error_login'] = "Acceso denegado. Se requiere cuenta de administrador.";
+            header("Location:" . base_url . "admin/login");
+            exit();
+        }
     }
 
     /**
@@ -28,7 +39,7 @@ class AdminController
     {
         // Verificar si hay sesión activa de administrador
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "systemDashboard/index");
+            header("Location: " . base_url . "admin/dashboard");
             exit();
         }
 
@@ -43,7 +54,7 @@ class AdminController
     {
         // Si ya está logueado como admin, redirigir al dashboard
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "systemDashboard/index");
+            header("Location: " . base_url . "admin/dashboard");
             exit();
         }
 
@@ -59,7 +70,7 @@ class AdminController
     {
         // No permitir acceso a esta acción si ya está logueado
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "systemDashboard/index");
+            header("Location: " . base_url . "admin/dashboard");
             exit();
         }
 
@@ -107,8 +118,8 @@ class AdminController
                     $this->createRememberMeCookie($admin->id);
                 }
 
-                // Redirigir al dashboard - MODIFICADO PARA USAR systemDashboard
-                header("Location: " . base_url . "systemDashboard/welcome");
+                // Redirigir al dashboard
+                header("Location: " . base_url . "admin/welcome");
                 exit();
             } else {
                 // Agregar un pequeño delay para prevenir timing attacks
@@ -166,7 +177,7 @@ class AdminController
     {
         // Si ya está logueado, redirigir al dashboard
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "systemDashboard/index");
+            header("Location: " . base_url . "admin/dashboard");
             exit();
         }
 
@@ -181,7 +192,7 @@ class AdminController
     {
         // No permitir acceso a esta acción si ya está logueado
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "systemDashboard/index");
+            header("Location: " . base_url . "admin/dashboard");
             exit();
         }
 
@@ -236,7 +247,7 @@ class AdminController
     {
         // Si ya está logueado, redirigir al dashboard
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "systemDashboard/index");
+            header("Location: " . base_url . "admin/dashboard");
             exit();
         }
 
@@ -270,7 +281,7 @@ class AdminController
     {
         // Si ya está logueado, redirigir al dashboard
         if (isAdminLoggedIn()) {
-            header("Location: " . base_url . "systemDashboard/index");
+            header("Location: " . base_url . "admin/dashboard");
             exit();
         }
 
@@ -332,8 +343,226 @@ class AdminController
     }
 
     /**
-     * Métodos auxiliares
+     * Vista principal del dashboard
      */
+    public function dashboard()
+    {
+        // Configurar el título de la página (si se usa en el layout)
+        $pageTitle = "Dashboard del Sistema";
+
+        // Cargar datos necesarios para el dashboard
+        $admin = $_SESSION['admin'];
+        $ultimo_login = $admin->ultimo_login ? date('d/m/Y H:i', strtotime($admin->ultimo_login)) : 'Este es tu primer acceso';
+
+        // Datos de estadísticas
+        $empresas_count = $this->getEmpresasCount();
+        $usuarios_count = $this->getUsuariosCount();
+        $eventos_count = $this->getEventosCount();
+        $ingresos = $this->getIngresosEstimados();
+
+        // Incluir la vista
+        require_once 'views/admin/dashboard/index.php';
+    }
+
+    /**
+     * Vista de bienvenida después del login
+     */
+    public function welcome()
+    {
+        // Configurar el título de la página (si se usa en el layout)
+        $pageTitle = "Bienvenida al Sistema";
+
+        // Obtener datos del admin actual
+        $admin = $_SESSION['admin'];
+        $ultimo_login = $admin->ultimo_login ? date('d/m/Y H:i', strtotime($admin->ultimo_login)) : 'Este es tu primer acceso';
+
+        // Cargar datos de resumen del sistema
+        $empresas_count = $this->getEmpresasCount();
+        $usuarios_count = $this->getUsuariosCount();
+        $eventos_count = $this->getEventosCount();
+        $ingresos = $this->getIngresosEstimados();
+
+        // Incluir la vista
+        require_once 'views/admin/dashboard/welcome.php';
+    }
+
+    /**
+     * Gestión de empresas
+     */
+    public function empresas()
+    {
+        $pageTitle = "Gestión de Empresas";
+        require_once 'views/admin/dashboard/empresas.php';
+    }
+
+    /**
+     * Gestión de usuarios
+     */
+    public function usuarios()
+    {
+        $pageTitle = "Gestión de Usuarios";
+
+        // Obtener usuarios de la base de datos
+        $usuarioModel = new Usuario();
+        $usuarios = $usuarioModel->getAll();
+
+        require_once 'views/admin/dashboard/usuarios.php';
+    }
+
+    /**
+     * Gestión de planes
+     */
+    public function planes()
+    {
+        $pageTitle = "Gestión de Planes";
+        require_once 'views/admin/dashboard/planes.php';
+    }
+
+    /**
+     * Gestión de suscripciones
+     */
+    public function suscripciones()
+    {
+        $pageTitle = "Gestión de Suscripciones";
+        require_once 'views/admin/dashboard/suscripciones.php';
+    }
+
+    /**
+     * Configuración del sistema
+     */
+    public function configuracion()
+    {
+        $pageTitle = "Configuración del Sistema";
+        require_once 'views/admin/dashboard/configuracion.php';
+    }
+
+    /**
+     * Muestra el formulario para crear un nuevo usuario
+     */
+    public function crearUsuario()
+    {
+        // Configurar el título de la página
+        $pageTitle = "Crear Nuevo Usuario";
+
+        // Incluir la vista
+        require_once 'views/admin/dashboard/crear_usuario.php';
+    }
+
+    /**
+     * Guarda los datos del nuevo usuario
+     */
+    public function saveUsuario()
+    {
+        // Iniciar buffer de salida para evitar problemas de redirección
+        ob_start();
+
+        // Verificar que se han enviado los datos del formulario
+        if (isset($_POST['nombre']) && isset($_POST['apellido']) && isset($_POST['email']) && isset($_POST['password'])) {
+
+            // Crear una instancia del modelo de usuario
+            $usuario = new Usuario();
+
+            // Verificar que el email no exista ya
+            if ($usuario->emailExists($_POST['email'])) {
+                $_SESSION['error_message'] = "El correo electrónico ya está registrado";
+                header("Location:" . base_url . "admin/crearUsuario");
+                ob_end_flush();
+                exit();
+            }
+
+            // Verificar que las contraseñas coinciden
+            if ($_POST['password'] !== $_POST['confirm_password']) {
+                $_SESSION['error_message'] = "Las contraseñas no coinciden";
+                header("Location:" . base_url . "admin/crearUsuario");
+                ob_end_flush();
+                exit();
+            }
+
+            // Establecer los datos del usuario
+            $usuario->setNombre($_POST['nombre']);
+            $usuario->setApellido($_POST['apellido']);
+            $usuario->setEmail($_POST['email']);
+            $usuario->setPassword($_POST['password']);
+            $usuario->setTelefono($_POST['telefono'] ?? '');
+            $usuario->setPais($_POST['pais'] ?? 'Chile');
+            $usuario->setCodigoPais($_POST['codigo_pais'] ?? 'CL');
+            $usuario->setNumeroIdentificacion($_POST['numero_identificacion'] ?? '');
+            $usuario->setTipoIdentificacion($_POST['tipo_identificacion'] ?? 'RUT');
+            $usuario->setTipoUsuario($_POST['tipo_usuario'] ?? 'ADMIN');
+            $usuario->setEstado($_POST['estado'] ?? 'Activo');
+
+            // Guardar el usuario
+            $save = $usuario->save();
+
+            if ($save) {
+                $_SESSION['success_message'] = "Usuario creado correctamente";
+
+                // Usar una redirección JavaScript como respaldo en caso de que header() falle
+                echo "<script>window.location.href = '" . base_url . "admin/usuarios';</script>";
+
+                // Intentar redirección normal
+                header("Location: " . base_url . "admin/usuarios");
+                ob_end_flush();
+                exit();
+            } else {
+                $_SESSION['error_message'] = "Error al crear el usuario";
+                header("Location: " . base_url . "admin/crearUsuario");
+                ob_end_flush();
+                exit();
+            }
+        } else {
+            $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
+            header("Location: " . base_url . "admin/crearUsuario");
+            ob_end_flush();
+            exit();
+        }
+
+        // Si algo falla, mostrar una página de redirección manual
+        require_once 'views/admin/dashboard/redirect.php';
+        ob_end_flush();
+        exit();
+    }
+
+    /**
+     * Obtiene la cantidad total de empresas
+     * @return int Número de empresas
+     */
+    private function getEmpresasCount()
+    {
+        // En un caso real, esto consultaría la base de datos
+        // Por ahora retornamos un valor de ejemplo
+        return 15;
+    }
+
+    /**
+     * Obtiene la cantidad total de usuarios
+     * @return int Número de usuarios
+     */
+    private function getUsuariosCount()
+    {
+        // En un caso real, esto consultaría la base de datos
+        return 54;
+    }
+
+    /**
+     * Obtiene la cantidad total de eventos activos
+     * @return int Número de eventos
+     */
+    private function getEventosCount()
+    {
+        // En un caso real, esto consultaría la base de datos
+        return 32;
+    }
+
+    /**
+     * Obtiene los ingresos estimados
+     * @return string Ingresos formateados
+     */
+    private function getIngresosEstimados()
+    {
+        // En un caso real, esto consultaría la base de datos
+        return '$4,500';
+    }
 
     /**
      * Establece un mensaje de error para el login

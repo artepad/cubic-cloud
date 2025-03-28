@@ -39,7 +39,7 @@ $pageTitle = "Crear Usuario";
             <?php endif; ?>
 
             <!-- Formulario de creación de usuario -->
-            <form id="formCrearUsuario" class="form-horizontal" method="post" action="<?= base_url ?>systemDashboard/saveUsuario">
+            <form id="formCrearUsuario" class="form-horizontal" method="post" action="<?= base_url ?>admin/saveUsuario">
                 <!-- Token CSRF para seguridad -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Función para confirmar cancelación
 function confirmCancel() {
     if (confirm('¿Está seguro que desea cancelar? Los cambios no guardados se perderán.')) {
-        window.location.href = '<?= base_url ?>systemDashboard/usuarios';
+        window.location.href = '<?= base_url ?>admin/usuarios';
     }
 }
 </script>

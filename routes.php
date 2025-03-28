@@ -22,17 +22,12 @@ Router::add('error', 'ErrorController', 'index', 'public');
 
 // Rutas protegidas (requieren autenticación)
 Router::add('admin/logout', 'AdminController', 'logout', 'auth');
-Router::add('systemDashboard', 'SystemDashboardController', 'index', 'auth');
-Router::add('systemDashboard/index', 'SystemDashboardController', 'index', 'auth');
-Router::add('systemDashboard/welcome', 'SystemDashboardController', 'welcome', 'auth');
-Router::add('systemDashboard/empresas', 'SystemDashboardController', 'empresas', 'auth');
-Router::add('systemDashboard/usuarios', 'SystemDashboardController', 'usuarios', 'auth');
-Router::add('systemDashboard/planes', 'SystemDashboardController', 'planes', 'auth');
-Router::add('systemDashboard/suscripciones', 'SystemDashboardController', 'suscripciones', 'auth');
-Router::add('systemDashboard/configuracion', 'SystemDashboardController', 'configuracion', 'auth');
-Router::add('systemDashboard/crearUsuario', 'SystemDashboardController', 'crearUsuario', 'auth');
-Router::add('systemDashboard/redirectAfterSave', 'SystemDashboardController', 'redirectAfterSave', 'auth');
-
-// Rutas para la gestión de usuarios
-Router::add('systemDashboard/crearUsuario', 'SystemDashboardController', 'crearUsuario', 'auth');
-Router::add('systemDashboard/saveUsuario', 'SystemDashboardController', 'saveUsuario', 'auth');
+Router::add('admin/dashboard', 'AdminController', 'dashboard', 'auth');
+Router::add('admin/welcome', 'AdminController', 'welcome', 'auth');
+Router::add('admin/empresas', 'AdminController', 'empresas', 'auth');
+Router::add('admin/usuarios', 'AdminController', 'usuarios', 'auth');
+Router::add('admin/planes', 'AdminController', 'planes', 'auth');
+Router::add('admin/suscripciones', 'AdminController', 'suscripciones', 'auth');
+Router::add('admin/configuracion', 'AdminController', 'configuracion', 'auth');
+Router::add('admin/crearUsuario', 'AdminController', 'crearUsuario', 'auth');
+Router::add('admin/saveUsuario', 'AdminController', 'saveUsuario', 'auth');
