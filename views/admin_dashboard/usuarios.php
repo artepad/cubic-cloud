@@ -4,6 +4,23 @@
             <h3 class="box-title">Gestión de Usuarios</h3>
             <p class="text-muted">Administra los usuarios registrados en el sistema</p>
 
+            <!-- Mensajes de éxito y error -->
+            <?php if (isset($_SESSION['success_message'])): ?>
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <?= $_SESSION['success_message'] ?>
+                </div>
+                <?php unset($_SESSION['success_message']); ?>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error_message'])): ?>
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <?= $_SESSION['error_message'] ?>
+                </div>
+                <?php unset($_SESSION['error_message']); ?>
+            <?php endif; ?>
+
             <!-- Acciones de gestión -->
             <div class="row m-t-20 m-b-20">
                 <div class="col-md-12">
