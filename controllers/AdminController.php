@@ -48,7 +48,7 @@ class AdminController
         }
 
         // Incluir directamente la vista de login sin layouts
-        require_once 'views/admin/login.php';
+        require_once 'views/admin/login/login.php';
     }
 
     /**
@@ -153,7 +153,7 @@ class AdminController
         }
 
         // Mostrar la vista de logout
-        require_once 'views/admin/logout.php';
+        require_once 'views/admin/login/logout.php';
         
         // Limpia el buffer y envía el contenido
         ob_end_flush();
@@ -171,7 +171,7 @@ class AdminController
         }
 
         // Incluir vista de recuperación
-        require_once 'views/admin/recover.php';
+        require_once 'views/admin/login/recover.php';
     }
 
     /**
@@ -260,7 +260,7 @@ class AdminController
         }
 
         // Incluir vista para restablecer contraseña
-        require_once 'views/admin/reset.php';
+        require_once 'views/admin/login/reset.php';
     }
 
     /**

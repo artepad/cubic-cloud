@@ -36,4 +36,3 @@ Router::add('systemDashboard/redirectAfterSave', 'SystemDashboardController', 'r
 // Rutas para la gestión de usuarios
 Router::add('systemDashboard/crearUsuario', 'SystemDashboardController', 'crearUsuario', 'auth');
 Router::add('systemDashboard/saveUsuario', 'SystemDashboardController', 'saveUsuario', 'auth');
-

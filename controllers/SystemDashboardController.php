@@ -40,7 +40,7 @@ class SystemDashboardController
         $ingresos = $this->getIngresosEstimados();
 
         // Incluir la vista
-        require_once 'views/admin_dashboard/index.php';
+        require_once 'views/admin/dashboard/index.php';
     }
 
     /**
@@ -62,7 +62,7 @@ class SystemDashboardController
         $ingresos = $this->getIngresosEstimados();
 
         // Incluir la vista
-        require_once 'views/admin_dashboard/welcome.php';
+        require_once 'views/admin/dashboard/welcome.php';
     }
 
     /**
@@ -71,7 +71,7 @@ class SystemDashboardController
     public function empresas()
     {
         $pageTitle = "Gestión de Empresas";
-        require_once 'views/admin_dashboard/empresas.php';
+        require_once 'views/admin/dashboard/empresas.php';
     }
 
     /**
@@ -85,7 +85,7 @@ class SystemDashboardController
         $usuarioModel = new Usuario();
         $usuarios = $usuarioModel->getAll();
 
-        require_once 'views/admin_dashboard/usuarios.php';
+        require_once 'views/admin/dashboard/usuarios.php';
     }
 
     /**
@@ -94,7 +94,7 @@ class SystemDashboardController
     public function planes()
     {
         $pageTitle = "Gestión de Planes";
-        require_once 'views/admin_dashboard/planes.php';
+        require_once 'views/admin/dashboard/planes.php';
     }
 
     /**
@@ -103,7 +103,7 @@ class SystemDashboardController
     public function suscripciones()
     {
         $pageTitle = "Gestión de Suscripciones";
-        require_once 'views/admin_dashboard/suscripciones.php';
+        require_once 'views/admin/dashboard/suscripciones.php';
     }
 
     /**
@@ -112,7 +112,7 @@ class SystemDashboardController
     public function configuracion()
     {
         $pageTitle = "Configuración del Sistema";
-        require_once 'views/admin_dashboard/configuracion.php';
+        require_once 'views/admin/dashboard/configuracion.php';
     }
 
     /**
@@ -173,12 +173,9 @@ class SystemDashboardController
         $pageTitle = "Crear Nuevo Usuario";
 
         // Incluir la vista
-        require_once 'views/admin_dashboard/crear_usuario.php';
+        require_once 'views/admin/dashboard/crear_usuario.php';
     }
 
-    /**
-     * Guarda los datos del nuevo usuario
-     */
     /**
      * Guarda los datos del nuevo usuario
      */
@@ -257,7 +254,7 @@ class SystemDashboardController
         }
 
         // Si algo falla, mostrar una página de redirección manual
-        require_once 'views/admin_dashboard/redirect.php';
+        require_once 'views/admin/dashboard/redirect.php';
         ob_end_flush();
         exit();
     }

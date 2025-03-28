@@ -166,14 +166,6 @@
     </div>
 </div>
 
-
-
-
-
-</div>
-</div>
-</div>
-
 <script>
     // Asegurar que los tooltips se inicialicen correctamente
     document.addEventListener('DOMContentLoaded', function() {
