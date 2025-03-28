@@ -52,106 +52,46 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>María González</td>
-                            <td>maria.gonzalez@example.com</td>
-                            <td>ADMIN</td>
-                            <td>Chile</td>
-                            <td>12.345.678-9</td>
-                            <td><span class="label label-success">Activo</span></td>
-                            <td>
-                                <a href="javascript:void(0);" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
-                                    <i class="icon-eye"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
-                                    <i class="icon-pencil"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Suspender">
-                                    <i class="icon-ban"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Carlos Ramírez</td>
-                            <td>carlos.ramirez@example.com</td>
-                            <td>VENDEDOR</td>
-                            <td>Chile</td>
-                            <td>14.789.325-6</td>
-                            <td><span class="label label-success">Activo</span></td>
-                            <td>
-                                <a href="javascript:void(0);" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
-                                    <i class="icon-eye"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
-                                    <i class="icon-pencil"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Suspender">
-                                    <i class="icon-ban"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Ana Martínez</td>
-                            <td>ana.martinez@example.com</td>
-                            <td>TOUR_MANAGER</td>
-                            <td>España</td>
-                            <td>45678912B</td>
-                            <td><span class="label label-warning">Inactivo</span></td>
-                            <td>
-                                <a href="javascript:void(0);" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
-                                    <i class="icon-eye"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
-                                    <i class="icon-pencil"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-success btn-circle" data-toggle="tooltip" data-original-title="Activar">
-                                    <i class="icon-check"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Sebastián López</td>
-                            <td>sebastian.lopez@example.com</td>
-                            <td>ADMIN</td>
-                            <td>Chile</td>
-                            <td>17.456.789-8</td>
-                            <td><span class="label label-success">Activo</span></td>
-                            <td>
-                                <a href="javascript:void(0);" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
-                                    <i class="icon-eye"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
-                                    <i class="icon-pencil"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Suspender">
-                                    <i class="icon-ban"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>Valentina Torres</td>
-                            <td>valentina.torres@example.com</td>
-                            <td>VENDEDOR</td>
-                            <td>Argentina</td>
-                            <td>28456789</td>
-                            <td><span class="label label-success">Activo</span></td>
-                            <td>
-                                <a href="javascript:void(0);" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
-                                    <i class="icon-eye"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
-                                    <i class="icon-pencil"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Suspender">
-                                    <i class="icon-ban"></i>
-                                </a>
-                            </td>
-                        </tr>
+                        <?php if (isset($usuarios) && !empty($usuarios)): ?>
+                            <?php foreach ($usuarios as $usuario): ?>
+                                <tr>
+                                    <td><?= $usuario->id ?></td>
+                                    <td><?= htmlspecialchars($usuario->nombre . ' ' . $usuario->apellido) ?></td>
+                                    <td><?= htmlspecialchars($usuario->email) ?></td>
+                                    <td><?= htmlspecialchars($usuario->tipo_usuario) ?></td>
+                                    <td><?= htmlspecialchars($usuario->pais) ?></td>
+                                    <td><?= htmlspecialchars($usuario->numero_identificacion) ?></td>
+                                    <td>
+                                        <?php if ($usuario->estado == 'Activo'): ?>
+                                            <span class="label label-success">Activo</span>
+                                        <?php else: ?>
+                                            <span class="label label-warning">Inactivo</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <a href="javascript:void(0);" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
+                                            <i class="icon-eye"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
+                                            <i class="icon-pencil"></i>
+                                        </a>
+                                        <?php if ($usuario->estado == 'Activo'): ?>
+                                            <a href="javascript:void(0);" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Suspender">
+                                                <i class="icon-ban"></i>
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="javascript:void(0);" class="btn btn-success btn-circle" data-toggle="tooltip" data-original-title="Activar">
+                                                <i class="icon-check"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="8" class="text-center">No hay usuarios registrados</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

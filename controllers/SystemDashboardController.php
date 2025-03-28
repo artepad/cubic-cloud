@@ -80,6 +80,11 @@ class SystemDashboardController
     public function usuarios()
     {
         $pageTitle = "Gestión de Usuarios";
+
+        // Obtener usuarios de la base de datos
+        $usuarioModel = new Usuario();
+        $usuarios = $usuarioModel->getAll();
+
         require_once 'views/admin_dashboard/usuarios.php';
     }
 
