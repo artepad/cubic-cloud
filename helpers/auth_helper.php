@@ -153,34 +153,3 @@ function checkRememberCookie($adminModel)
     }
     return false;
 }
-
-/**
- * Verifica si una cookie "Recuérdame" es válida y establece la sesión para usuarios normales
- * 
- * @param Usuario $usuarioModel Modelo de usuario
- * @return bool True si la cookie es válida y se estableció la sesión
- */
-function checkUserRememberCookie($usuarioModel)
-{
-    if (isset($_COOKIE['usuario_remember'])) {
-        $token = $_COOKIE['usuario_remember'];
-        $usuario = $usuarioModel->validateRememberToken($token);
-
-        if ($usuario) {
-            $_SESSION['usuario'] = $usuario;
-            regenerateSession();
-            return true;
-        } else {
-            // Eliminar cookie inválida
-            setcookie('usuario_remember', '', [
-                'expires' => time() - 3600,
-                'path' => '/',
-                'domain' => '',
-                'secure' => isset($_SERVER['HTTPS']),
-                'httponly' => true,
-                'samesite' => 'Lax'
-            ]);
-        }
-    }
-    return false;
-}
