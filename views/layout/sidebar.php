@@ -44,7 +44,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>admin/planes" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>plan/index" aria-expanded="false">
                             <i class="icon-layers fa-fw"></i>
                             <span class="hide-menu"> Planes</span>
                         </a>
@@ -178,6 +178,7 @@
                 <?php if(isset($_SESSION['admin'])): ?>
                     <a href="<?=base_url?>admin/crearUsuario" class="btn btn-success m-b-10 btn-block">Nuevo Usuario</a>
                     <a href="<?=base_url?>admin/empresas" class="btn btn-info m-b-10 btn-block">Nueva Empresa</a>
+                    <a href="<?=base_url?>plan/crear" class="btn btn-primary m-b-10 btn-block">Nuevo Plan</a>
                     <a href="<?=base_url?>admin/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
                 <?php elseif(isset($_SESSION['usuario'])): ?>
                     <?php if($_SESSION['usuario']->tipo_usuario == 'ADMIN' || $_SESSION['usuario']->tipo_usuario == 'VENDEDOR'): ?>

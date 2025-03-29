@@ -31,3 +31,13 @@ Router::add('admin/suscripciones', 'AdminController', 'suscripciones', 'auth');
 Router::add('admin/configuracion', 'AdminController', 'configuracion', 'auth');
 Router::add('admin/crearUsuario', 'AdminController', 'crearUsuario', 'auth');
 Router::add('admin/saveUsuario', 'AdminController', 'saveUsuario', 'auth');
+
+// Rutas para el controlador de Planes (nuevo)
+Router::add('plan/index', 'PlanController', 'index', 'auth');
+Router::add('plan/crear', 'PlanController', 'crear', 'auth');
+Router::add('plan/save', 'PlanController', 'save', 'auth');
+Router::add('plan/editar', 'PlanController', 'editar', 'auth');
+Router::add('plan/update', 'PlanController', 'update', 'auth');
+Router::add('plan/delete', 'PlanController', 'delete', 'auth');
+Router::add('plan/cambiarEstado', 'PlanController', 'cambiarEstado', 'auth');
+Router::add('plan/cambiarVisibilidad', 'PlanController', 'cambiarVisibilidad', 'auth');
