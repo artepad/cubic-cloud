@@ -21,7 +21,6 @@ class Plan
     private $max_usuarios;
     private $max_eventos;
     private $max_artistas;
-    private $max_almacenamiento;
     private $caracteristicas;
     private $estado;
     private $visible;
@@ -165,22 +164,6 @@ class Plan
         }
     }
 
-    public function getMaxEventos()
-    {
-        return $this->max_eventos;
-    }
-
-    public function setMaxEventos($max_eventos)
-    {
-        // Validar que sea un número entero positivo
-        $max = filter_var($max_eventos, FILTER_VALIDATE_INT);
-        if ($max !== false && $max >= 0) {
-            $this->max_eventos = $max;
-        } else {
-            $this->max_eventos = 10; // Valor por defecto
-        }
-    }
-
     public function getMaxArtistas()
     {
         return $this->max_artistas;
@@ -194,6 +177,22 @@ class Plan
             $this->max_artistas = $max;
         } else {
             $this->max_artistas = 5; // Valor por defecto
+        }
+    }
+
+    public function getMaxEventos()
+    {
+        return $this->max_eventos;
+    }
+
+    public function setMaxEventos($max_eventos)
+    {
+        // Validar que sea un número entero positivo
+        $max = filter_var($max_eventos, FILTER_VALIDATE_INT);
+        if ($max !== false && $max >= 0) {
+            $this->max_eventos = $max;
+        } else {
+            $this->max_eventos = 10; // Valor por defecto
         }
     }
 
@@ -260,7 +259,7 @@ class Plan
             $sql = "INSERT INTO planes (
                 nombre, descripcion, tipo_plan, 
                 precio_mensual, precio_semestral, precio_anual, moneda,
-                max_usuarios, max_eventos, max_artistas,
+                max_usuarios, max_artistas, max_eventos,
                 caracteristicas, estado, visible
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -281,8 +280,8 @@ class Plan
                 $this->precio_anual,
                 $this->moneda,
                 $this->max_usuarios,
-                $this->max_eventos,
                 $this->max_artistas,
+                $this->max_eventos,
                 $this->caracteristicas,
                 $this->estado,
                 $this->visible
@@ -319,8 +318,8 @@ class Plan
                 precio_anual = ?, 
                 moneda = ?, 
                 max_usuarios = ?, 
-                max_eventos = ?, 
                 max_artistas = ?,
+                max_eventos = ?, 
                 caracteristicas = ?,
                 estado = ?,
                 visible = ?
@@ -343,8 +342,8 @@ class Plan
                 $this->precio_anual,
                 $this->moneda,
                 $this->max_usuarios,
-                $this->max_eventos,
                 $this->max_artistas,
+                $this->max_eventos,
                 $this->caracteristicas,
                 $this->estado,
                 $this->visible,
