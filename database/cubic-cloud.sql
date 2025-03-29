@@ -525,7 +525,7 @@ CREATE TABLE planes (
     -- Información básica del plan
     nombre VARCHAR(50) NOT NULL COMMENT 'Nombre comercial del plan (Básico, Profesional, Premium)',
     descripcion TEXT NOT NULL COMMENT 'Descripción detallada de lo que incluye el plan',
-    tipo_plan ENUM('Básico', 'Profesional', 'Premium', 'Personalizado') NOT NULL DEFAULT 'Básico' 
+    tipo_plan ENUM('Básico', 'Profesional', 'Premium', 'Personalizado') NOT NULL DEFAULT 'Básico'
         COMMENT 'Categoría principal del plan',
     
     -- Precios según período de facturación (con descuentos para compromisos más largos)
@@ -536,24 +536,24 @@ CREATE TABLE planes (
     
     -- Límites específicos de recursos por plan
     max_usuarios INT NOT NULL DEFAULT 1 COMMENT 'Cantidad máxima de usuarios permitidos',
-    max_eventos INT NOT NULL DEFAULT 10 COMMENT 'Cantidad máxima de eventos mensuales',
     max_artistas INT NOT NULL DEFAULT 5 COMMENT 'Cantidad máxima de artistas',
-    max_almacenamiento INT NOT NULL DEFAULT 100 COMMENT 'Almacenamiento máximo en MB',
+    max_eventos INT NOT NULL DEFAULT 10 COMMENT 'Cantidad máxima de eventos mensuales',
     
     -- Características adicionales usando JSON para flexibilidad y extensibilidad
-    caracteristicas JSON COMMENT 'Características adicionales del plan: 
-        {
-          "api_access": true/false, 
-          "reportes_avanzados": true/false,
-          "integraciones": true/false,
-          "soporte_prioritario": true/false,
-          "personalizacion": true/false
-        }',
+    caracteristicas JSON COMMENT 'Características adicionales del plan:
+    {
+      "soporte_prioritario": true,
+      "soporte_telefonico": true,
+      "copias_seguridad": true,
+      "importar_contactos": true,
+      "exportar_pdf": true
+      "reportes_avanzados": true,
+    }',
     
     -- Estado del plan
-    estado ENUM('Activo', 'Inactivo', 'Descontinuado') NOT NULL DEFAULT 'Activo' 
+    estado ENUM('Activo', 'Inactivo', 'Descontinuado') NOT NULL DEFAULT 'Activo'
         COMMENT 'Estado del plan para nuevas suscripciones',
-    visible ENUM('Si', 'No') NOT NULL DEFAULT 'Si' 
+    visible ENUM('Si', 'No') NOT NULL DEFAULT 'Si'
         COMMENT 'Si el plan es visible para nuevos clientes',
     
     -- Auditoría
