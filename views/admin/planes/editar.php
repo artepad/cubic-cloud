@@ -144,19 +144,19 @@ if (!isset($plan) || !$plan) {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-3 control-label">Eventos Máximos</label>
-                            <div class="col-md-6">
-                                <input type="number" class="form-control" name="max_eventos" id="max_eventos" 
-                                       value="<?= $plan->max_eventos ?>" min="0" step="1">
-                                <small class="help-block">Cantidad máxima de eventos mensuales (0 = Ilimitados)</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="col-md-3 control-label">Artistas Máximos</label>
                             <div class="col-md-6">
                                 <input type="number" class="form-control" name="max_artistas" id="max_artistas" 
                                        value="<?= $plan->max_artistas ?>" min="0" step="1">
                                 <small class="help-block">Cantidad máxima de artistas (0 = Ilimitados)</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Eventos Máximos</label>
+                            <div class="col-md-6">
+                                <input type="number" class="form-control" name="max_eventos" id="max_eventos" 
+                                       value="<?= $plan->max_eventos ?>" min="0" step="1">
+                                <small class="help-block">Cantidad máxima de eventos mensuales (0 = Ilimitados)</small>
                             </div>
                         </div>
                         <!-- Campo de almacenamiento eliminado -->
@@ -171,29 +171,34 @@ if (!isset($plan) || !$plan) {
                                 ?>
                                 
                                 <div class="checkbox checkbox-info">
-                                    <input id="api_access" name="api_access" type="checkbox" 
-                                        <?= isset($caracteristicas['api_access']) && $caracteristicas['api_access'] ? 'checked' : '' ?>>
-                                    <label for="api_access">Acceso a API</label>
+                                    <input id="soporte_prioritario" name="soporte_prioritario" type="checkbox" 
+                                        <?= isset($caracteristicas['soporte_prioritario']) && $caracteristicas['soporte_prioritario'] ? 'checked' : '' ?>>
+                                    <label for="soporte_prioritario">Soporte Prioritario</label>
+                                </div>
+                                <div class="checkbox checkbox-info">
+                                    <input id="soporte_telefonico" name="soporte_telefonico" type="checkbox"
+                                        <?= isset($caracteristicas['soporte_telefonico']) && $caracteristicas['soporte_telefonico'] ? 'checked' : '' ?>>
+                                    <label for="soporte_telefonico">Soporte Telefónico</label>
+                                </div>
+                                <div class="checkbox checkbox-info">
+                                    <input id="copias_seguridad" name="copias_seguridad" type="checkbox"
+                                        <?= isset($caracteristicas['copias_seguridad']) && $caracteristicas['copias_seguridad'] ? 'checked' : '' ?>>
+                                    <label for="copias_seguridad">Copias de Seguridad</label>
+                                </div>
+                                <div class="checkbox checkbox-info">
+                                    <input id="importar_contactos" name="importar_contactos" type="checkbox"
+                                        <?= isset($caracteristicas['importar_contactos']) && $caracteristicas['importar_contactos'] ? 'checked' : '' ?>>
+                                    <label for="importar_contactos">Importar Contactos</label>
+                                </div>
+                                <div class="checkbox checkbox-info">
+                                    <input id="exportar_pdf" name="exportar_pdf" type="checkbox"
+                                        <?= isset($caracteristicas['exportar_pdf']) && $caracteristicas['exportar_pdf'] ? 'checked' : '' ?>>
+                                    <label for="exportar_pdf">Exportar a PDF</label>
                                 </div>
                                 <div class="checkbox checkbox-info">
                                     <input id="reportes_avanzados" name="reportes_avanzados" type="checkbox"
                                         <?= isset($caracteristicas['reportes_avanzados']) && $caracteristicas['reportes_avanzados'] ? 'checked' : '' ?>>
                                     <label for="reportes_avanzados">Reportes Avanzados</label>
-                                </div>
-                                <div class="checkbox checkbox-info">
-                                    <input id="integraciones" name="integraciones" type="checkbox"
-                                        <?= isset($caracteristicas['integraciones']) && $caracteristicas['integraciones'] ? 'checked' : '' ?>>
-                                    <label for="integraciones">Integraciones con Terceros</label>
-                                </div>
-                                <div class="checkbox checkbox-info">
-                                    <input id="soporte_prioritario" name="soporte_prioritario" type="checkbox"
-                                        <?= isset($caracteristicas['soporte_prioritario']) && $caracteristicas['soporte_prioritario'] ? 'checked' : '' ?>>
-                                    <label for="soporte_prioritario">Soporte Prioritario</label>
-                                </div>
-                                <div class="checkbox checkbox-info">
-                                    <input id="personalizacion" name="personalizacion" type="checkbox"
-                                        <?= isset($caracteristicas['personalizacion']) && $caracteristicas['personalizacion'] ? 'checked' : '' ?>>
-                                    <label for="personalizacion">Personalización de Marca</label>
                                 </div>
                             </div>
                         </div>

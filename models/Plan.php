@@ -39,35 +39,43 @@ class Plan
     /**
      * Getters y setters
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
     }
 
-    public function getNombre() {
+    public function getNombre()
+    {
         return $this->nombre;
     }
 
-    public function setNombre($nombre) {
+    public function setNombre($nombre)
+    {
         $this->nombre = $this->db->real_escape_string($nombre);
     }
 
-    public function getDescripcion() {
+    public function getDescripcion()
+    {
         return $this->descripcion;
     }
 
-    public function setDescripcion($descripcion) {
+    public function setDescripcion($descripcion)
+    {
         $this->descripcion = $this->db->real_escape_string($descripcion);
     }
 
-    public function getTipoPlan() {
+    public function getTipoPlan()
+    {
         return $this->tipo_plan;
     }
 
-    public function setTipoPlan($tipo_plan) {
+    public function setTipoPlan($tipo_plan)
+    {
         // Validar que el tipo sea uno de los permitidos
         $tipos_validos = ['Básico', 'Profesional', 'Premium', 'Personalizado'];
         if (in_array($tipo_plan, $tipos_validos)) {
@@ -77,11 +85,13 @@ class Plan
         }
     }
 
-    public function getPrecioMensual() {
+    public function getPrecioMensual()
+    {
         return $this->precio_mensual;
     }
 
-    public function setPrecioMensual($precio_mensual) {
+    public function setPrecioMensual($precio_mensual)
+    {
         // Validar que sea un número válido
         $precio = filter_var($precio_mensual, FILTER_VALIDATE_FLOAT);
         if ($precio !== false && $precio >= 0) {
@@ -91,11 +101,13 @@ class Plan
         }
     }
 
-    public function getPrecioSemestral() {
+    public function getPrecioSemestral()
+    {
         return $this->precio_semestral;
     }
 
-    public function setPrecioSemestral($precio_semestral) {
+    public function setPrecioSemestral($precio_semestral)
+    {
         // Validar que sea un número válido
         $precio = filter_var($precio_semestral, FILTER_VALIDATE_FLOAT);
         if ($precio !== false && $precio >= 0) {
@@ -105,11 +117,13 @@ class Plan
         }
     }
 
-    public function getPrecioAnual() {
+    public function getPrecioAnual()
+    {
         return $this->precio_anual;
     }
 
-    public function setPrecioAnual($precio_anual) {
+    public function setPrecioAnual($precio_anual)
+    {
         // Validar que sea un número válido
         $precio = filter_var($precio_anual, FILTER_VALIDATE_FLOAT);
         if ($precio !== false && $precio >= 0) {
@@ -119,11 +133,13 @@ class Plan
         }
     }
 
-    public function getMoneda() {
+    public function getMoneda()
+    {
         return $this->moneda;
     }
 
-    public function setMoneda($moneda) {
+    public function setMoneda($moneda)
+    {
         // Validar que la moneda sea uno de los valores esperados
         $monedas_validas = ['CLP', 'USD', 'EUR'];
         if (in_array($moneda, $monedas_validas)) {
@@ -133,11 +149,13 @@ class Plan
         }
     }
 
-    public function getMaxUsuarios() {
+    public function getMaxUsuarios()
+    {
         return $this->max_usuarios;
     }
 
-    public function setMaxUsuarios($max_usuarios) {
+    public function setMaxUsuarios($max_usuarios)
+    {
         // Validar que sea un número entero positivo
         $max = filter_var($max_usuarios, FILTER_VALIDATE_INT);
         if ($max !== false && $max >= 0) {
@@ -147,11 +165,13 @@ class Plan
         }
     }
 
-    public function getMaxEventos() {
+    public function getMaxEventos()
+    {
         return $this->max_eventos;
     }
 
-    public function setMaxEventos($max_eventos) {
+    public function setMaxEventos($max_eventos)
+    {
         // Validar que sea un número entero positivo
         $max = filter_var($max_eventos, FILTER_VALIDATE_INT);
         if ($max !== false && $max >= 0) {
@@ -161,11 +181,13 @@ class Plan
         }
     }
 
-    public function getMaxArtistas() {
+    public function getMaxArtistas()
+    {
         return $this->max_artistas;
     }
 
-    public function setMaxArtistas($max_artistas) {
+    public function setMaxArtistas($max_artistas)
+    {
         // Validar que sea un número entero positivo
         $max = filter_var($max_artistas, FILTER_VALIDATE_INT);
         if ($max !== false && $max >= 0) {
@@ -175,25 +197,13 @@ class Plan
         }
     }
 
-    public function getMaxAlmacenamiento() {
-        return $this->max_almacenamiento;
-    }
-
-    public function setMaxAlmacenamiento($max_almacenamiento) {
-        // Validar que sea un número entero positivo
-        $max = filter_var($max_almacenamiento, FILTER_VALIDATE_INT);
-        if ($max !== false && $max >= 0) {
-            $this->max_almacenamiento = $max;
-        } else {
-            $this->max_almacenamiento = 100; // Valor por defecto
-        }
-    }
-
-    public function getCaracteristicas() {
+    public function getCaracteristicas()
+    {
         return $this->caracteristicas;
     }
 
-    public function setCaracteristicas($caracteristicas) {
+    public function setCaracteristicas($caracteristicas)
+    {
         // Si es un array, convertirlo a JSON
         if (is_array($caracteristicas)) {
             $this->caracteristicas = json_encode($caracteristicas);
@@ -208,11 +218,13 @@ class Plan
         }
     }
 
-    public function getEstado() {
+    public function getEstado()
+    {
         return $this->estado;
     }
 
-    public function setEstado($estado) {
+    public function setEstado($estado)
+    {
         // Validar que el estado sea uno de los permitidos
         $estados_validos = ['Activo', 'Inactivo', 'Descontinuado'];
         if (in_array($estado, $estados_validos)) {
@@ -222,11 +234,13 @@ class Plan
         }
     }
 
-    public function getVisible() {
+    public function getVisible()
+    {
         return $this->visible;
     }
 
-    public function setVisible($visible) {
+    public function setVisible($visible)
+    {
         // Validar que sea uno de los valores permitidos
         if ($visible === 'Si' || $visible === 'No') {
             $this->visible = $visible;
@@ -244,43 +258,42 @@ class Plan
     {
         try {
             $sql = "INSERT INTO planes (
-                    nombre, descripcion, tipo_plan, 
-                    precio_mensual, precio_semestral, precio_anual, moneda,
-                    max_usuarios, max_eventos, max_artistas, max_almacenamiento,
-                    caracteristicas, estado, visible
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            
+                nombre, descripcion, tipo_plan, 
+                precio_mensual, precio_semestral, precio_anual, moneda,
+                max_usuarios, max_eventos, max_artistas,
+                caracteristicas, estado, visible
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $stmt->bind_param(
-                "sssdddsiiiisss", 
-                $this->nombre, 
-                $this->descripcion, 
-                $this->tipo_plan, 
-                $this->precio_mensual, 
-                $this->precio_semestral, 
-                $this->precio_anual, 
+                "sssdddsiiisss",
+                $this->nombre,
+                $this->descripcion,
+                $this->tipo_plan,
+                $this->precio_mensual,
+                $this->precio_semestral,
+                $this->precio_anual,
                 $this->moneda,
-                $this->max_usuarios, 
-                $this->max_eventos, 
-                $this->max_artistas, 
-                $this->max_almacenamiento,
+                $this->max_usuarios,
+                $this->max_eventos,
+                $this->max_artistas,
                 $this->caracteristicas,
                 $this->estado,
                 $this->visible
             );
-            
+
             if ($stmt->execute()) {
                 $id = $this->db->insert_id;
                 $stmt->close();
                 return $id;
             }
-            
+
             $stmt->close();
             return false;
         } catch (Exception $e) {
@@ -298,51 +311,49 @@ class Plan
     {
         try {
             $sql = "UPDATE planes SET 
-                    nombre = ?, 
-                    descripcion = ?, 
-                    tipo_plan = ?, 
-                    precio_mensual = ?, 
-                    precio_semestral = ?, 
-                    precio_anual = ?, 
-                    moneda = ?, 
-                    max_usuarios = ?, 
-                    max_eventos = ?, 
-                    max_artistas = ?, 
-                    max_almacenamiento = ?,
-                    caracteristicas = ?,
-                    estado = ?,
-                    visible = ?
-                    WHERE id = ?";
-            
+                nombre = ?, 
+                descripcion = ?, 
+                tipo_plan = ?, 
+                precio_mensual = ?, 
+                precio_semestral = ?, 
+                precio_anual = ?, 
+                moneda = ?, 
+                max_usuarios = ?, 
+                max_eventos = ?, 
+                max_artistas = ?,
+                caracteristicas = ?,
+                estado = ?,
+                visible = ?
+                WHERE id = ?";
+
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $stmt->bind_param(
-                "sssdddsiiiisssi", 
-                $this->nombre, 
-                $this->descripcion, 
-                $this->tipo_plan, 
-                $this->precio_mensual, 
-                $this->precio_semestral, 
-                $this->precio_anual, 
+                "sssdddsiiifssi",
+                $this->nombre,
+                $this->descripcion,
+                $this->tipo_plan,
+                $this->precio_mensual,
+                $this->precio_semestral,
+                $this->precio_anual,
                 $this->moneda,
-                $this->max_usuarios, 
-                $this->max_eventos, 
-                $this->max_artistas, 
-                $this->max_almacenamiento,
+                $this->max_usuarios,
+                $this->max_eventos,
+                $this->max_artistas,
                 $this->caracteristicas,
                 $this->estado,
                 $this->visible,
                 $this->id
             );
-            
+
             $result = $stmt->execute();
             $stmt->close();
-            
+
             return $result;
         } catch (Exception $e) {
             error_log("Error en update: " . $e->getMessage());
@@ -360,25 +371,25 @@ class Plan
     {
         try {
             $id = (int)$id; // Asegurar que es un entero
-            
+
             $sql = "SELECT * FROM planes WHERE id = ?";
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $stmt->bind_param("i", $id);
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             if ($result && $result->num_rows == 1) {
                 $plan = $result->fetch_object();
                 $stmt->close();
                 return $plan;
             }
-            
+
             $stmt->close();
             return false;
         } catch (Exception $e) {
@@ -402,7 +413,7 @@ class Plan
             $sql = "SELECT * FROM planes WHERE 1=1";
             $params = [];
             $types = "";
-            
+
             // Aplicar filtros si existen
             if (!empty($filters)) {
                 if (isset($filters['estado']) && $filters['estado']) {
@@ -410,19 +421,19 @@ class Plan
                     $params[] = $filters['estado'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['tipo_plan']) && $filters['tipo_plan']) {
                     $sql .= " AND tipo_plan = ?";
                     $params[] = $filters['tipo_plan'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['visible']) && $filters['visible']) {
                     $sql .= " AND visible = ?";
                     $params[] = $filters['visible'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['busqueda']) && $filters['busqueda']) {
                     $busqueda = "%" . $filters['busqueda'] . "%";
                     $sql .= " AND (nombre LIKE ? OR descripcion LIKE ?)";
@@ -431,10 +442,10 @@ class Plan
                     $types .= "ss";
                 }
             }
-            
+
             // Ordenar resultados
             $sql .= " ORDER BY id ASC";
-            
+
             // Limitar resultados para paginación
             if ($limit !== null) {
                 $sql .= " LIMIT ?, ?";
@@ -442,27 +453,27 @@ class Plan
                 $params[] = (int)$limit;
                 $types .= "ii";
             }
-            
+
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return [];
             }
-            
+
             // Bind de parámetros si existen
             if (!empty($params)) {
                 $stmt->bind_param($types, ...$params);
             }
-            
+
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             $planes = [];
             while ($plan = $result->fetch_object()) {
                 $planes[] = $plan;
             }
-            
+
             $stmt->close();
             return $planes;
         } catch (Exception $e) {
@@ -481,40 +492,40 @@ class Plan
     {
         try {
             $id = (int)$id; // Asegurar que es un entero
-            
+
             // Comprobar primero si hay suscripciones usando este plan
             $check_sql = "SELECT COUNT(*) as count FROM suscripciones WHERE plan_id = ?";
             $check_stmt = $this->db->prepare($check_sql);
-            
+
             if (!$check_stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $check_stmt->bind_param("i", $id);
             $check_stmt->execute();
             $check_result = $check_stmt->get_result();
             $row = $check_result->fetch_object();
             $check_stmt->close();
-            
+
             // Si hay suscripciones asociadas, no permitir eliminar el plan
             if ($row->count > 0) {
                 return false;
             }
-            
+
             // Si no hay suscripciones asociadas, proceder con la eliminación
             $sql = "DELETE FROM planes WHERE id = ?";
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $stmt->bind_param("i", $id);
             $result = $stmt->execute();
             $stmt->close();
-            
+
             return $result;
         } catch (Exception $e) {
             error_log("Error en delete: " . $e->getMessage());
@@ -533,25 +544,25 @@ class Plan
     {
         try {
             $id = (int)$id; // Asegurar que es un entero
-            
+
             // Validar estado
             $estados_validos = ['Activo', 'Inactivo', 'Descontinuado'];
             if (!in_array($estado, $estados_validos)) {
                 return false;
             }
-            
+
             $sql = "UPDATE planes SET estado = ? WHERE id = ?";
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $stmt->bind_param("si", $estado, $id);
             $result = $stmt->execute();
             $stmt->close();
-            
+
             return $result;
         } catch (Exception $e) {
             error_log("Error en cambiarEstado: " . $e->getMessage());
@@ -570,24 +581,24 @@ class Plan
     {
         try {
             $id = (int)$id; // Asegurar que es un entero
-            
+
             // Validar visibilidad
             if ($visible !== 'Si' && $visible !== 'No') {
                 return false;
             }
-            
+
             $sql = "UPDATE planes SET visible = ? WHERE id = ?";
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $stmt->bind_param("si", $visible, $id);
             $result = $stmt->execute();
             $stmt->close();
-            
+
             return $result;
         } catch (Exception $e) {
             error_log("Error en cambiarVisibilidad: " . $e->getMessage());
@@ -608,7 +619,7 @@ class Plan
             $sql = "SELECT COUNT(*) as total FROM planes WHERE 1=1";
             $params = [];
             $types = "";
-            
+
             // Aplicar filtros si existen
             if (!empty($filters)) {
                 if (isset($filters['estado']) && $filters['estado']) {
@@ -616,19 +627,19 @@ class Plan
                     $params[] = $filters['estado'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['tipo_plan']) && $filters['tipo_plan']) {
                     $sql .= " AND tipo_plan = ?";
                     $params[] = $filters['tipo_plan'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['visible']) && $filters['visible']) {
                     $sql .= " AND visible = ?";
                     $params[] = $filters['visible'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['busqueda']) && $filters['busqueda']) {
                     $busqueda = "%" . $filters['busqueda'] . "%";
                     $sql .= " AND (nombre LIKE ? OR descripcion LIKE ?)";
@@ -637,23 +648,23 @@ class Plan
                     $types .= "ss";
                 }
             }
-            
+
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return 0;
             }
-            
+
             // Bind de parámetros si existen
             if (!empty($params)) {
                 $stmt->bind_param($types, ...$params);
             }
-            
+
             $stmt->execute();
             $result = $stmt->get_result();
             $row = $result->fetch_object();
-            
+
             $stmt->close();
             return (int)$row->total;
         } catch (Exception $e) {
@@ -672,22 +683,22 @@ class Plan
         try {
             $sql = "SELECT * FROM planes WHERE estado = 'Activo' AND visible = 'Si' ORDER BY precio_mensual ASC";
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return [];
             }
-            
+
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             $planes = [];
             while ($plan = $result->fetch_object()) {
                 // Convertir el JSON de características a un array asociativo
                 $plan->caracteristicas_array = json_decode($plan->caracteristicas, true);
                 $planes[] = $plan;
             }
-            
+
             $stmt->close();
             return $planes;
         } catch (Exception $e) {

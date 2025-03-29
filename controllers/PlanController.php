@@ -129,15 +129,15 @@ class PlanController
             $plan->setMaxUsuarios($_POST['max_usuarios'] ?? 1);
             $plan->setMaxEventos($_POST['max_eventos'] ?? 10);
             $plan->setMaxArtistas($_POST['max_artistas'] ?? 5);
-            $plan->setMaxAlmacenamiento($_POST['max_almacenamiento'] ?? 100);
             
-            // Procesar características
+            // Procesar características (actualizadas según la estructura de la base de datos)
             $caracteristicas = [
-                'api_access' => isset($_POST['api_access']) ? true : false,
-                'reportes_avanzados' => isset($_POST['reportes_avanzados']) ? true : false,
-                'integraciones' => isset($_POST['integraciones']) ? true : false,
                 'soporte_prioritario' => isset($_POST['soporte_prioritario']) ? true : false,
-                'personalizacion' => isset($_POST['personalizacion']) ? true : false
+                'soporte_telefonico' => isset($_POST['soporte_telefonico']) ? true : false,
+                'copias_seguridad' => isset($_POST['copias_seguridad']) ? true : false,
+                'importar_contactos' => isset($_POST['importar_contactos']) ? true : false,
+                'exportar_pdf' => isset($_POST['exportar_pdf']) ? true : false,
+                'reportes_avanzados' => isset($_POST['reportes_avanzados']) ? true : false
             ];
             
             // Si hay características personalizadas, agregarlas
@@ -255,15 +255,15 @@ class PlanController
             $planObj->setMaxUsuarios($_POST['max_usuarios'] ?? 1);
             $planObj->setMaxEventos($_POST['max_eventos'] ?? 10);
             $planObj->setMaxArtistas($_POST['max_artistas'] ?? 5);
-            $planObj->setMaxAlmacenamiento($_POST['max_almacenamiento'] ?? 100);
             
-            // Procesar características
+            // Procesar características (actualizadas según la estructura de la base de datos)
             $caracteristicas = [
-                'api_access' => isset($_POST['api_access']) ? true : false,
-                'reportes_avanzados' => isset($_POST['reportes_avanzados']) ? true : false,
-                'integraciones' => isset($_POST['integraciones']) ? true : false,
                 'soporte_prioritario' => isset($_POST['soporte_prioritario']) ? true : false,
-                'personalizacion' => isset($_POST['personalizacion']) ? true : false
+                'soporte_telefonico' => isset($_POST['soporte_telefonico']) ? true : false,
+                'copias_seguridad' => isset($_POST['copias_seguridad']) ? true : false,
+                'importar_contactos' => isset($_POST['importar_contactos']) ? true : false,
+                'exportar_pdf' => isset($_POST['exportar_pdf']) ? true : false,
+                'reportes_avanzados' => isset($_POST['reportes_avanzados']) ? true : false
             ];
             
             // Si hay características personalizadas, agregarlas

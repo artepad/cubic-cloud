@@ -137,19 +137,19 @@ if (!isAdminLoggedIn()) {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-3 control-label">Eventos Máximos</label>
-                            <div class="col-md-6">
-                                <input type="number" class="form-control" name="max_eventos" id="max_eventos" 
-                                       value="10" min="0" step="1">
-                                <small class="help-block">Cantidad máxima de eventos mensuales (0 = Ilimitados)</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="col-md-3 control-label">Artistas Máximos</label>
                             <div class="col-md-6">
                                 <input type="number" class="form-control" name="max_artistas" id="max_artistas" 
                                        value="5" min="0" step="1">
                                 <small class="help-block">Cantidad máxima de artistas (0 = Ilimitados)</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Eventos Máximos</label>
+                            <div class="col-md-6">
+                                <input type="number" class="form-control" name="max_eventos" id="max_eventos" 
+                                       value="10" min="0" step="1">
+                                <small class="help-block">Cantidad máxima de eventos mensuales (0 = Ilimitados)</small>
                             </div>
                         </div>
                         <!-- Campo de almacenamiento eliminado -->
@@ -159,24 +159,28 @@ if (!isAdminLoggedIn()) {
                             <label class="col-md-3 control-label">Características Adicionales</label>
                             <div class="col-md-6">
                                 <div class="checkbox checkbox-info">
-                                    <input id="api_access" name="api_access" type="checkbox">
-                                    <label for="api_access">Acceso a API</label>
-                                </div>
-                                <div class="checkbox checkbox-info">
-                                    <input id="reportes_avanzados" name="reportes_avanzados" type="checkbox">
-                                    <label for="reportes_avanzados">Reportes Avanzados</label>
-                                </div>
-                                <div class="checkbox checkbox-info">
-                                    <input id="integraciones" name="integraciones" type="checkbox">
-                                    <label for="integraciones">Integraciones con Terceros</label>
-                                </div>
-                                <div class="checkbox checkbox-info">
                                     <input id="soporte_prioritario" name="soporte_prioritario" type="checkbox">
                                     <label for="soporte_prioritario">Soporte Prioritario</label>
                                 </div>
                                 <div class="checkbox checkbox-info">
-                                    <input id="personalizacion" name="personalizacion" type="checkbox">
-                                    <label for="personalizacion">Personalización de Marca</label>
+                                    <input id="soporte_telefonico" name="soporte_telefonico" type="checkbox">
+                                    <label for="soporte_telefonico">Soporte Telefónico</label>
+                                </div>
+                                <div class="checkbox checkbox-info">
+                                    <input id="copias_seguridad" name="copias_seguridad" type="checkbox">
+                                    <label for="copias_seguridad">Copias de Seguridad</label>
+                                </div>
+                                <div class="checkbox checkbox-info">
+                                    <input id="importar_contactos" name="importar_contactos" type="checkbox">
+                                    <label for="importar_contactos">Importar Contactos</label>
+                                </div>
+                                <div class="checkbox checkbox-info">
+                                    <input id="exportar_pdf" name="exportar_pdf" type="checkbox">
+                                    <label for="exportar_pdf">Exportar a PDF</label>
+                                </div>
+                                <div class="checkbox checkbox-info">
+                                    <input id="reportes_avanzados" name="reportes_avanzados" type="checkbox">
+                                    <label for="reportes_avanzados">Reportes Avanzados</label>
                                 </div>
                             </div>
                         </div>
