@@ -28,40 +28,6 @@ if (!isAdminLoggedIn()) {
                 <?php unset($_SESSION['error_message']); ?>
             <?php endif; ?>
 
-            <!-- Filtros de búsqueda -->
-            <div class="row m-t-10 m-b-20">
-                <div class="col-md-12">
-                    <form action="<?= base_url ?>plan/index" method="GET" class="form-inline">
-                        <div class="form-group m-r-10">
-                            <select name="estado" class="form-control">
-                                <option value="" <?= !isset($filtros['estado']) ? 'selected' : '' ?>>Todos los estados</option>
-                                <option value="Activo" <?= isset($filtros['estado']) && $filtros['estado'] == 'Activo' ? 'selected' : '' ?>>Activo</option>
-                                <option value="Inactivo" <?= isset($filtros['estado']) && $filtros['estado'] == 'Inactivo' ? 'selected' : '' ?>>Inactivo</option>
-                                <option value="Descontinuado" <?= isset($filtros['estado']) && $filtros['estado'] == 'Descontinuado' ? 'selected' : '' ?>>Descontinuado</option>
-                            </select>
-                        </div>
-                        <div class="form-group m-r-10">
-                            <select name="tipo_plan" class="form-control">
-                                <option value="" <?= !isset($filtros['tipo_plan']) ? 'selected' : '' ?>>Todos los tipos</option>
-                                <option value="Básico" <?= isset($filtros['tipo_plan']) && $filtros['tipo_plan'] == 'Básico' ? 'selected' : '' ?>>Básico</option>
-                                <option value="Profesional" <?= isset($filtros['tipo_plan']) && $filtros['tipo_plan'] == 'Profesional' ? 'selected' : '' ?>>Profesional</option>
-                                <option value="Premium" <?= isset($filtros['tipo_plan']) && $filtros['tipo_plan'] == 'Premium' ? 'selected' : '' ?>>Premium</option>
-                                <option value="Personalizado" <?= isset($filtros['tipo_plan']) && $filtros['tipo_plan'] == 'Personalizado' ? 'selected' : '' ?>>Personalizado</option>
-                            </select>
-                        </div>
-                        <div class="form-group m-r-10">
-                            <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre..." value="<?= isset($filtros['busqueda']) ? htmlspecialchars($filtros['busqueda']) : '' ?>">
-                        </div>
-                        <button type="submit" class="btn btn-info waves-effect waves-light m-r-10">
-                            <i class="fa fa-search"></i> Filtrar
-                        </button>
-                        <a href="<?= base_url ?>plan/index" class="btn btn-default waves-effect waves-light">
-                            <i class="fa fa-refresh"></i> Limpiar
-                        </a>
-                    </form>
-                </div>
-            </div>
-
             <!-- Acciones de gestión -->
             <div class="row m-t-10 m-b-20">
                 <div class="col-md-12">
@@ -164,46 +130,6 @@ if (!isAdminLoggedIn()) {
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Paginación -->
-            <?php if (isset($total_paginas) && $total_paginas > 1): ?>
-                <div class="text-center m-t-20">
-                    <ul class="pagination">
-                        <?php if ($pagina_actual > 1): ?>
-                            <li>
-                                <a href="<?= base_url ?>plan/index?pagina=<?= $pagina_actual - 1 ?><?= isset($filtros['estado']) ? '&estado=' . $filtros['estado'] : '' ?><?= isset($filtros['tipo_plan']) ? '&tipo_plan=' . $filtros['tipo_plan'] : '' ?><?= isset($filtros['busqueda']) ? '&busqueda=' . $filtros['busqueda'] : '' ?>">
-                                    <i class="fa fa-angle-left"></i>
-                                </a>
-                            </li>
-                        <?php else: ?>
-                            <li class="disabled">
-                                <a href="javascript:void(0);"><i class="fa fa-angle-left"></i></a>
-                            </li>
-                        <?php endif; ?>
-                        
-                        <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
-                            <li class="<?= $i == $pagina_actual ? 'active' : '' ?>">
-                                <a href="<?= base_url ?>plan/index?pagina=<?= $i ?><?= isset($filtros['estado']) ? '&estado=' . $filtros['estado'] : '' ?><?= isset($filtros['tipo_plan']) ? '&tipo_plan=' . $filtros['tipo_plan'] : '' ?><?= isset($filtros['busqueda']) ? '&busqueda=' . $filtros['busqueda'] : '' ?>">
-                                    <?= $i ?>
-                                </a>
-                            </li>
-                        <?php endfor; ?>
-                        
-                        <?php if ($pagina_actual < $total_paginas): ?>
-                            <li>
-                                <a href="<?= base_url ?>plan/index?pagina=<?= $pagina_actual + 1 ?><?= isset($filtros['estado']) ? '&estado=' . $filtros['estado'] : '' ?><?= isset($filtros['tipo_plan']) ? '&tipo_plan=' . $filtros['tipo_plan'] : '' ?><?= isset($filtros['busqueda']) ? '&busqueda=' . $filtros['busqueda'] : '' ?>">
-                                    <i class="fa fa-angle-right"></i>
-                                </a>
-                            </li>
-                        <?php else: ?>
-                            <li class="disabled">
-                                <a href="javascript:void(0);"><i class="fa fa-angle-right"></i></a>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-            
         </div>
     </div>
 </div>

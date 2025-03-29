@@ -399,71 +399,20 @@ class Plan
     }
 
     /**
-     * Obtiene una lista de planes según los criterios de filtrado
+     * Obtiene una lista de todos los planes
      * 
-     * @param array $filters Criterios de filtrado (opcional)
-     * @param int $limit Límite de resultados (opcional)
-     * @param int $offset Desplazamiento para paginación (opcional)
      * @return array Lista de planes
      */
-    public function getAll($filters = [], $limit = null, $offset = 0)
+    public function getAll()
     {
         try {
-            // Construir la consulta base
-            $sql = "SELECT * FROM planes WHERE 1=1";
-            $params = [];
-            $types = "";
-
-            // Aplicar filtros si existen
-            if (!empty($filters)) {
-                if (isset($filters['estado']) && $filters['estado']) {
-                    $sql .= " AND estado = ?";
-                    $params[] = $filters['estado'];
-                    $types .= "s";
-                }
-
-                if (isset($filters['tipo_plan']) && $filters['tipo_plan']) {
-                    $sql .= " AND tipo_plan = ?";
-                    $params[] = $filters['tipo_plan'];
-                    $types .= "s";
-                }
-
-                if (isset($filters['visible']) && $filters['visible']) {
-                    $sql .= " AND visible = ?";
-                    $params[] = $filters['visible'];
-                    $types .= "s";
-                }
-
-                if (isset($filters['busqueda']) && $filters['busqueda']) {
-                    $busqueda = "%" . $filters['busqueda'] . "%";
-                    $sql .= " AND (nombre LIKE ? OR descripcion LIKE ?)";
-                    $params[] = $busqueda;
-                    $params[] = $busqueda;
-                    $types .= "ss";
-                }
-            }
-
-            // Ordenar resultados
-            $sql .= " ORDER BY id ASC";
-
-            // Limitar resultados para paginación
-            if ($limit !== null) {
-                $sql .= " LIMIT ?, ?";
-                $params[] = (int)$offset;
-                $params[] = (int)$limit;
-                $types .= "ii";
-            }
-
+            // Consulta simple para obtener todos los planes
+            $sql = "SELECT * FROM planes ORDER BY id ASC";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return [];
-            }
-
-            // Bind de parámetros si existen
-            if (!empty($params)) {
-                $stmt->bind_param($types, ...$params);
             }
 
             $stmt->execute();

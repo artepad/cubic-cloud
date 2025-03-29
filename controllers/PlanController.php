@@ -26,54 +26,18 @@ class PlanController
         }
     }
 
-    /**
-     * Acción por defecto - Lista todos los planes
-     */
     public function index()
     {
         // Título de la página
         $pageTitle = "Gestión de Planes";
-
-        // Obtener parámetros de filtrado (si existen)
-        $filtros = [];
-
-        if (isset($_GET['estado'])) {
-            $filtros['estado'] = $_GET['estado'];
-        }
-
-        if (isset($_GET['tipo_plan'])) {
-            $filtros['tipo_plan'] = $_GET['tipo_plan'];
-        }
-
-        if (isset($_GET['busqueda'])) {
-            $filtros['busqueda'] = $_GET['busqueda'];
-        }
-
-        // Paginación
-        $pagina_actual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
-        $items_por_pagina = 10;
-        $offset = ($pagina_actual - 1) * $items_por_pagina;
-
-        // Obtener planes con paginación
-        $planes = $this->planModel->getAll($filtros, $items_por_pagina, $offset);
-
-        // Obtener total para paginación
-        $total_planes = $this->planModel->countAll($filtros);
-        $total_paginas = ceil($total_planes / $items_por_pagina);
-
-        // Generar datos para la vista
-        $data = [
-            'planes' => $planes,
-            'filtros' => $filtros,
-            'pagina_actual' => $pagina_actual,
-            'total_paginas' => $total_paginas,
-            'total_items' => $total_planes
-        ];
-
+        
+        // Obtener todos los planes sin filtros
+        $planes = $this->planModel->getAll();
+        
         // Incluir la vista
         require_once 'views/admin/planes/index.php';
     }
-
+    
     /**
      * Muestra el formulario para crear un nuevo plan
      */
