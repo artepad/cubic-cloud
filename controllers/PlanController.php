@@ -30,14 +30,14 @@ class PlanController
     {
         // Título de la página
         $pageTitle = "Gestión de Planes";
-        
+
         // Obtener todos los planes sin filtros
         $planes = $this->planModel->getAll();
-        
+
         // Incluir la vista
         require_once 'views/admin/planes/index.php';
     }
-    
+
     /**
      * Muestra el formulario para crear un nuevo plan
      */
@@ -92,8 +92,9 @@ class PlanController
                 $plan->setPrecioAnual($_POST['precio_anual'] ?? $_POST['precio_mensual']);
                 $plan->setMoneda($_POST['moneda']);
                 $plan->setMaxUsuarios($_POST['max_usuarios'] ?? 1);
-                $plan->setMaxEventos($_POST['max_eventos'] ?? 10);
                 $plan->setMaxArtistas($_POST['max_artistas'] ?? 5);
+                $plan->setMaxEventos($_POST['max_eventos'] ?? 10);
+
 
                 // Procesar características (actualizadas según la estructura de la base de datos)
                 $caracteristicas = [
@@ -245,8 +246,9 @@ class PlanController
             $planObj->setPrecioAnual($_POST['precio_anual'] ?? $_POST['precio_mensual']);
             $planObj->setMoneda($_POST['moneda']);
             $planObj->setMaxUsuarios($_POST['max_usuarios'] ?? 1);
-            $planObj->setMaxEventos($_POST['max_eventos'] ?? 10);
             $planObj->setMaxArtistas($_POST['max_artistas'] ?? 5);
+            $planObj->setMaxEventos($_POST['max_eventos'] ?? 10);
+            
 
             // Procesar características (actualizadas según la estructura de la base de datos)
             $caracteristicas = [
