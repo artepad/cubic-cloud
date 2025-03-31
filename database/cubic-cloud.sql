@@ -166,16 +166,13 @@ CREATE TABLE empresas (
     telefono VARCHAR(20) NULL COMMENT 'Teléfono de contacto principal',
     email_contacto VARCHAR(100) NULL COMMENT 'Email de contacto principal',
     
-    -- Datos de facturación (formato JSON para mayor flexibilidad)
-    datos_facturacion JSON NULL COMMENT 'Datos para facturación: 
-    {
-      "razon_social": "string",
-      "direccion_facturacion": "string",
-      "ciudad_facturacion": "string",
-      "codigo_postal": "string",
-      "contacto_facturacion": "string",
-      "email_facturacion": "string"
-    }',
+    -- Datos de facturación (convertidos a campos independientes)
+    razon_social_facturacion VARCHAR(100) NULL COMMENT 'Razón social para facturación',
+    direccion_facturacion VARCHAR(255) NULL COMMENT 'Dirección para facturación',
+    ciudad_facturacion VARCHAR(100) NULL COMMENT 'Ciudad para facturación',
+    codigo_postal VARCHAR(20) NULL COMMENT 'Código postal para facturación',
+    contacto_facturacion VARCHAR(100) NULL COMMENT 'Nombre del contacto para facturación',
+    email_facturacion VARCHAR(100) NULL COMMENT 'Email para envío de facturas',
     
     -- Localización
     pais VARCHAR(50) NOT NULL DEFAULT 'Chile' COMMENT 'País donde opera la empresa',
@@ -185,12 +182,6 @@ CREATE TABLE empresas (
     imagen_empresa VARCHAR(255) NULL COMMENT 'Ruta del logo principal de la empresa',
     imagen_documento VARCHAR(255) NULL COMMENT 'Ruta de la imagen para membrete de documentos',
     imagen_firma VARCHAR(255) NULL COMMENT 'Ruta de la firma digital para documentos',
-    
-    -- Límites según el plan de suscripción
-    limite_usuarios INT DEFAULT 1 COMMENT 'Límite de usuarios según plan actual',
-    limite_eventos INT DEFAULT 10 COMMENT 'Límite de eventos según plan actual',
-    limite_artistas INT DEFAULT 5 COMMENT 'Límite de artistas según plan actual',
-    limite_almacenamiento INT DEFAULT 100 COMMENT 'Límite de almacenamiento en MB',
     
     -- Configuración del negocio
     tipo_moneda CHAR(3) NOT NULL DEFAULT 'CLP' COMMENT 'Moneda principal: CLP (Peso Chileno), USD (Dólar), EUR (Euro)',
@@ -210,12 +201,12 @@ CREATE TABLE empresas (
     INDEX idx_empresa_estado (estado),
     INDEX idx_empresa_demo (es_demo),
     INDEX idx_empresa_pais (codigo_pais),
-    INDEX idx_empresa_limites (limite_usuarios, limite_eventos, limite_artistas),
     FOREIGN KEY (usuario_id) 
         REFERENCES usuarios(id) 
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE=InnoDB COMMENT='Empresas cliente del SaaS - Base de la arquitectura multi-tenant';
+
 -- ========================================
 -- Tabla: clientes
 -- Propósito: Gestionar la cartera de clientes de cada empresa
