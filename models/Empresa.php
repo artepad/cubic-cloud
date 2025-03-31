@@ -17,16 +17,21 @@ class Empresa
     private $direccion;
     private $telefono;
     private $email_contacto;
-    private $datos_facturacion;
+    // Datos de facturación
+    private $razon_social_facturacion;
+    private $direccion_facturacion;
+    private $ciudad_facturacion;
+    private $codigo_postal;
+    private $contacto_facturacion;
+    private $email_facturacion;
+    // Localización
     private $pais;
     private $codigo_pais;
+    // Recursos visuales
     private $imagen_empresa;
     private $imagen_documento;
     private $imagen_firma;
-    private $limite_usuarios;
-    private $limite_eventos;
-    private $limite_artistas;
-    private $limite_almacenamiento;
+    // Información adicional
     private $tipo_moneda;
     private $estado;
     private $es_demo;
@@ -116,25 +121,65 @@ class Empresa
         $this->email_contacto = $this->db->real_escape_string($email_contacto);
     }
 
-    public function getDatosFacturacion()
+    // Getters y setters para datos de facturación
+    public function getRazonSocialFacturacion()
     {
-        return $this->datos_facturacion;
+        return $this->razon_social_facturacion;
     }
 
-    public function setDatosFacturacion($datos_facturacion)
+    public function setRazonSocialFacturacion($razon_social)
     {
-        // Si es un array, lo convertimos a JSON
-        if (is_array($datos_facturacion)) {
-            $this->datos_facturacion = json_encode($datos_facturacion);
-        } else {
-            // Validar que sea un JSON válido
-            json_decode($datos_facturacion);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $this->datos_facturacion = $datos_facturacion;
-            } else {
-                $this->datos_facturacion = '{}'; // JSON vacío por defecto
-            }
-        }
+        $this->razon_social_facturacion = $this->db->real_escape_string($razon_social);
+    }
+
+    public function getDireccionFacturacion()
+    {
+        return $this->direccion_facturacion;
+    }
+
+    public function setDireccionFacturacion($direccion)
+    {
+        $this->direccion_facturacion = $this->db->real_escape_string($direccion);
+    }
+
+    public function getCiudadFacturacion()
+    {
+        return $this->ciudad_facturacion;
+    }
+
+    public function setCiudadFacturacion($ciudad)
+    {
+        $this->ciudad_facturacion = $this->db->real_escape_string($ciudad);
+    }
+
+    public function getCodigoPostal()
+    {
+        return $this->codigo_postal;
+    }
+
+    public function setCodigoPostal($codigo)
+    {
+        $this->codigo_postal = $this->db->real_escape_string($codigo);
+    }
+
+    public function getContactoFacturacion()
+    {
+        return $this->contacto_facturacion;
+    }
+
+    public function setContactoFacturacion($contacto)
+    {
+        $this->contacto_facturacion = $this->db->real_escape_string($contacto);
+    }
+
+    public function getEmailFacturacion()
+    {
+        return $this->email_facturacion;
+    }
+
+    public function setEmailFacturacion($email)
+    {
+        $this->email_facturacion = $this->db->real_escape_string($email);
     }
 
     public function getPais()
@@ -185,46 +230,6 @@ class Empresa
     public function setImagenFirma($imagen_firma)
     {
         $this->imagen_firma = $this->db->real_escape_string($imagen_firma);
-    }
-
-    public function getLimiteUsuarios()
-    {
-        return $this->limite_usuarios;
-    }
-
-    public function setLimiteUsuarios($limite_usuarios)
-    {
-        $this->limite_usuarios = (int)$limite_usuarios;
-    }
-
-    public function getLimiteEventos()
-    {
-        return $this->limite_eventos;
-    }
-
-    public function setLimiteEventos($limite_eventos)
-    {
-        $this->limite_eventos = (int)$limite_eventos;
-    }
-
-    public function getLimiteArtistas()
-    {
-        return $this->limite_artistas;
-    }
-
-    public function setLimiteArtistas($limite_artistas)
-    {
-        $this->limite_artistas = (int)$limite_artistas;
-    }
-
-    public function getLimiteAlmacenamiento()
-    {
-        return $this->limite_almacenamiento;
-    }
-
-    public function setLimiteAlmacenamiento($limite_almacenamiento)
-    {
-        $this->limite_almacenamiento = (int)$limite_almacenamiento;
     }
 
     public function getTipoMoneda()
@@ -302,11 +307,11 @@ class Empresa
         try {
             $sql = "INSERT INTO empresas (
                 usuario_id, nombre, identificacion_fiscal, direccion, telefono, 
-                email_contacto, datos_facturacion, pais, codigo_pais,
-                imagen_empresa, imagen_documento, imagen_firma,
-                limite_usuarios, limite_eventos, limite_artistas, limite_almacenamiento,
+                email_contacto, razon_social_facturacion, direccion_facturacion, 
+                ciudad_facturacion, codigo_postal, contacto_facturacion, email_facturacion,
+                pais, codigo_pais, imagen_empresa, imagen_documento, imagen_firma,
                 tipo_moneda, estado, es_demo, demo_inicio, demo_fin
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt = $this->db->prepare($sql);
 
@@ -318,26 +323,26 @@ class Empresa
             // Valores por defecto para campos NULL
             $demo_inicio = $this->demo_inicio ?: null;
             $demo_fin = $this->demo_fin ?: null;
-            $datos_facturacion = $this->datos_facturacion ?: '{}';
 
             $stmt->bind_param(
-                "isssssssssssiiiiissss",
+                "isssssssssssssssssssss",
                 $this->usuario_id,
                 $this->nombre,
                 $this->identificacion_fiscal,
                 $this->direccion,
                 $this->telefono,
                 $this->email_contacto,
-                $datos_facturacion,
+                $this->razon_social_facturacion,
+                $this->direccion_facturacion,
+                $this->ciudad_facturacion,
+                $this->codigo_postal,
+                $this->contacto_facturacion,
+                $this->email_facturacion,
                 $this->pais,
                 $this->codigo_pais,
                 $this->imagen_empresa,
                 $this->imagen_documento,
                 $this->imagen_firma,
-                $this->limite_usuarios,
-                $this->limite_eventos,
-                $this->limite_artistas,
-                $this->limite_almacenamiento,
                 $this->tipo_moneda,
                 $this->estado,
                 $this->es_demo,
@@ -374,16 +379,17 @@ class Empresa
                 direccion = ?,
                 telefono = ?,
                 email_contacto = ?,
-                datos_facturacion = ?,
+                razon_social_facturacion = ?,
+                direccion_facturacion = ?,
+                ciudad_facturacion = ?,
+                codigo_postal = ?,
+                contacto_facturacion = ?,
+                email_facturacion = ?,
                 pais = ?,
                 codigo_pais = ?,
                 imagen_empresa = ?,
                 imagen_documento = ?,
                 imagen_firma = ?,
-                limite_usuarios = ?,
-                limite_eventos = ?,
-                limite_artistas = ?,
-                limite_almacenamiento = ?,
                 tipo_moneda = ?,
                 estado = ?,
                 es_demo = ?,
@@ -401,26 +407,26 @@ class Empresa
             // Valores por defecto para campos NULL
             $demo_inicio = $this->demo_inicio ?: null;
             $demo_fin = $this->demo_fin ?: null;
-            $datos_facturacion = $this->datos_facturacion ?: '{}';
 
             $stmt->bind_param(
-                "isssssssssssiiiiissssi",
+                "issssssssssssssssssssssi",
                 $this->usuario_id,
                 $this->nombre,
                 $this->identificacion_fiscal,
                 $this->direccion,
                 $this->telefono,
                 $this->email_contacto,
-                $datos_facturacion,
+                $this->razon_social_facturacion,
+                $this->direccion_facturacion,
+                $this->ciudad_facturacion,
+                $this->codigo_postal,
+                $this->contacto_facturacion,
+                $this->email_facturacion,
                 $this->pais,
                 $this->codigo_pais,
                 $this->imagen_empresa,
                 $this->imagen_documento,
                 $this->imagen_firma,
-                $this->limite_usuarios,
-                $this->limite_eventos,
-                $this->limite_artistas,
-                $this->limite_almacenamiento,
                 $this->tipo_moneda,
                 $this->estado,
                 $this->es_demo,
@@ -553,10 +559,6 @@ class Empresa
             
             $empresas = [];
             while ($empresa = $result->fetch_object()) {
-                // Convertir el JSON a un array asociativo si existe
-                if (isset($empresa->datos_facturacion)) {
-                    $empresa->datos_facturacion_array = json_decode($empresa->datos_facturacion, true);
-                }
                 $empresas[] = $empresa;
             }
             
