@@ -36,7 +36,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>admin/empresas" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>empresa/index" aria-expanded="false">
                             <i class="icon-briefcase fa-fw"></i>
                             <span class="hide-menu"> Empresas
                                 <span class="label label-rounded label-info pull-right">15</span>
@@ -177,7 +177,7 @@
             <span class="hide-menu">
                 <?php if(isset($_SESSION['admin'])): ?>
                     <a href="<?=base_url?>admin/crearUsuario" class="btn btn-success m-b-10 btn-block">Nuevo Usuario</a>
-                    <a href="<?=base_url?>admin/empresas" class="btn btn-info m-b-10 btn-block">Nueva Empresa</a>
+                    <a href="<?=base_url?>empresa/crear" class="btn btn-info m-b-10 btn-block">Nueva Empresa</a>
                     <a href="<?=base_url?>plan/crear" class="btn btn-primary m-b-10 btn-block">Nuevo Plan</a>
                     <a href="<?=base_url?>admin/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
                 <?php elseif(isset($_SESSION['usuario'])): ?>

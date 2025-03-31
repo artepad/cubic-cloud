@@ -32,7 +32,7 @@ Router::add('admin/configuracion', 'AdminController', 'configuracion', 'auth');
 Router::add('admin/crearUsuario', 'AdminController', 'crearUsuario', 'auth');
 Router::add('admin/saveUsuario', 'AdminController', 'saveUsuario', 'auth');
 
-// Rutas para el controlador de Planes (nuevo)
+// Rutas para el controlador de Planes
 Router::add('plan/index', 'PlanController', 'index', 'auth');
 Router::add('plan/crear', 'PlanController', 'crear', 'auth');
 Router::add('plan/save', 'PlanController', 'save', 'auth');
@@ -41,3 +41,22 @@ Router::add('plan/update', 'PlanController', 'update', 'auth');
 Router::add('plan/delete', 'PlanController', 'delete', 'auth');
 Router::add('plan/cambiarEstado', 'PlanController', 'cambiarEstado', 'auth');
 Router::add('plan/cambiarVisibilidad', 'PlanController', 'cambiarVisibilidad', 'auth');
+
+// Rutas para el controlador de Empresas
+Router::add('empresa/index', 'EmpresaController', 'index', 'auth');
+Router::add('empresa/crear', 'EmpresaController', 'crear', 'auth');
+Router::add('empresa/save', 'EmpresaController', 'save', 'auth');
+Router::add('empresa/editar', 'EmpresaController', 'editar', 'auth');
+Router::add('empresa/update', 'EmpresaController', 'update', 'auth');
+Router::add('empresa/delete', 'EmpresaController', 'delete', 'auth');
+Router::add('empresa/cambiarEstado', 'EmpresaController', 'cambiarEstado', 'auth');
+Router::add('empresa/ver', 'EmpresaController', 'ver', 'auth');
+
+// Alias para funciones de empresa desde AdminController
+Router::add('admin/crearEmpresa', 'EmpresaController', 'crear', 'auth');
+Router::add('admin/saveEmpresa', 'EmpresaController', 'save', 'auth');
+Router::add('admin/editarEmpresa', 'EmpresaController', 'editar', 'auth');
+Router::add('admin/updateEmpresa', 'EmpresaController', 'update', 'auth');
+Router::add('admin/eliminarEmpresa', 'EmpresaController', 'delete', 'auth');
+Router::add('admin/cambiarEstadoEmpresa', 'EmpresaController', 'cambiarEstado', 'auth');
+Router::add('admin/verEmpresa', 'EmpresaController', 'ver', 'auth');

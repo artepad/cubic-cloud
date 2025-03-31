@@ -1,0 +1,750 @@
+<?php
+require_once 'config/db.php';
+
+/**
+ * Clase Empresa
+ * 
+ * Gestiona todas las operaciones relacionadas con las empresas en el sistema,
+ * incluyendo creación, actualización, eliminación y consulta.
+ */
+class Empresa
+{
+    // Propiedades de la clase
+    private $id;
+    private $usuario_id;
+    private $nombre;
+    private $identificacion_fiscal;
+    private $direccion;
+    private $telefono;
+    private $email_contacto;
+    private $datos_facturacion;
+    private $pais;
+    private $codigo_pais;
+    private $imagen_empresa;
+    private $imagen_documento;
+    private $imagen_firma;
+    private $limite_usuarios;
+    private $limite_eventos;
+    private $limite_artistas;
+    private $limite_almacenamiento;
+    private $tipo_moneda;
+    private $estado;
+    private $es_demo;
+    private $demo_inicio;
+    private $demo_fin;
+    private $db;
+
+    /**
+     * Constructor de la clase
+     * Inicializa la conexión a la base de datos
+     */
+    public function __construct()
+    {
+        $this->db = Database::connect();
+    }
+
+    /**
+     * Getters y setters
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    public function getUsuarioId()
+    {
+        return $this->usuario_id;
+    }
+
+    public function setUsuarioId($usuario_id)
+    {
+        $this->usuario_id = $usuario_id;
+    }
+
+    public function getNombre()
+    {
+        return $this->nombre;
+    }
+
+    public function setNombre($nombre)
+    {
+        $this->nombre = $this->db->real_escape_string($nombre);
+    }
+
+    public function getIdentificacionFiscal()
+    {
+        return $this->identificacion_fiscal;
+    }
+
+    public function setIdentificacionFiscal($identificacion_fiscal)
+    {
+        $this->identificacion_fiscal = $this->db->real_escape_string($identificacion_fiscal);
+    }
+
+    public function getDireccion()
+    {
+        return $this->direccion;
+    }
+
+    public function setDireccion($direccion)
+    {
+        $this->direccion = $this->db->real_escape_string($direccion);
+    }
+
+    public function getTelefono()
+    {
+        return $this->telefono;
+    }
+
+    public function setTelefono($telefono)
+    {
+        $this->telefono = $this->db->real_escape_string($telefono);
+    }
+
+    public function getEmailContacto()
+    {
+        return $this->email_contacto;
+    }
+
+    public function setEmailContacto($email_contacto)
+    {
+        $this->email_contacto = $this->db->real_escape_string($email_contacto);
+    }
+
+    public function getDatosFacturacion()
+    {
+        return $this->datos_facturacion;
+    }
+
+    public function setDatosFacturacion($datos_facturacion)
+    {
+        // Si es un array, lo convertimos a JSON
+        if (is_array($datos_facturacion)) {
+            $this->datos_facturacion = json_encode($datos_facturacion);
+        } else {
+            // Validar que sea un JSON válido
+            json_decode($datos_facturacion);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $this->datos_facturacion = $datos_facturacion;
+            } else {
+                $this->datos_facturacion = '{}'; // JSON vacío por defecto
+            }
+        }
+    }
+
+    public function getPais()
+    {
+        return $this->pais;
+    }
+
+    public function setPais($pais)
+    {
+        $this->pais = $this->db->real_escape_string($pais);
+    }
+
+    public function getCodigoPais()
+    {
+        return $this->codigo_pais;
+    }
+
+    public function setCodigoPais($codigo_pais)
+    {
+        $this->codigo_pais = $this->db->real_escape_string($codigo_pais);
+    }
+
+    public function getImagenEmpresa()
+    {
+        return $this->imagen_empresa;
+    }
+
+    public function setImagenEmpresa($imagen_empresa)
+    {
+        $this->imagen_empresa = $this->db->real_escape_string($imagen_empresa);
+    }
+
+    public function getImagenDocumento()
+    {
+        return $this->imagen_documento;
+    }
+
+    public function setImagenDocumento($imagen_documento)
+    {
+        $this->imagen_documento = $this->db->real_escape_string($imagen_documento);
+    }
+
+    public function getImagenFirma()
+    {
+        return $this->imagen_firma;
+    }
+
+    public function setImagenFirma($imagen_firma)
+    {
+        $this->imagen_firma = $this->db->real_escape_string($imagen_firma);
+    }
+
+    public function getLimiteUsuarios()
+    {
+        return $this->limite_usuarios;
+    }
+
+    public function setLimiteUsuarios($limite_usuarios)
+    {
+        $this->limite_usuarios = (int)$limite_usuarios;
+    }
+
+    public function getLimiteEventos()
+    {
+        return $this->limite_eventos;
+    }
+
+    public function setLimiteEventos($limite_eventos)
+    {
+        $this->limite_eventos = (int)$limite_eventos;
+    }
+
+    public function getLimiteArtistas()
+    {
+        return $this->limite_artistas;
+    }
+
+    public function setLimiteArtistas($limite_artistas)
+    {
+        $this->limite_artistas = (int)$limite_artistas;
+    }
+
+    public function getLimiteAlmacenamiento()
+    {
+        return $this->limite_almacenamiento;
+    }
+
+    public function setLimiteAlmacenamiento($limite_almacenamiento)
+    {
+        $this->limite_almacenamiento = (int)$limite_almacenamiento;
+    }
+
+    public function getTipoMoneda()
+    {
+        return $this->tipo_moneda;
+    }
+
+    public function setTipoMoneda($tipo_moneda)
+    {
+        $monedas_validas = ['CLP', 'USD', 'EUR'];
+        if (in_array($tipo_moneda, $monedas_validas)) {
+            $this->tipo_moneda = $tipo_moneda;
+        } else {
+            $this->tipo_moneda = 'CLP'; // Valor por defecto
+        }
+    }
+
+    public function getEstado()
+    {
+        return $this->estado;
+    }
+
+    public function setEstado($estado)
+    {
+        $estados_validos = ['activa', 'suspendida'];
+        if (in_array($estado, $estados_validos)) {
+            $this->estado = $estado;
+        } else {
+            $this->estado = 'activa'; // Valor por defecto
+        }
+    }
+
+    public function getEsDemo()
+    {
+        return $this->es_demo;
+    }
+
+    public function setEsDemo($es_demo)
+    {
+        $opciones_validas = ['Si', 'No'];
+        if (in_array($es_demo, $opciones_validas)) {
+            $this->es_demo = $es_demo;
+        } else {
+            $this->es_demo = 'No'; // Valor por defecto
+        }
+    }
+
+    public function getDemoInicio()
+    {
+        return $this->demo_inicio;
+    }
+
+    public function setDemoInicio($demo_inicio)
+    {
+        $this->demo_inicio = $demo_inicio;
+    }
+
+    public function getDemoFin()
+    {
+        return $this->demo_fin;
+    }
+
+    public function setDemoFin($demo_fin)
+    {
+        $this->demo_fin = $demo_fin;
+    }
+
+    /**
+     * Guarda una nueva empresa en la base de datos
+     * 
+     * @return bool|int ID de la empresa creada o false si falla
+     */
+    public function save()
+    {
+        try {
+            $sql = "INSERT INTO empresas (
+                usuario_id, nombre, identificacion_fiscal, direccion, telefono, 
+                email_contacto, datos_facturacion, pais, codigo_pais,
+                imagen_empresa, imagen_documento, imagen_firma,
+                limite_usuarios, limite_eventos, limite_artistas, limite_almacenamiento,
+                tipo_moneda, estado, es_demo, demo_inicio, demo_fin
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            $stmt = $this->db->prepare($sql);
+
+            if (!$stmt) {
+                error_log("Error preparando consulta: " . $this->db->error);
+                return false;
+            }
+
+            // Valores por defecto para campos NULL
+            $demo_inicio = $this->demo_inicio ?: null;
+            $demo_fin = $this->demo_fin ?: null;
+            $datos_facturacion = $this->datos_facturacion ?: '{}';
+
+            $stmt->bind_param(
+                "isssssssssssiiiiissss",
+                $this->usuario_id,
+                $this->nombre,
+                $this->identificacion_fiscal,
+                $this->direccion,
+                $this->telefono,
+                $this->email_contacto,
+                $datos_facturacion,
+                $this->pais,
+                $this->codigo_pais,
+                $this->imagen_empresa,
+                $this->imagen_documento,
+                $this->imagen_firma,
+                $this->limite_usuarios,
+                $this->limite_eventos,
+                $this->limite_artistas,
+                $this->limite_almacenamiento,
+                $this->tipo_moneda,
+                $this->estado,
+                $this->es_demo,
+                $demo_inicio,
+                $demo_fin
+            );
+
+            if ($stmt->execute()) {
+                $id = $this->db->insert_id;
+                $stmt->close();
+                return $id;
+            }
+
+            $stmt->close();
+            return false;
+        } catch (Exception $e) {
+            error_log("Error en save: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Actualiza una empresa existente en la base de datos
+     * 
+     * @return bool Resultado de la operación
+     */
+    public function update()
+    {
+        try {
+            $sql = "UPDATE empresas SET 
+                usuario_id = ?,
+                nombre = ?,
+                identificacion_fiscal = ?,
+                direccion = ?,
+                telefono = ?,
+                email_contacto = ?,
+                datos_facturacion = ?,
+                pais = ?,
+                codigo_pais = ?,
+                imagen_empresa = ?,
+                imagen_documento = ?,
+                imagen_firma = ?,
+                limite_usuarios = ?,
+                limite_eventos = ?,
+                limite_artistas = ?,
+                limite_almacenamiento = ?,
+                tipo_moneda = ?,
+                estado = ?,
+                es_demo = ?,
+                demo_inicio = ?,
+                demo_fin = ?
+                WHERE id = ?";
+
+            $stmt = $this->db->prepare($sql);
+
+            if (!$stmt) {
+                error_log("Error preparando consulta: " . $this->db->error);
+                return false;
+            }
+
+            // Valores por defecto para campos NULL
+            $demo_inicio = $this->demo_inicio ?: null;
+            $demo_fin = $this->demo_fin ?: null;
+            $datos_facturacion = $this->datos_facturacion ?: '{}';
+
+            $stmt->bind_param(
+                "isssssssssssiiiiissssi",
+                $this->usuario_id,
+                $this->nombre,
+                $this->identificacion_fiscal,
+                $this->direccion,
+                $this->telefono,
+                $this->email_contacto,
+                $datos_facturacion,
+                $this->pais,
+                $this->codigo_pais,
+                $this->imagen_empresa,
+                $this->imagen_documento,
+                $this->imagen_firma,
+                $this->limite_usuarios,
+                $this->limite_eventos,
+                $this->limite_artistas,
+                $this->limite_almacenamiento,
+                $this->tipo_moneda,
+                $this->estado,
+                $this->es_demo,
+                $demo_inicio,
+                $demo_fin,
+                $this->id
+            );
+
+            $result = $stmt->execute();
+            $stmt->close();
+
+            return $result;
+        } catch (Exception $e) {
+            error_log("Error en update: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene una empresa por su ID
+     * 
+     * @param int $id ID de la empresa a buscar
+     * @return object|false Objeto con datos de la empresa o false si no se encuentra
+     */
+    public function getById($id)
+    {
+        try {
+            $id = (int)$id; // Asegurar que es un entero
+
+            $sql = "SELECT * FROM empresas WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+
+            if (!$stmt) {
+                error_log("Error preparando consulta: " . $this->db->error);
+                return false;
+            }
+
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result && $result->num_rows == 1) {
+                $empresa = $result->fetch_object();
+                $stmt->close();
+                return $empresa;
+            }
+
+            $stmt->close();
+            return false;
+        } catch (Exception $e) {
+            error_log("Error en getById: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene todas las empresas con posibilidad de filtrado
+     * 
+     * @param array $filters Criterios de filtrado (opcional)
+     * @param int $limit Límite de resultados (opcional)
+     * @param int $offset Desplazamiento para paginación (opcional)
+     * @return array Lista de empresas
+     */
+    public function getAll($filters = [], $limit = null, $offset = 0)
+    {
+        try {
+            // Construir la consulta base
+            $sql = "SELECT e.*, u.nombre as admin_nombre, u.apellido as admin_apellido, u.email as admin_email 
+                   FROM empresas e 
+                   LEFT JOIN usuarios u ON e.usuario_id = u.id 
+                   WHERE 1=1";
+            
+            $params = [];
+            $types = "";
+            
+            // Aplicar filtros si existen
+            if (!empty($filters)) {
+                if (isset($filters['estado']) && $filters['estado']) {
+                    $sql .= " AND e.estado = ?";
+                    $params[] = $filters['estado'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['es_demo']) && $filters['es_demo']) {
+                    $sql .= " AND e.es_demo = ?";
+                    $params[] = $filters['es_demo'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['pais']) && $filters['pais']) {
+                    $sql .= " AND e.codigo_pais = ?";
+                    $params[] = $filters['pais'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['busqueda']) && $filters['busqueda']) {
+                    $busqueda = "%" . $filters['busqueda'] . "%";
+                    $sql .= " AND (e.nombre LIKE ? OR e.identificacion_fiscal LIKE ?)";
+                    $params[] = $busqueda;
+                    $params[] = $busqueda;
+                    $types .= "ss";
+                }
+            }
+            
+            // Ordenar resultados
+            $sql .= " ORDER BY e.id DESC";
+            
+            // Limitar resultados para paginación
+            if ($limit !== null) {
+                $sql .= " LIMIT ?, ?";
+                $params[] = (int)$offset;
+                $params[] = (int)$limit;
+                $types .= "ii";
+            }
+            
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                error_log("Error preparando consulta: " . $this->db->error);
+                return [];
+            }
+            
+            // Bind de parámetros si existen
+            if (!empty($params)) {
+                $stmt->bind_param($types, ...$params);
+            }
+            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            $empresas = [];
+            while ($empresa = $result->fetch_object()) {
+                // Convertir el JSON a un array asociativo si existe
+                if (isset($empresa->datos_facturacion)) {
+                    $empresa->datos_facturacion_array = json_decode($empresa->datos_facturacion, true);
+                }
+                $empresas[] = $empresa;
+            }
+            
+            $stmt->close();
+            return $empresas;
+        } catch (Exception $e) {
+            error_log("Error en getAll: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Cuenta el número total de empresas según los criterios de filtrado
+     * 
+     * @param array $filters Criterios de filtrado (opcional)
+     * @return int Número total de empresas
+     */
+    public function countAll($filters = [])
+    {
+        try {
+            // Construir la consulta base
+            $sql = "SELECT COUNT(*) as total FROM empresas WHERE 1=1";
+            $params = [];
+            $types = "";
+            
+            // Aplicar filtros si existen
+            if (!empty($filters)) {
+                if (isset($filters['estado']) && $filters['estado']) {
+                    $sql .= " AND estado = ?";
+                    $params[] = $filters['estado'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['es_demo']) && $filters['es_demo']) {
+                    $sql .= " AND es_demo = ?";
+                    $params[] = $filters['es_demo'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['pais']) && $filters['pais']) {
+                    $sql .= " AND codigo_pais = ?";
+                    $params[] = $filters['pais'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['busqueda']) && $filters['busqueda']) {
+                    $busqueda = "%" . $filters['busqueda'] . "%";
+                    $sql .= " AND (nombre LIKE ? OR identificacion_fiscal LIKE ?)";
+                    $params[] = $busqueda;
+                    $params[] = $busqueda;
+                    $types .= "ss";
+                }
+            }
+            
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                error_log("Error preparando consulta: " . $this->db->error);
+                return 0;
+            }
+            
+            // Bind de parámetros si existen
+            if (!empty($params)) {
+                $stmt->bind_param($types, ...$params);
+            }
+            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_object();
+            
+            $stmt->close();
+            return (int)$row->total;
+        } catch (Exception $e) {
+            error_log("Error en countAll: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Elimina una empresa por su ID
+     * 
+     * @param int $id ID de la empresa a eliminar
+     * @return bool Resultado de la operación
+     */
+    public function delete($id)
+    {
+        try {
+            $id = (int)$id; // Asegurar que es un entero
+            
+            $sql = "DELETE FROM empresas WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                error_log("Error preparando consulta: " . $this->db->error);
+                return false;
+            }
+            
+            $stmt->bind_param("i", $id);
+            $result = $stmt->execute();
+            $stmt->close();
+            
+            return $result;
+        } catch (Exception $e) {
+            error_log("Error en delete: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Cambia el estado de una empresa
+     * 
+     * @param int $id ID de la empresa
+     * @param string $estado Nuevo estado ('activa' o 'suspendida')
+     * @return bool Resultado de la operación
+     */
+    public function cambiarEstado($id, $estado)
+    {
+        try {
+            $id = (int)$id; // Asegurar que es un entero
+            
+            // Validar estado
+            if (!in_array($estado, ['activa', 'suspendida'])) {
+                return false;
+            }
+            
+            $sql = "UPDATE empresas SET estado = ? WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                error_log("Error preparando consulta: " . $this->db->error);
+                return false;
+            }
+            
+            $stmt->bind_param("si", $estado, $id);
+            $result = $stmt->execute();
+            $stmt->close();
+            
+            return $result;
+        } catch (Exception $e) {
+            error_log("Error en cambiarEstado: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Verifica si una identificación fiscal ya existe
+     * 
+     * @param string $identificacion Identificación fiscal a verificar
+     * @param int $exclude_id ID de empresa a excluir de la verificación (opcional)
+     * @return bool True si la identificación ya existe
+     */
+    public function identificacionExists($identificacion, $exclude_id = null)
+    {
+        try {
+            // No verificar si está vacío
+            if (empty($identificacion)) {
+                return false;
+            }
+            
+            $sql = "SELECT id FROM empresas WHERE identificacion_fiscal = ?";
+            
+            // Si se proporciona un ID para excluir, modificar la consulta
+            if ($exclude_id) {
+                $sql .= " AND id != ?";
+            }
+            
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                error_log("Error preparando consulta: " . $this->db->error);
+                return true; // Devolver true por precaución
+            }
+            
+            if ($exclude_id) {
+                $stmt->bind_param("si", $identificacion, $exclude_id);
+            } else {
+                $stmt->bind_param("s", $identificacion);
+            }
+            
+            $stmt->execute();
+            $stmt->store_result();
+            $exists = $stmt->num_rows > 0;
+            $stmt->close();
+            
+            return $exists;
+        } catch (Exception $e) {
+            error_log("Error en identificacionExists: " . $e->getMessage());
+            return true; // Devolver true por precaución
+        }
+    }
+}
