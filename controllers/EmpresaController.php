@@ -133,9 +133,6 @@ class EmpresaController
                 return;
             }
 
-            // Procesar datos de facturación (si existen)
-            $datos_facturacion = isset($_POST['datos_facturacion']) ? $_POST['datos_facturacion'] : [];
-
             // Crear y configurar el objeto Empresa
             $empresa = new Empresa();
             $empresa->setUsuarioId($_POST['usuario_id']);
@@ -144,13 +141,17 @@ class EmpresaController
             $empresa->setDireccion($_POST['direccion']);
             $empresa->setTelefono($_POST['telefono'] ?? '');
             $empresa->setEmailContacto($_POST['email_contacto'] ?? '');
-            $empresa->setDatosFacturacion($datos_facturacion);
+            
+            // Configurar datos de facturación como campos individuales
+            $empresa->setRazonSocialFacturacion($_POST['razon_social_facturacion'] ?? '');
+            $empresa->setDireccionFacturacion($_POST['direccion_facturacion'] ?? '');
+            $empresa->setCiudadFacturacion($_POST['ciudad_facturacion'] ?? '');
+            $empresa->setCodigoPostal($_POST['codigo_postal'] ?? '');
+            $empresa->setContactoFacturacion($_POST['contacto_facturacion'] ?? '');
+            $empresa->setEmailFacturacion($_POST['email_facturacion'] ?? '');
+            
             $empresa->setPais($_POST['pais']);
             $empresa->setCodigoPais($_POST['codigo_pais'] ?? '');
-            $empresa->setLimiteUsuarios($_POST['limite_usuarios'] ?? 1);
-            $empresa->setLimiteEventos($_POST['limite_eventos'] ?? 10);
-            $empresa->setLimiteArtistas($_POST['limite_artistas'] ?? 5);
-            $empresa->setLimiteAlmacenamiento(100); // Valor por defecto
             $empresa->setTipoMoneda($_POST['tipo_moneda'] ?? 'CLP');
             $empresa->setEstado($_POST['estado'] ?? 'activa');
             
@@ -310,9 +311,6 @@ class EmpresaController
                 return;
             }
 
-            // Procesar datos de facturación (si existen)
-            $datos_facturacion = isset($_POST['datos_facturacion']) ? $_POST['datos_facturacion'] : [];
-
             // Crear y configurar el objeto Empresa
             $empresa = new Empresa();
             $empresa->setId($id);
@@ -322,13 +320,17 @@ class EmpresaController
             $empresa->setDireccion($_POST['direccion']);
             $empresa->setTelefono($_POST['telefono'] ?? '');
             $empresa->setEmailContacto($_POST['email_contacto'] ?? '');
-            $empresa->setDatosFacturacion($datos_facturacion);
+            
+            // Configurar datos de facturación como campos individuales
+            $empresa->setRazonSocialFacturacion($_POST['razon_social_facturacion'] ?? '');
+            $empresa->setDireccionFacturacion($_POST['direccion_facturacion'] ?? '');
+            $empresa->setCiudadFacturacion($_POST['ciudad_facturacion'] ?? '');
+            $empresa->setCodigoPostal($_POST['codigo_postal'] ?? '');
+            $empresa->setContactoFacturacion($_POST['contacto_facturacion'] ?? '');
+            $empresa->setEmailFacturacion($_POST['email_facturacion'] ?? '');
+            
             $empresa->setPais($_POST['pais']);
             $empresa->setCodigoPais($_POST['codigo_pais'] ?? '');
-            $empresa->setLimiteUsuarios($_POST['limite_usuarios'] ?? 1);
-            $empresa->setLimiteEventos($_POST['limite_eventos'] ?? 10);
-            $empresa->setLimiteArtistas($_POST['limite_artistas'] ?? 5);
-            $empresa->setLimiteAlmacenamiento($empresa_actual->limite_almacenamiento); // Mantener el valor actual
             $empresa->setTipoMoneda($_POST['tipo_moneda'] ?? 'CLP');
             $empresa->setEstado($_POST['estado'] ?? 'activa');
             
@@ -539,9 +541,6 @@ class EmpresaController
 
         // Obtener información del administrador
         $admin = $this->usuarioModel->getById($empresa->usuario_id);
-
-        // Convertir datos de facturación JSON a array
-        $datos_facturacion = json_decode($empresa->datos_facturacion, true) ?: [];
 
         // Cargar la vista
         require_once 'views/admin/empresas/ver.php';

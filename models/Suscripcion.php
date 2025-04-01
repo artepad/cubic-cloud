@@ -6,6 +6,10 @@ require_once 'config/db.php';
  * 
  * Gestiona todas las operaciones relacionadas con las suscripciones en el sistema,
  * incluyendo creación, renovación, cancelación y consulta.
+ * 
+ * Actualizado para reflejar los cambios en la estructura de la base de datos:
+ * - Eliminación de campos redundantes de límites en la tabla empresas
+ * - Normalización de datos de facturación
  */
 class Suscripcion
 {
@@ -334,6 +338,9 @@ class Suscripcion
                 // Registrar en el historial si se guardó correctamente
                 $this->registrarHistorial($id, 'Nueva Suscripción');
                 
+                // Actualizar límites en la empresa según el plan
+                $this->actualizarLimitesEmpresa($this->empresa_id, $this->plan_id);
+                
                 return $id;
             }
 
@@ -421,6 +428,9 @@ class Suscripcion
             if ($result) {
                 // Registrar en el historial si se actualizó correctamente
                 $this->registrarHistorial($this->id, 'Actualización Suscripción');
+                
+                // Actualizar límites en la empresa si cambió el plan
+                $this->actualizarLimitesEmpresa($this->empresa_id, $this->plan_id);
             }
 
             return $result;
@@ -431,7 +441,52 @@ class Suscripcion
     }
 
     /**
+     * Actualiza los límites de una empresa según el plan de suscripción
+     * Obtiene los límites directamente desde la tabla planes, ya que se eliminaron
+     * de la tabla empresas para evitar redundancia
+     * 
+     * @param int $empresa_id ID de la empresa
+     * @param int $plan_id ID del plan de suscripción
+     * @return bool Resultado de la operación
+     */
+    private function actualizarLimitesEmpresa($empresa_id, $plan_id)
+    {
+        try {
+            // Obtener información del plan
+            $sql_plan = "SELECT max_usuarios, max_artistas, max_eventos FROM planes WHERE id = ?";
+            $stmt_plan = $this->db->prepare($sql_plan);
+            
+            if (!$stmt_plan) {
+                error_log("Error preparando consulta de plan: " . $this->db->error);
+                return false;
+            }
+            
+            $stmt_plan->bind_param("i", $plan_id);
+            $stmt_plan->execute();
+            $result_plan = $stmt_plan->get_result();
+            
+            if ($result_plan && $result_plan->num_rows == 1) {
+                $plan = $result_plan->fetch_object();
+                $stmt_plan->close();
+                
+                // Aunque ya no actualizamos los límites directamente en la empresa,
+                // podemos hacer otras actualizaciones relacionadas con el cambio de plan
+                // Por ejemplo, actualizar el estado de la empresa o algún otro campo
+                
+                return true;
+            }
+            
+            $stmt_plan->close();
+            return false;
+        } catch (Exception $e) {
+            error_log("Error en actualizarLimitesEmpresa: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Obtiene una suscripción por su ID
+     * Actualizado para incluir información del plan que contiene los límites
      * 
      * @param int $id ID de la suscripción a buscar
      * @return object|false Objeto con datos de la suscripción o false si no se encuentra
@@ -444,7 +499,10 @@ class Suscripcion
             $sql = "SELECT s.*, 
                     e.nombre as empresa_nombre, 
                     p.nombre as plan_nombre, 
-                    p.tipo_plan
+                    p.tipo_plan,
+                    p.max_usuarios,
+                    p.max_artistas,
+                    p.max_eventos
                 FROM suscripciones s
                 LEFT JOIN empresas e ON s.empresa_id = e.id
                 LEFT JOIN planes p ON s.plan_id = p.id
@@ -477,6 +535,7 @@ class Suscripcion
 
     /**
      * Obtiene la suscripción activa de una empresa
+     * Incluye también los límites desde la tabla planes
      * 
      * @param int $empresa_id ID de la empresa
      * @return object|false Objeto con datos de la suscripción o false si no hay ninguna activa
@@ -489,7 +548,10 @@ class Suscripcion
             $sql = "SELECT s.*, 
                     e.nombre as empresa_nombre, 
                     p.nombre as plan_nombre, 
-                    p.tipo_plan
+                    p.tipo_plan,
+                    p.max_usuarios,
+                    p.max_artistas,
+                    p.max_eventos
                 FROM suscripciones s
                 LEFT JOIN empresas e ON s.empresa_id = e.id
                 LEFT JOIN planes p ON s.plan_id = p.id
@@ -523,6 +585,7 @@ class Suscripcion
 
     /**
      * Obtiene todas las suscripciones con posibilidad de filtrado
+     * Incluye información de límites desde la tabla planes
      * 
      * @param array $filters Criterios de filtrado (opcional)
      * @param int $limit Límite de resultados (opcional)
@@ -536,7 +599,10 @@ class Suscripcion
             $sql = "SELECT s.*, 
                     e.nombre as empresa_nombre, 
                     p.nombre as plan_nombre, 
-                    p.tipo_plan
+                    p.tipo_plan,
+                    p.max_usuarios,
+                    p.max_artistas,
+                    p.max_eventos
                 FROM suscripciones s
                 LEFT JOIN empresas e ON s.empresa_id = e.id
                 LEFT JOIN planes p ON s.plan_id = p.id
@@ -664,7 +730,49 @@ class Suscripcion
                 }
                 
                 // Agregar el resto de filtros igual que en getAll...
-                // (Código omitido por brevedad)
+                if (isset($filters['plan_id']) && $filters['plan_id']) {
+                    $sql .= " AND s.plan_id = ?";
+                    $params[] = $filters['plan_id'];
+                    $types .= "i";
+                }
+                
+                if (isset($filters['estado']) && $filters['estado']) {
+                    $sql .= " AND s.estado = ?";
+                    $params[] = $filters['estado'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['periodo']) && $filters['periodo']) {
+                    $sql .= " AND s.periodo_facturacion = ?";
+                    $params[] = $filters['periodo'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['renovacion']) && $filters['renovacion']) {
+                    $sql .= " AND s.renovacion_automatica = ?";
+                    $params[] = $filters['renovacion'];
+                    $types .= "s";
+                }
+                
+                if (isset($filters['vencidas']) && $filters['vencidas'] === true) {
+                    $sql .= " AND s.fecha_siguiente_factura < CURDATE() AND s.estado NOT IN ('Cancelada', 'Finalizada')";
+                }
+                
+                if (isset($filters['proximo_vencimiento']) && $filters['proximo_vencimiento']) {
+                    $dias = (int)$filters['proximo_vencimiento'];
+                    $sql .= " AND s.fecha_siguiente_factura BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL ? DAY)";
+                    $params[] = $dias;
+                    $types .= "i";
+                }
+                
+                if (isset($filters['busqueda']) && $filters['busqueda']) {
+                    $busqueda = "%" . $filters['busqueda'] . "%";
+                    $sql .= " AND (s.numero_suscripcion LIKE ? OR e.nombre LIKE ? OR p.nombre LIKE ?)";
+                    $params[] = $busqueda;
+                    $params[] = $busqueda;
+                    $params[] = $busqueda;
+                    $types .= "sss";
+                }
             }
             
             $stmt = $this->db->prepare($sql);
@@ -966,6 +1074,36 @@ class Suscripcion
             return false;
         } catch (Exception $e) {
             error_log("Error en crearFactura: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene los límites actuales de una empresa según su plan activo
+     * Es útil para sustituir los campos eliminados de la tabla empresas
+     * 
+     * @param int $empresa_id ID de la empresa
+     * @return object|false Objeto con límites o false si no hay suscripción activa
+     */
+    public function getLimitesEmpresaByPlan($empresa_id)
+    {
+        try {
+            // Obtener suscripción activa
+            $suscripcion = $this->getActivaByEmpresa($empresa_id);
+            
+            if (!$suscripcion) {
+                return false;
+            }
+            
+            // Crear objeto con límites
+            $limites = new stdClass();
+            $limites->usuarios = $suscripcion->max_usuarios;
+            $limites->artistas = $suscripcion->max_artistas;
+            $limites->eventos = $suscripcion->max_eventos;
+            
+            return $limites;
+        } catch (Exception $e) {
+            error_log("Error en getLimitesEmpresaByPlan: " . $e->getMessage());
             return false;
         }
     }

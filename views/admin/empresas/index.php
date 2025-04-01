@@ -79,7 +79,7 @@ $total_empresas = count($empresas);
             
             <!-- Tabla de empresas -->
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped" id="tabla-empresas">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -87,6 +87,7 @@ $total_empresas = count($empresas);
                             <th>Identificación</th>
                             <th>Administrador</th>
                             <th>País</th>
+                            <th>Plan</th>
                             <th>Tipo</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -101,6 +102,14 @@ $total_empresas = count($empresas);
                                     <td><?= htmlspecialchars($empresa->identificacion_fiscal ?: '-') ?></td>
                                     <td><?= isset($empresa->admin_nombre) ? htmlspecialchars($empresa->admin_nombre . ' ' . $empresa->admin_apellido) : 'Sin asignar' ?></td>
                                     <td><?= htmlspecialchars($empresa->pais) ?></td>
+                                    <td>
+                                        <?php
+                                            // Obtenemos el plan asociado a través de la suscripción activa
+                                            $suscripcion = isset($empresa->suscripcion) ? $empresa->suscripcion : null;
+                                            $plan_nombre = $suscripcion ? htmlspecialchars($suscripcion->plan_nombre) : 'Sin plan';
+                                            echo $plan_nombre;
+                                        ?>
+                                    </td>
                                     <td>
                                         <?php if ($empresa->es_demo == 'Si'): ?>
                                             <span class="label label-warning">Demo</span>
@@ -141,7 +150,7 @@ $total_empresas = count($empresas);
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" class="text-center">No hay empresas registradas</td>
+                                <td colspan="9" class="text-center">No hay empresas registradas</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -187,6 +196,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof $ !== 'undefined' && typeof $.fn.tooltip !== 'undefined') {
         $('[data-toggle="tooltip"]').tooltip();
     }
+    
+    // Inicializar datatables si está disponible
+    if (typeof $ !== 'undefined' && typeof $.fn.DataTable !== 'undefined') {
+        $('#tabla-empresas').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+            },
+            "pageLength": 10,
+            "order": [[ 0, "desc" ]]
+        });
+    }
 });
 
 // Confirmar cambio de estado
@@ -227,5 +247,15 @@ function confirmarEliminar(id) {
 .pagination > .active > a:hover {
     background-color: #26c6da;
     border-color: #26c6da;
+}
+.table th {
+    font-weight: 600;
+    text-align: center;
+}
+.label {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 12px;
+    font-weight: 500;
 }
 </style>

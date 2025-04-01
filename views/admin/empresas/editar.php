@@ -13,9 +13,6 @@ if (!isset($empresa) || !$empresa) {
 // Cargar modelo de Usuario para obtener los administradores disponibles
 $usuario_model = new Usuario();
 $administradores = $usuario_model->getAll(['tipo_usuario' => 'ADMIN', 'estado' => 'Activo']);
-
-// Obtener datos de facturación como array si existen
-$datos_facturacion = json_decode($empresa->datos_facturacion, true) ?: [];
 ?>
 
 <div class="row">
@@ -164,8 +161,8 @@ $datos_facturacion = json_decode($empresa->datos_facturacion, true) ?: [];
                         <div class="form-group">
                             <label class="col-md-3 control-label">Razón Social</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[razon_social]" id="razon_social" 
-                                       value="<?= isset($datos_facturacion['razon_social']) ? htmlspecialchars($datos_facturacion['razon_social']) : '' ?>"
+                                <input type="text" class="form-control" name="razon_social_facturacion" id="razon_social_facturacion" 
+                                       value="<?= htmlspecialchars($empresa->razon_social_facturacion ?? '') ?>"
                                        placeholder="Razón social para facturación">
                                 <small class="help-block">Nombre para facturación (si es diferente al nombre de la empresa)</small>
                             </div>
@@ -173,8 +170,8 @@ $datos_facturacion = json_decode($empresa->datos_facturacion, true) ?: [];
                         <div class="form-group">
                             <label class="col-md-3 control-label">Dirección de Facturación</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[direccion_facturacion]" id="direccion_facturacion" 
-                                       value="<?= isset($datos_facturacion['direccion_facturacion']) ? htmlspecialchars($datos_facturacion['direccion_facturacion']) : '' ?>"
+                                <input type="text" class="form-control" name="direccion_facturacion" id="direccion_facturacion" 
+                                       value="<?= htmlspecialchars($empresa->direccion_facturacion ?? '') ?>"
                                        placeholder="Dirección para facturación">
                                 <small class="help-block">Dirección a la que se enviarán las facturas</small>
                             </div>
@@ -182,24 +179,24 @@ $datos_facturacion = json_decode($empresa->datos_facturacion, true) ?: [];
                         <div class="form-group">
                             <label class="col-md-3 control-label">Ciudad</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[ciudad_facturacion]" id="ciudad_facturacion" 
-                                       value="<?= isset($datos_facturacion['ciudad_facturacion']) ? htmlspecialchars($datos_facturacion['ciudad_facturacion']) : '' ?>"
+                                <input type="text" class="form-control" name="ciudad_facturacion" id="ciudad_facturacion" 
+                                       value="<?= htmlspecialchars($empresa->ciudad_facturacion ?? '') ?>"
                                        placeholder="Ciudad para facturación">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Código Postal</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[codigo_postal]" id="codigo_postal" 
-                                       value="<?= isset($datos_facturacion['codigo_postal']) ? htmlspecialchars($datos_facturacion['codigo_postal']) : '' ?>"
+                                <input type="text" class="form-control" name="codigo_postal" id="codigo_postal" 
+                                       value="<?= htmlspecialchars($empresa->codigo_postal ?? '') ?>"
                                        placeholder="Código postal para facturación">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Email de Facturación</label>
                             <div class="col-md-6">
-                                <input type="email" class="form-control" name="datos_facturacion[email_facturacion]" id="email_facturacion" 
-                                       value="<?= isset($datos_facturacion['email_facturacion']) ? htmlspecialchars($datos_facturacion['email_facturacion']) : '' ?>"
+                                <input type="email" class="form-control" name="email_facturacion" id="email_facturacion" 
+                                       value="<?= htmlspecialchars($empresa->email_facturacion ?? '') ?>"
                                        placeholder="facturacion@empresa.com">
                                 <small class="help-block">Email al que se enviarán los comprobantes de pago</small>
                             </div>
@@ -207,8 +204,8 @@ $datos_facturacion = json_decode($empresa->datos_facturacion, true) ?: [];
                         <div class="form-group">
                             <label class="col-md-3 control-label">Contacto de Facturación</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[contacto_facturacion]" id="contacto_facturacion" 
-                                       value="<?= isset($datos_facturacion['contacto_facturacion']) ? htmlspecialchars($datos_facturacion['contacto_facturacion']) : '' ?>"
+                                <input type="text" class="form-control" name="contacto_facturacion" id="contacto_facturacion" 
+                                       value="<?= htmlspecialchars($empresa->contacto_facturacion ?? '') ?>"
                                        placeholder="Nombre del contacto para facturación">
                                 <small class="help-block">Persona de contacto para temas de facturación</small>
                             </div>
@@ -277,30 +274,6 @@ $datos_facturacion = json_decode($empresa->datos_facturacion, true) ?: [];
                         <h4 class="panel-title"><i class="fa fa-cogs m-r-5"></i> Configuración</h4>
                     </div>
                     <div class="panel-body">
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Límite de Usuarios</label>
-                            <div class="col-md-6">
-                                <input type="number" class="form-control" name="limite_usuarios" id="limite_usuarios" 
-                                       value="<?= $empresa->limite_usuarios ?>" min="1" step="1">
-                                <small class="help-block">Cantidad máxima de usuarios permitidos</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Límite de Eventos</label>
-                            <div class="col-md-6">
-                                <input type="number" class="form-control" name="limite_eventos" id="limite_eventos" 
-                                       value="<?= $empresa->limite_eventos ?>" min="1" step="1">
-                                <small class="help-block">Cantidad máxima de eventos</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Límite de Artistas</label>
-                            <div class="col-md-6">
-                                <input type="number" class="form-control" name="limite_artistas" id="limite_artistas" 
-                                       value="<?= $empresa->limite_artistas ?>" min="1" step="1">
-                                <small class="help-block">Cantidad máxima de artistas</small>
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Moneda <span class="text-danger">*</span></label>
                             <div class="col-md-6">

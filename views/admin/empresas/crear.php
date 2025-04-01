@@ -151,7 +151,7 @@ $planes = $plan_model->getPlanesPublicados();
                         <div class="form-group">
                             <label class="col-md-3 control-label">Razón Social</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[razon_social]" id="razon_social" 
+                                <input type="text" class="form-control" name="razon_social_facturacion" id="razon_social_facturacion" 
                                        placeholder="Razón social para facturación">
                                 <small class="help-block">Nombre para facturación (si es diferente al nombre de la empresa)</small>
                             </div>
@@ -159,7 +159,7 @@ $planes = $plan_model->getPlanesPublicados();
                         <div class="form-group">
                             <label class="col-md-3 control-label">Dirección de Facturación</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[direccion_facturacion]" id="direccion_facturacion" 
+                                <input type="text" class="form-control" name="direccion_facturacion" id="direccion_facturacion" 
                                        placeholder="Dirección para facturación">
                                 <small class="help-block">Dirección a la que se enviarán las facturas</small>
                             </div>
@@ -167,21 +167,21 @@ $planes = $plan_model->getPlanesPublicados();
                         <div class="form-group">
                             <label class="col-md-3 control-label">Ciudad</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[ciudad_facturacion]" id="ciudad_facturacion" 
+                                <input type="text" class="form-control" name="ciudad_facturacion" id="ciudad_facturacion" 
                                        placeholder="Ciudad para facturación">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Código Postal</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[codigo_postal]" id="codigo_postal" 
+                                <input type="text" class="form-control" name="codigo_postal" id="codigo_postal" 
                                        placeholder="Código postal para facturación">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Email de Facturación</label>
                             <div class="col-md-6">
-                                <input type="email" class="form-control" name="datos_facturacion[email_facturacion]" id="email_facturacion" 
+                                <input type="email" class="form-control" name="email_facturacion" id="email_facturacion" 
                                        placeholder="facturacion@empresa.com">
                                 <small class="help-block">Email al que se enviarán los comprobantes de pago</small>
                             </div>
@@ -189,7 +189,7 @@ $planes = $plan_model->getPlanesPublicados();
                         <div class="form-group">
                             <label class="col-md-3 control-label">Contacto de Facturación</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="datos_facturacion[contacto_facturacion]" id="contacto_facturacion" 
+                                <input type="text" class="form-control" name="contacto_facturacion" id="contacto_facturacion" 
                                        placeholder="Nombre del contacto para facturación">
                                 <small class="help-block">Persona de contacto para temas de facturación</small>
                             </div>
@@ -238,10 +238,7 @@ $planes = $plan_model->getPlanesPublicados();
                                     <option value="">Seleccione un plan...</option>
                                     <?php if (!empty($planes)): ?>
                                         <?php foreach ($planes as $plan): ?>
-                                            <option value="<?= $plan->id ?>" 
-                                                   data-usuarios="<?= $plan->max_usuarios ?>"
-                                                   data-eventos="<?= $plan->max_eventos ?>"
-                                                   data-artistas="<?= $plan->max_artistas ?>">
+                                            <option value="<?= $plan->id ?>">
                                                 <?= htmlspecialchars($plan->nombre . ' (' . $plan->tipo_plan . ')') ?>
                                             </option>
                                         <?php endforeach; ?>
@@ -259,30 +256,6 @@ $planes = $plan_model->getPlanesPublicados();
                                     <option value="Anual">Anual</option>
                                 </select>
                                 <small class="help-block">Período de facturación</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Límite de Usuarios</label>
-                            <div class="col-md-6">
-                                <input type="number" class="form-control" name="limite_usuarios" id="limite_usuarios" 
-                                       value="1" min="1" step="1">
-                                <small class="help-block">Cantidad máxima de usuarios permitidos (según plan)</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Límite de Eventos</label>
-                            <div class="col-md-6">
-                                <input type="number" class="form-control" name="limite_eventos" id="limite_eventos" 
-                                       value="10" min="1" step="1">
-                                <small class="help-block">Cantidad máxima de eventos (según plan)</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Límite de Artistas</label>
-                            <div class="col-md-6">
-                                <input type="number" class="form-control" name="limite_artistas" id="limite_artistas" 
-                                       value="5" min="1" step="1">
-                                <small class="help-block">Cantidad máxima de artistas (según plan)</small>
                             </div>
                         </div>
                         <div class="form-group">
@@ -378,22 +351,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     esDemo.addEventListener('change', function() {
         demoFechas.style.display = esDemo.checked ? 'block' : 'none';
-    });
-    
-    // Actualizar límites según el plan seleccionado
-    const planSelect = document.getElementById('plan_id');
-    const limiteUsuarios = document.getElementById('limite_usuarios');
-    const limiteEventos = document.getElementById('limite_eventos');
-    const limiteArtistas = document.getElementById('limite_artistas');
-    
-    planSelect.addEventListener('change', function() {
-        const selectedOption = planSelect.options[planSelect.selectedIndex];
-        if (selectedOption.value) {
-            // Actualizar límites según el plan
-            limiteUsuarios.value = selectedOption.getAttribute('data-usuarios') || 1;
-            limiteEventos.value = selectedOption.getAttribute('data-eventos') || 10;
-            limiteArtistas.value = selectedOption.getAttribute('data-artistas') || 5;
-        }
     });
     
     // Validar formulario antes de enviar
