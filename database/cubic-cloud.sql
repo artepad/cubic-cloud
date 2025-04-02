@@ -570,65 +570,47 @@ CREATE TABLE planes (
 -- - Configuración de renovación automática
 -- - Información de pagos
 -- ========================================
+-- Crear la tabla simplificada de suscripciones
 CREATE TABLE suscripciones (
     id INT AUTO_INCREMENT,
     empresa_id INT NOT NULL COMMENT 'Empresa suscrita',
     plan_id INT NOT NULL COMMENT 'Plan contratado',
     
-    -- Información de la suscripción
+    -- Información básica
     numero_suscripcion VARCHAR(20) NOT NULL COMMENT 'Identificador único para facturación',
-    periodo_facturacion ENUM('Mensual', 'Semestral', 'Anual') NOT NULL DEFAULT 'Mensual' 
-        COMMENT 'Período de facturación elegido',
+    estado ENUM('Activa', 'Pendiente', 'Suspendida', 'Cancelada', 'Finalizada') 
+        NOT NULL DEFAULT 'Activa' COMMENT 'Estado actual de la suscripción',
     
-    -- Fechas importantes
+    -- Fechas clave
     fecha_inicio DATE NOT NULL COMMENT 'Fecha de inicio de la suscripción',
     fecha_fin DATE NULL COMMENT 'Fecha de finalización (si tiene)',
     fecha_siguiente_factura DATE NULL COMMENT 'Próxima fecha de facturación',
     fecha_cancelacion DATE NULL COMMENT 'Fecha en que se solicitó la cancelación',
     
-    -- Precios y descuentos
-    precio_base DECIMAL(10,2) NOT NULL COMMENT 'Precio base según plan y período',
-    descuento_porcentaje DECIMAL(5,2) DEFAULT 0.00 COMMENT 'Porcentaje de descuento aplicado',
-    descuento_motivo VARCHAR(100) NULL COMMENT 'Motivo del descuento',
-    precio_final DECIMAL(10,2) NOT NULL COMMENT 'Precio final tras descuentos',
+    -- Datos de pago
+    periodo_facturacion ENUM('Mensual', 'Semestral', 'Anual') NOT NULL DEFAULT 'Mensual',
+    precio_total DECIMAL(10,2) NOT NULL COMMENT 'Precio total de la suscripción',
     moneda CHAR(3) NOT NULL DEFAULT 'CLP' COMMENT 'Moneda del precio',
     
-    -- Estado y configuración
-    estado ENUM('Activa', 'Pendiente', 'Periodo de Gracia', 'Cancelada', 'Suspendida', 'Finalizada') 
-        NOT NULL DEFAULT 'Activa' COMMENT 'Estado actual de la suscripción',
-    renovacion_automatica ENUM('Si', 'No') NOT NULL DEFAULT 'Si' 
-        COMMENT 'Indica si la suscripción se renueva automáticamente',
-    
-    -- Información de pago
-    metodo_pago ENUM('Tarjeta de Crédito', 'Transferencia', 'PayPal', 'Otro') 
-        DEFAULT 'Tarjeta de Crédito' COMMENT 'Método de pago utilizado',
-    referencia_pago VARCHAR(100) NULL COMMENT 'Referencia al método de pago (ej: últimos 4 dígitos)',
-    
-    -- Auditoría
-    creado_por INT NULL COMMENT 'Usuario que creó la suscripción',
-    actualizado_por INT NULL COMMENT 'Usuario que actualizó por última vez',
+    -- Metadatos
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     PRIMARY KEY (id),
-    UNIQUE INDEX idx_suscripcion_numero (numero_suscripcion) COMMENT 'Para búsquedas por número',
-    INDEX idx_suscripcion_empresa (empresa_id) COMMENT 'Filtrado por empresa',
-    INDEX idx_suscripcion_plan (plan_id) COMMENT 'Filtrado por plan',
-    INDEX idx_suscripcion_estado (estado) COMMENT 'Filtrado por estado',
-    INDEX idx_suscripcion_fechas (fecha_inicio, fecha_fin, fecha_siguiente_factura) 
-        COMMENT 'Búsquedas por fechas',
+    UNIQUE INDEX idx_suscripcion_numero (numero_suscripcion),
+    INDEX idx_suscripcion_empresa (empresa_id),
+    INDEX idx_suscripcion_plan (plan_id),
+    INDEX idx_suscripcion_estado (estado),
     
     CONSTRAINT fk_suscripcion_empresa 
         FOREIGN KEY (empresa_id) 
         REFERENCES empresas(id) 
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
+        ON DELETE CASCADE,
         
     CONSTRAINT fk_suscripcion_plan 
         FOREIGN KEY (plan_id) 
-        REFERENCES planes(id) 
-        ON UPDATE CASCADE
-) ENGINE=InnoDB COMMENT='Gestión completa del ciclo de vida de suscripciones';
+        REFERENCES planes(id)
+) ENGINE=InnoDB COMMENT='Suscripciones simplificadas de empresas a planes';
 -- ========================================
 -- Tabla: facturas
 -- Propósito: Registro de facturación por suscripciones
