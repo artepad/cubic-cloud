@@ -24,13 +24,14 @@ Router::add('error', 'ErrorController', 'index', 'public');
 Router::add('admin/logout', 'AdminController', 'logout', 'auth');
 Router::add('admin/dashboard', 'AdminController', 'dashboard', 'auth');
 Router::add('admin/welcome', 'AdminController', 'welcome', 'auth');
-Router::add('admin/empresas', 'AdminController', 'empresas', 'auth');
+
 Router::add('admin/usuarios', 'AdminController', 'usuarios', 'auth');
-Router::add('admin/planes', 'AdminController', 'planes', 'auth');
-Router::add('admin/suscripciones', 'AdminController', 'suscripciones', 'auth');
-Router::add('admin/configuracion', 'AdminController', 'configuracion', 'auth');
 Router::add('admin/crearUsuario', 'AdminController', 'crearUsuario', 'auth');
 Router::add('admin/saveUsuario', 'AdminController', 'saveUsuario', 'auth');
+Router::add('admin/configuracion', 'AdminController', 'configuracion', 'auth'); // crear logica y borrar 
+
+
+
 
 // Alias para funciones de empresa desde AdminController
 Router::add('admin/crearEmpresa', 'EmpresaController', 'crear', 'auth');

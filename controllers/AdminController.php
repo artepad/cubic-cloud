@@ -387,15 +387,6 @@ class AdminController
     }
 
     /**
-     * Gestión de empresas
-     */
-    public function empresas()
-    {
-        $pageTitle = "Gestión de Empresas";
-        require_once 'views/admin/dashboard/empresas.php';
-    }
-
-    /**
      * Gestión de usuarios
      */
     public function usuarios()
@@ -407,15 +398,6 @@ class AdminController
         $usuarios = $usuarioModel->getAll();
 
         require_once 'views/admin/dashboard/usuarios.php';
-    }
-
-    /**
-     * Gestión de planes
-     */
-    public function planes()
-    {
-        $pageTitle = "Gestión de Planes";
-        require_once 'views/admin/dashboard/planes.php';
     }
 
     /**
