@@ -30,9 +30,6 @@ Router::add('admin/crearUsuario', 'AdminController', 'crearUsuario', 'auth');
 Router::add('admin/saveUsuario', 'AdminController', 'saveUsuario', 'auth');
 Router::add('admin/configuracion', 'AdminController', 'configuracion', 'auth'); // crear logica y borrar 
 
-
-
-
 // Alias para funciones de empresa desde AdminController
 Router::add('admin/crearEmpresa', 'EmpresaController', 'crear', 'auth');
 Router::add('admin/saveEmpresa', 'EmpresaController', 'save', 'auth');
