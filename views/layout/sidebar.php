@@ -50,7 +50,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>admin/suscripciones" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>suscripciones/index" aria-expanded="false">
                             <i class="icon-credit-card fa-fw"></i>
                             <span class="hide-menu"> Suscripciones</span>
                         </a>

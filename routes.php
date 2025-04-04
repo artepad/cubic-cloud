@@ -32,6 +32,17 @@ Router::add('admin/configuracion', 'AdminController', 'configuracion', 'auth');
 Router::add('admin/crearUsuario', 'AdminController', 'crearUsuario', 'auth');
 Router::add('admin/saveUsuario', 'AdminController', 'saveUsuario', 'auth');
 
+// Alias para funciones de empresa desde AdminController
+Router::add('admin/crearEmpresa', 'EmpresaController', 'crear', 'auth');
+Router::add('admin/saveEmpresa', 'EmpresaController', 'save', 'auth');
+Router::add('admin/editarEmpresa', 'EmpresaController', 'editar', 'auth');
+Router::add('admin/updateEmpresa', 'EmpresaController', 'update', 'auth');
+Router::add('admin/eliminarEmpresa', 'EmpresaController', 'delete', 'auth');
+Router::add('admin/cambiarEstadoEmpresa', 'EmpresaController', 'cambiarEstado', 'auth');
+Router::add('admin/verEmpresa', 'EmpresaController', 'ver', 'auth');
+
+
+
 // Rutas para el controlador de Planes
 Router::add('plan/index', 'PlanController', 'index', 'auth');
 Router::add('plan/crear', 'PlanController', 'crear', 'auth');
@@ -52,24 +63,6 @@ Router::add('empresa/delete', 'EmpresaController', 'delete', 'auth');
 Router::add('empresa/cambiarEstado', 'EmpresaController', 'cambiarEstado', 'auth');
 Router::add('empresa/ver', 'EmpresaController', 'ver', 'auth');
 
-// Alias para funciones de empresa desde AdminController
-Router::add('admin/crearEmpresa', 'EmpresaController', 'crear', 'auth');
-Router::add('admin/saveEmpresa', 'EmpresaController', 'save', 'auth');
-Router::add('admin/editarEmpresa', 'EmpresaController', 'editar', 'auth');
-Router::add('admin/updateEmpresa', 'EmpresaController', 'update', 'auth');
-Router::add('admin/eliminarEmpresa', 'EmpresaController', 'delete', 'auth');
-Router::add('admin/cambiarEstadoEmpresa', 'EmpresaController', 'cambiarEstado', 'auth');
-Router::add('admin/verEmpresa', 'EmpresaController', 'ver', 'auth');
 
 // Rutas para Suscripciones
-Router::add('admin/suscripciones', 'AdminController', 'suscripciones', 'auth');
-Router::add('admin/crearSuscripcion', 'AdminController', 'crearSuscripcion', 'auth');
-Router::add('admin/saveSuscripcion', 'AdminController', 'saveSuscripcion', 'auth');
-Router::add('admin/editarSuscripcion', 'AdminController', 'editarSuscripcion', 'auth');
-Router::add('admin/updateSuscripcion', 'AdminController', 'updateSuscripcion', 'auth');
-Router::add('admin/verSuscripcion', 'AdminController', 'verSuscripcion', 'auth');
-Router::add('admin/cambiarEstadoSuscripcion', 'AdminController', 'cambiarEstadoSuscripcion', 'auth');
-Router::add('admin/renovarSuscripcion', 'AdminController', 'renovarSuscripcion', 'auth');
-Router::add('admin/historialSuscripcion', 'AdminController', 'historialSuscripcion', 'auth');
-Router::add('admin/crearFactura', 'AdminController', 'crearFactura', 'auth');
-Router::add('admin/exportarSuscripciones', 'AdminController', 'exportarSuscripciones', 'auth');
+Router::add('suscripciones/index', 'EmpresaController', 'index', 'auth');
