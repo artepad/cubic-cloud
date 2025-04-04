@@ -22,7 +22,7 @@ class EmpresaController
         $this->empresaModel = new Empresa();
         $this->usuarioModel = new Usuario();
         $this->planModel = new Plan();
-        
+
         // Verificar si existe el modelo de Suscripcion en el sistema
         if (class_exists('Suscripcion')) {
             $this->suscripcionModel = new Suscripcion();
@@ -126,8 +126,10 @@ class EmpresaController
             }
 
             // Verificar que la identificación fiscal no esté duplicada (si se proporciona)
-            if (!empty($_POST['identificacion_fiscal']) && 
-                $this->empresaModel->identificacionExists($_POST['identificacion_fiscal'])) {
+            if (
+                !empty($_POST['identificacion_fiscal']) &&
+                $this->empresaModel->identificacionExists($_POST['identificacion_fiscal'])
+            ) {
                 $_SESSION['error_message'] = "La identificación fiscal ya está registrada para otra empresa";
                 $this->redirectTo('empresa/crear');
                 return;
@@ -141,7 +143,7 @@ class EmpresaController
             $empresa->setDireccion($_POST['direccion']);
             $empresa->setTelefono($_POST['telefono'] ?? '');
             $empresa->setEmailContacto($_POST['email_contacto'] ?? '');
-            
+
             // Configurar datos de facturación como campos individuales
             $empresa->setRazonSocialFacturacion($_POST['razon_social_facturacion'] ?? '');
             $empresa->setDireccionFacturacion($_POST['direccion_facturacion'] ?? '');
@@ -149,16 +151,16 @@ class EmpresaController
             $empresa->setCodigoPostal($_POST['codigo_postal'] ?? '');
             $empresa->setContactoFacturacion($_POST['contacto_facturacion'] ?? '');
             $empresa->setEmailFacturacion($_POST['email_facturacion'] ?? '');
-            
+
             $empresa->setPais($_POST['pais']);
             $empresa->setCodigoPais($_POST['codigo_pais'] ?? '');
             $empresa->setTipoMoneda($_POST['tipo_moneda'] ?? 'CLP');
             $empresa->setEstado($_POST['estado'] ?? 'activa');
-            
+
             // Configuración de demo
             $es_demo = isset($_POST['es_demo']) ? 'Si' : 'No';
             $empresa->setEsDemo($es_demo);
-            
+
             if ($es_demo == 'Si') {
                 $empresa->setDemoInicio($_POST['demo_inicio'] ?? null);
                 $empresa->setDemoFin($_POST['demo_fin'] ?? null);
@@ -166,7 +168,7 @@ class EmpresaController
 
             // Procesar imágenes si se han subido
             $upload_dir = 'uploads/empresas/';
-            
+
             // Crear el directorio si no existe
             if (!file_exists($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
@@ -304,8 +306,10 @@ class EmpresaController
             }
 
             // Verificar que la identificación fiscal no esté duplicada (si se proporciona)
-            if (!empty($_POST['identificacion_fiscal']) && 
-                $this->empresaModel->identificacionExists($_POST['identificacion_fiscal'], $id)) {
+            if (
+                !empty($_POST['identificacion_fiscal']) &&
+                $this->empresaModel->identificacionExists($_POST['identificacion_fiscal'], $id)
+            ) {
                 $_SESSION['error_message'] = "La identificación fiscal ya está registrada para otra empresa";
                 $this->redirectTo('empresa/editar?id=' . $id);
                 return;
@@ -320,7 +324,7 @@ class EmpresaController
             $empresa->setDireccion($_POST['direccion']);
             $empresa->setTelefono($_POST['telefono'] ?? '');
             $empresa->setEmailContacto($_POST['email_contacto'] ?? '');
-            
+
             // Configurar datos de facturación como campos individuales
             $empresa->setRazonSocialFacturacion($_POST['razon_social_facturacion'] ?? '');
             $empresa->setDireccionFacturacion($_POST['direccion_facturacion'] ?? '');
@@ -328,16 +332,16 @@ class EmpresaController
             $empresa->setCodigoPostal($_POST['codigo_postal'] ?? '');
             $empresa->setContactoFacturacion($_POST['contacto_facturacion'] ?? '');
             $empresa->setEmailFacturacion($_POST['email_facturacion'] ?? '');
-            
+
             $empresa->setPais($_POST['pais']);
             $empresa->setCodigoPais($_POST['codigo_pais'] ?? '');
             $empresa->setTipoMoneda($_POST['tipo_moneda'] ?? 'CLP');
             $empresa->setEstado($_POST['estado'] ?? 'activa');
-            
+
             // Configuración de demo
             $es_demo = isset($_POST['es_demo']) ? 'Si' : 'No';
             $empresa->setEsDemo($es_demo);
-            
+
             if ($es_demo == 'Si') {
                 $empresa->setDemoInicio($_POST['demo_inicio'] ?? null);
                 $empresa->setDemoFin($_POST['demo_fin'] ?? null);
@@ -353,7 +357,7 @@ class EmpresaController
 
             // Procesar imágenes si se han subido
             $upload_dir = 'uploads/empresas/';
-            
+
             // Crear el directorio si no existe
             if (!file_exists($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
@@ -569,17 +573,17 @@ class EmpresaController
                 return false;
             }
 
-            // Obtener precio base según el período
-            $precio_base = 0;
+            // Obtener precio total según el período
+            $precio_total = 0;
             switch ($periodo) {
                 case 'Mensual':
-                    $precio_base = $plan->precio_mensual;
+                    $precio_total = $plan->precio_mensual;
                     break;
                 case 'Semestral':
-                    $precio_base = $plan->precio_semestral;
+                    $precio_total = $plan->precio_semestral;
                     break;
                 case 'Anual':
-                    $precio_base = $plan->precio_anual;
+                    $precio_total = $plan->precio_anual;
                     break;
             }
 
@@ -612,14 +616,10 @@ class EmpresaController
             $suscripcion->setFechaInicio($fecha_inicio);
             $suscripcion->setFechaSiguienteFactura($fecha_siguiente_factura);
             $suscripcion->setFechaFin($fecha_fin);
-            $suscripcion->setPrecioBase($precio_base);
-            $suscripcion->setDescuentoPorcentaje(0);
-            $suscripcion->setPrecioFinal($precio_base);
+            $suscripcion->setPrecioTotal($precio_total);
             $suscripcion->setMoneda($plan->moneda);
             $suscripcion->setEstado('Activa');
-            $suscripcion->setRenovacionAutomatica('Si');
-            $suscripcion->setMetodoPago('Transferencia');
-            
+
             // Guardar la suscripción
             return $suscripcion->save();
         } catch (Exception $e) {

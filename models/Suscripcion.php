@@ -7,9 +7,7 @@ require_once 'config/db.php';
  * Gestiona todas las operaciones relacionadas con las suscripciones en el sistema,
  * incluyendo creación, renovación, cancelación y consulta.
  * 
- * Actualizado para reflejar los cambios en la estructura de la base de datos:
- * - Eliminación de campos redundantes de límites en la tabla empresas
- * - Normalización de datos de facturación
+ * Actualizado para reflejar los cambios en la estructura simplificada de la tabla suscripciones.
  */
 class Suscripcion
 {
@@ -23,17 +21,9 @@ class Suscripcion
     private $fecha_fin;
     private $fecha_siguiente_factura;
     private $fecha_cancelacion;
-    private $precio_base;
-    private $descuento_porcentaje;
-    private $descuento_motivo;
-    private $precio_final;
+    private $precio_total;
     private $moneda;
     private $estado;
-    private $renovacion_automatica;
-    private $metodo_pago;
-    private $referencia_pago;
-    private $creado_por;
-    private $actualizado_por;
     private $db;
 
     /**
@@ -143,44 +133,14 @@ class Suscripcion
         $this->fecha_cancelacion = $fecha_cancelacion;
     }
 
-    public function getPrecioBase()
+    public function getPrecioTotal()
     {
-        return $this->precio_base;
+        return $this->precio_total;
     }
 
-    public function setPrecioBase($precio_base)
+    public function setPrecioTotal($precio_total)
     {
-        $this->precio_base = $precio_base;
-    }
-
-    public function getDescuentoPorcentaje()
-    {
-        return $this->descuento_porcentaje;
-    }
-
-    public function setDescuentoPorcentaje($descuento_porcentaje)
-    {
-        $this->descuento_porcentaje = $descuento_porcentaje;
-    }
-
-    public function getDescuentoMotivo()
-    {
-        return $this->descuento_motivo;
-    }
-
-    public function setDescuentoMotivo($descuento_motivo)
-    {
-        $this->descuento_motivo = $this->db->real_escape_string($descuento_motivo);
-    }
-
-    public function getPrecioFinal()
-    {
-        return $this->precio_final;
-    }
-
-    public function setPrecioFinal($precio_final)
-    {
-        $this->precio_final = $precio_final;
+        $this->precio_total = $precio_total;
     }
 
     public function getMoneda()
@@ -205,7 +165,7 @@ class Suscripcion
 
     public function setEstado($estado)
     {
-        $estados_validos = ['Activa', 'Pendiente', 'Periodo de Gracia', 'Cancelada', 'Suspendida', 'Finalizada'];
+        $estados_validos = ['Activa', 'Pendiente', 'Suspendida', 'Cancelada', 'Finalizada'];
         if (in_array($estado, $estados_validos)) {
             $this->estado = $estado;
         } else {
@@ -213,93 +173,20 @@ class Suscripcion
         }
     }
 
-    public function getRenovacionAutomatica()
-    {
-        return $this->renovacion_automatica;
-    }
-
-    public function setRenovacionAutomatica($renovacion_automatica)
-    {
-        if ($renovacion_automatica == 'Si' || $renovacion_automatica == 'No') {
-            $this->renovacion_automatica = $renovacion_automatica;
-        } else {
-            $this->renovacion_automatica = 'Si'; // Valor por defecto
-        }
-    }
-
-    public function getMetodoPago()
-    {
-        return $this->metodo_pago;
-    }
-
-    public function setMetodoPago($metodo_pago)
-    {
-        $metodos_validos = ['Tarjeta de Crédito', 'Transferencia', 'PayPal', 'Otro'];
-        if (in_array($metodo_pago, $metodos_validos)) {
-            $this->metodo_pago = $metodo_pago;
-        } else {
-            $this->metodo_pago = 'Tarjeta de Crédito'; // Valor por defecto
-        }
-    }
-
-    public function getReferenciaPago()
-    {
-        return $this->referencia_pago;
-    }
-
-    public function setReferenciaPago($referencia_pago)
-    {
-        $this->referencia_pago = $this->db->real_escape_string($referencia_pago);
-    }
-
-    public function getCreadoPor()
-    {
-        return $this->creado_por;
-    }
-
-    public function setCreadoPor($creado_por)
-    {
-        $this->creado_por = $creado_por;
-    }
-
-    public function getActualizadoPor()
-    {
-        return $this->actualizado_por;
-    }
-
-    public function setActualizadoPor($actualizado_por)
-    {
-        $this->actualizado_por = $actualizado_por;
-    }
-
     /**
      * Guarda una nueva suscripción en la base de datos
+     * Adaptado para la estructura simplificada de la tabla
      * 
      * @return bool|int ID de la suscripción creada o false si falla
      */
     public function save()
     {
         try {
-            // Calcular precio final si hay descuento
-            if (!isset($this->precio_final) && isset($this->precio_base) && isset($this->descuento_porcentaje)) {
-                $descuento = ($this->precio_base * $this->descuento_porcentaje) / 100;
-                $this->precio_final = $this->precio_base - $descuento;
-            }
-
-            // Si no hay creado_por y hay sesión de admin, usar el ID del admin actual
-            if (!isset($this->creado_por) && isset($_SESSION['admin'])) {
-                $this->creado_por = $_SESSION['admin']->id;
-            }
-
             $sql = "INSERT INTO suscripciones (
                 empresa_id, plan_id, numero_suscripcion, periodo_facturacion,
                 fecha_inicio, fecha_fin, fecha_siguiente_factura, fecha_cancelacion,
-                precio_base, descuento_porcentaje, descuento_motivo, precio_final, moneda,
-                estado, renovacion_automatica, metodo_pago, referencia_pago,
-                creado_por, actualizado_por
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-            )";
+                precio_total, moneda, estado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt = $this->db->prepare($sql);
 
@@ -309,7 +196,7 @@ class Suscripcion
             }
 
             $stmt->bind_param(
-                "iissssssdsdsssssii",
+                "iisssssdsss",
                 $this->empresa_id,
                 $this->plan_id,
                 $this->numero_suscripcion,
@@ -318,17 +205,9 @@ class Suscripcion
                 $this->fecha_fin,
                 $this->fecha_siguiente_factura,
                 $this->fecha_cancelacion,
-                $this->precio_base,
-                $this->descuento_porcentaje,
-                $this->descuento_motivo,
-                $this->precio_final,
+                $this->precio_total,
                 $this->moneda,
-                $this->estado,
-                $this->renovacion_automatica,
-                $this->metodo_pago,
-                $this->referencia_pago,
-                $this->creado_por,
-                $this->actualizado_por
+                $this->estado
             );
 
             if ($stmt->execute()) {
@@ -354,43 +233,26 @@ class Suscripcion
 
     /**
      * Actualiza una suscripción existente en la base de datos
+     * Adaptado para la estructura simplificada de la tabla
      * 
      * @return bool Resultado de la operación
      */
     public function update()
     {
         try {
-            // Calcular precio final si hay descuento
-            if (isset($this->precio_base) && isset($this->descuento_porcentaje)) {
-                $descuento = ($this->precio_base * $this->descuento_porcentaje) / 100;
-                $this->precio_final = $this->precio_base - $descuento;
-            }
-
-            // Si no hay actualizado_por y hay sesión de admin, usar el ID del admin actual
-            if (!isset($this->actualizado_por) && isset($_SESSION['admin'])) {
-                $this->actualizado_por = $_SESSION['admin']->id;
-            }
-
             $sql = "UPDATE suscripciones SET 
-                empresa_id = ?,
-                plan_id = ?,
-                numero_suscripcion = ?,
-                periodo_facturacion = ?,
-                fecha_inicio = ?,
-                fecha_fin = ?,
-                fecha_siguiente_factura = ?,
-                fecha_cancelacion = ?,
-                precio_base = ?,
-                descuento_porcentaje = ?,
-                descuento_motivo = ?,
-                precio_final = ?,
-                moneda = ?,
-                estado = ?,
-                renovacion_automatica = ?,
-                metodo_pago = ?,
-                referencia_pago = ?,
-                actualizado_por = ?
-                WHERE id = ?";
+                    empresa_id = ?,
+                    plan_id = ?,
+                    numero_suscripcion = ?,
+                    periodo_facturacion = ?,
+                    fecha_inicio = ?,
+                    fecha_fin = ?,
+                    fecha_siguiente_factura = ?,
+                    fecha_cancelacion = ?,
+                    precio_total = ?,
+                    moneda = ?,
+                    estado = ?
+                    WHERE id = ?";
 
             $stmt = $this->db->prepare($sql);
 
@@ -400,7 +262,7 @@ class Suscripcion
             }
 
             $stmt->bind_param(
-                "iissssssdsdsssssiii",
+                "iisssssdssi",
                 $this->empresa_id,
                 $this->plan_id,
                 $this->numero_suscripcion,
@@ -409,16 +271,9 @@ class Suscripcion
                 $this->fecha_fin,
                 $this->fecha_siguiente_factura,
                 $this->fecha_cancelacion,
-                $this->precio_base,
-                $this->descuento_porcentaje,
-                $this->descuento_motivo,
-                $this->precio_final,
+                $this->precio_total,
                 $this->moneda,
                 $this->estado,
-                $this->renovacion_automatica,
-                $this->metodo_pago,
-                $this->referencia_pago,
-                $this->actualizado_por,
                 $this->id
             );
 
@@ -555,7 +410,7 @@ class Suscripcion
                 FROM suscripciones s
                 LEFT JOIN empresas e ON s.empresa_id = e.id
                 LEFT JOIN planes p ON s.plan_id = p.id
-                WHERE s.empresa_id = ? AND s.estado IN ('Activa', 'Pendiente', 'Periodo de Gracia')
+                WHERE s.empresa_id = ? AND s.estado IN ('Activa', 'Pendiente')
                 ORDER BY s.id DESC LIMIT 1";
                 
             $stmt = $this->db->prepare($sql);
@@ -634,12 +489,6 @@ class Suscripcion
                 if (isset($filters['periodo']) && $filters['periodo']) {
                     $sql .= " AND s.periodo_facturacion = ?";
                     $params[] = $filters['periodo'];
-                    $types .= "s";
-                }
-                
-                if (isset($filters['renovacion']) && $filters['renovacion']) {
-                    $sql .= " AND s.renovacion_automatica = ?";
-                    $params[] = $filters['renovacion'];
                     $types .= "s";
                 }
                 
@@ -748,12 +597,6 @@ class Suscripcion
                     $types .= "s";
                 }
                 
-                if (isset($filters['renovacion']) && $filters['renovacion']) {
-                    $sql .= " AND s.renovacion_automatica = ?";
-                    $params[] = $filters['renovacion'];
-                    $types .= "s";
-                }
-                
                 if (isset($filters['vencidas']) && $filters['vencidas'] === true) {
                     $sql .= " AND s.fecha_siguiente_factura < CURDATE() AND s.estado NOT IN ('Cancelada', 'Finalizada')";
                 }
@@ -813,7 +656,7 @@ class Suscripcion
             $id = (int)$id; // Asegurar que es un entero
             
             // Validar estado
-            $estados_validos = ['Activa', 'Pendiente', 'Periodo de Gracia', 'Cancelada', 'Suspendida', 'Finalizada'];
+            $estados_validos = ['Activa', 'Pendiente', 'Suspendida', 'Cancelada', 'Finalizada'];
             if (!in_array($estado, $estados_validos)) {
                 return false;
             }
@@ -831,7 +674,7 @@ class Suscripcion
             }
             
             // Actualizar el estado
-            $sql = "UPDATE suscripciones SET estado = ?, fecha_cancelacion = ?, actualizado_por = ? WHERE id = ?";
+            $sql = "UPDATE suscripciones SET estado = ?, fecha_cancelacion = ? WHERE id = ?";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
@@ -839,9 +682,7 @@ class Suscripcion
                 return false;
             }
             
-            $actualizado_por = isset($_SESSION['admin']) ? $_SESSION['admin']->id : null;
-            
-            $stmt->bind_param("ssii", $estado, $fecha_cancelacion, $actualizado_por, $id);
+            $stmt->bind_param("ssi", $estado, $fecha_cancelacion, $id);
             $result = $stmt->execute();
             $stmt->close();
             
@@ -904,8 +745,7 @@ class Suscripcion
             // Actualizar la suscripción
             $sql = "UPDATE suscripciones SET 
                     fecha_siguiente_factura = ?,
-                    estado = 'Activa',
-                    actualizado_por = ?
+                    estado = 'Activa'
                     WHERE id = ?";
                     
             $stmt = $this->db->prepare($sql);
@@ -915,9 +755,7 @@ class Suscripcion
                 return false;
             }
             
-            $actualizado_por = isset($_SESSION['admin']) ? $_SESSION['admin']->id : null;
-            
-            $stmt->bind_param("sii", $nueva_fecha_factura, $actualizado_por, $id);
+            $stmt->bind_param("si", $nueva_fecha_factura, $id);
             $result = $stmt->execute();
             $stmt->close();
             
@@ -1019,8 +857,8 @@ class Suscripcion
             
             // Calcular impuestos (19% en Chile, por ejemplo)
             $tasa_impuesto = 0.19; // 19% de IVA
-            $monto_subtotal = $suscripcion->precio_final / (1 + $tasa_impuesto); // Quitar el impuesto para obtener el subtotal
-            $monto_impuestos = $suscripcion->precio_final - $monto_subtotal;
+            $monto_subtotal = $suscripcion->precio_total / (1 + $tasa_impuesto); // Quitar el impuesto para obtener el subtotal
+            $monto_impuestos = $suscripcion->precio_total - $monto_subtotal;
             
             // Calcular período facturado
             $periodo_inicio = date('Y-m-d');
@@ -1059,7 +897,7 @@ class Suscripcion
                              $numero_factura, 
                              $monto_subtotal, 
                              $monto_impuestos, 
-                             $suscripcion->precio_final, 
+                             $suscripcion->precio_total, 
                              $suscripcion->moneda, 
                              $periodo_inicio, 
                              $periodo_fin);
