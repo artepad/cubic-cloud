@@ -60,3 +60,16 @@ Router::add('admin/updateEmpresa', 'EmpresaController', 'update', 'auth');
 Router::add('admin/eliminarEmpresa', 'EmpresaController', 'delete', 'auth');
 Router::add('admin/cambiarEstadoEmpresa', 'EmpresaController', 'cambiarEstado', 'auth');
 Router::add('admin/verEmpresa', 'EmpresaController', 'ver', 'auth');
+
+// Rutas para Suscripciones
+Router::add('admin/suscripciones', 'AdminController', 'suscripciones', 'auth');
+Router::add('admin/crearSuscripcion', 'AdminController', 'crearSuscripcion', 'auth');
+Router::add('admin/saveSuscripcion', 'AdminController', 'saveSuscripcion', 'auth');
+Router::add('admin/editarSuscripcion', 'AdminController', 'editarSuscripcion', 'auth');
+Router::add('admin/updateSuscripcion', 'AdminController', 'updateSuscripcion', 'auth');
+Router::add('admin/verSuscripcion', 'AdminController', 'verSuscripcion', 'auth');
+Router::add('admin/cambiarEstadoSuscripcion', 'AdminController', 'cambiarEstadoSuscripcion', 'auth');
+Router::add('admin/renovarSuscripcion', 'AdminController', 'renovarSuscripcion', 'auth');
+Router::add('admin/historialSuscripcion', 'AdminController', 'historialSuscripcion', 'auth');
+Router::add('admin/crearFactura', 'AdminController', 'crearFactura', 'auth');
+Router::add('admin/exportarSuscripciones', 'AdminController', 'exportarSuscripciones', 'auth');

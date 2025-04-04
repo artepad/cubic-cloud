@@ -9,7 +9,7 @@
 class AdminController
 {
     private $adminModel;
-    
+
     /**
      * Constructor
      * Inicializa el modelo de administrador
@@ -18,12 +18,12 @@ class AdminController
     {
         // Cargar el modelo
         $this->adminModel = new SystemAdmin();
-        
+
         // Verificar autenticación para las acciones del dashboard
         // No aplicar esta verificación para acciones de login/autenticación
         $publicMethods = ['index', 'login', 'validate', 'recover', 'requestReset', 'reset', 'doReset'];
         $currentMethod = isset($_GET['action']) ? $_GET['action'] : 'index';
-        
+
         if (!in_array($currentMethod, $publicMethods) && !isAdminLoggedIn()) {
             $_SESSION['error_login'] = "Acceso denegado. Se requiere cuenta de administrador.";
             header("Location:" . base_url . "admin/login");
@@ -165,7 +165,7 @@ class AdminController
 
         // Mostrar la vista de logout
         require_once 'views/admin/login/logout.php';
-        
+
         // Limpia el buffer y envía el contenido
         ob_end_flush();
     }
@@ -419,12 +419,281 @@ class AdminController
     }
 
     /**
-     * Gestión de suscripciones
+     * Muestra la lista de suscripciones
      */
     public function suscripciones()
     {
+        // Título de la página
         $pageTitle = "Gestión de Suscripciones";
-        require_once 'views/admin/dashboard/suscripciones.php';
+
+        // Obtener parámetros de filtrado y paginación
+        $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
+        $elementosPorPagina = 10;
+        $offset = ($pagina - 1) * $elementosPorPagina;
+
+        // Aplicar filtros si existen
+        $filters = [];
+        if (isset($_GET['estado']) && !empty($_GET['estado'])) {
+            $filters['estado'] = $_GET['estado'];
+        }
+        if (isset($_GET['empresa_id']) && !empty($_GET['empresa_id'])) {
+            $filters['empresa_id'] = $_GET['empresa_id'];
+        }
+        if (isset($_GET['plan_id']) && !empty($_GET['plan_id'])) {
+            $filters['plan_id'] = $_GET['plan_id'];
+        }
+        if (isset($_GET['busqueda']) && !empty($_GET['busqueda'])) {
+            $filters['busqueda'] = $_GET['busqueda'];
+        }
+        if (isset($_GET['periodo']) && !empty($_GET['periodo'])) {
+            $filters['periodo'] = $_GET['periodo'];
+        }
+        if (isset($_GET['vencidas']) && $_GET['vencidas'] == '1') {
+            $filters['vencidas'] = true;
+        }
+
+        // Cargar modelos necesarios
+        $suscripcionModel = new Suscripcion();
+        $empresaModel = new Empresa();
+        $planModel = new Plan();
+
+        // Obtener suscripciones con paginación
+        $suscripciones = $suscripcionModel->getAll($filters, $elementosPorPagina, $offset);
+        $total_suscripciones = $suscripcionModel->countAll($filters);
+
+        // Obtener listas para los filtros
+        $empresas = $empresaModel->getAll();
+        $planes = $planModel->getAll();
+
+        // Cálculos para paginación
+        $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
+
+        // Cargar la vista
+        require_once 'views/admin/suscripciones/index.php';
+    }
+
+    /**
+     * Muestra el formulario para crear una nueva suscripción
+     */
+    public function crearSuscripcion()
+    {
+        // Título de la página
+        $pageTitle = "Crear Nueva Suscripción";
+
+        // Cargar modelos necesarios
+        $empresaModel = new Empresa();
+        $planModel = new Plan();
+
+        // Obtener datos para selectores
+        $empresas = $empresaModel->getAll(['estado' => 'activa']);
+        $planes = $planModel->getAll(['estado' => 'Activo']);
+
+        // Verificar si hay empresa preseleccionada (desde vista empresa)
+        $empresa_id_preseleccionado = isset($_GET['empresa_id']) ? intval($_GET['empresa_id']) : null;
+        $empresa_preseleccionada = null;
+
+        if ($empresa_id_preseleccionado) {
+            $empresa_preseleccionada = $empresaModel->getById($empresa_id_preseleccionado);
+        }
+
+        // Cargar la vista
+        require_once 'views/admin/suscripciones/crear.php';
+    }
+
+    /**
+     * Procesa el formulario para guardar una nueva suscripción
+     */
+    public function saveSuscripcion()
+    {
+        // Verificar si se ha enviado el formulario
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirectTo('admin/suscripciones');
+            return;
+        }
+
+        // Verificar token CSRF
+        if (isset($_POST['csrf_token'])) {
+            if (!validateCsrfToken($_POST['csrf_token'])) {
+                $_SESSION['error_message'] = "Error de seguridad: token inválido";
+                $this->redirectTo('admin/crearSuscripcion');
+                return;
+            }
+        }
+
+        // Validar campos obligatorios
+        if (empty($_POST['empresa_id']) || empty($_POST['plan_id']) || empty($_POST['precio_total']) || empty($_POST['fecha_inicio'])) {
+            $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
+            $this->redirectTo('admin/crearSuscripcion');
+            return;
+        }
+
+        try {
+            // Crear y configurar el objeto Suscripcion
+            $suscripcion = new Suscripcion();
+            $suscripcion->setEmpresaId($_POST['empresa_id']);
+            $suscripcion->setPlanId($_POST['plan_id']);
+            $suscripcion->setNumeroSuscripcion($_POST['numero_suscripcion']);
+            $suscripcion->setPeriodoFacturacion($_POST['periodo_facturacion']);
+            $suscripcion->setFechaInicio($_POST['fecha_inicio']);
+
+            // Calcular fecha siguiente factura según período
+            $fecha_inicio = new DateTime($_POST['fecha_inicio']);
+            $fecha_siguiente = clone $fecha_inicio;
+
+            switch ($_POST['periodo_facturacion']) {
+                case 'Mensual':
+                    $fecha_siguiente->add(new DateInterval('P1M'));
+                    break;
+                case 'Semestral':
+                    $fecha_siguiente->add(new DateInterval('P6M'));
+                    break;
+                case 'Anual':
+                    $fecha_siguiente->add(new DateInterval('P1Y'));
+                    break;
+            }
+
+            $suscripcion->setFechaSiguienteFactura($fecha_siguiente->format('Y-m-d'));
+            $suscripcion->setPrecioTotal($_POST['precio_total']);
+            $suscripcion->setMoneda($_POST['moneda']);
+            $suscripcion->setEstado($_POST['estado']);
+
+            // Guardar la suscripción
+            $id = $suscripcion->save();
+
+            if ($id) {
+                $_SESSION['success_message'] = "Suscripción creada correctamente";
+                $this->redirectTo('admin/suscripciones');
+            } else {
+                $_SESSION['error_message'] = "Error al crear la suscripción";
+                $this->redirectTo('admin/crearSuscripcion');
+            }
+        } catch (Exception $e) {
+            error_log("Error en saveSuscripcion: " . $e->getMessage());
+            $_SESSION['error_message'] = "Error al procesar la solicitud: " . $e->getMessage();
+            $this->redirectTo('admin/crearSuscripcion');
+        }
+    }
+
+    /**
+     * Cambia el estado de una suscripción
+     */
+    public function cambiarEstadoSuscripcion()
+    {
+        // Verificar parámetros necesarios
+        if (!isset($_GET['id']) || !isset($_GET['estado'])) {
+            $_SESSION['error_message'] = "Parámetros insuficientes";
+            $this->redirectTo('admin/suscripciones');
+            return;
+        }
+
+        $id = (int)$_GET['id'];
+        $estado = $_GET['estado'];
+
+        // Validar estado
+        $estados_validos = ['Activa', 'Suspendida', 'Cancelada', 'Finalizada', 'Pendiente'];
+        if (!in_array($estado, $estados_validos)) {
+            $_SESSION['error_message'] = "Estado no válido";
+            $this->redirectTo('admin/suscripciones');
+            return;
+        }
+
+        // Cargar modelo y actualizar estado
+        $suscripcionModel = new Suscripcion();
+        $motivo = "Cambio de estado manual desde el panel de administración";
+        $resultado = $suscripcionModel->cambiarEstado($id, $estado, $motivo);
+
+        if ($resultado) {
+            $_SESSION['success_message'] = "Estado de suscripción actualizado correctamente";
+        } else {
+            $_SESSION['error_message'] = "Error al actualizar el estado de la suscripción";
+        }
+
+        $this->redirectTo('admin/suscripciones');
+    }
+
+    /**
+     * Renueva una suscripción
+     */
+    public function renovarSuscripcion()
+    {
+        // Verificar parámetro necesario
+        if (!isset($_GET['id'])) {
+            $_SESSION['error_message'] = "ID de suscripción no especificado";
+            $this->redirectTo('admin/suscripciones');
+            return;
+        }
+
+        $id = (int)$_GET['id'];
+
+        // Cargar modelo y renovar
+        $suscripcionModel = new Suscripcion();
+        $resultado = $suscripcionModel->renovar($id);
+
+        if ($resultado) {
+            $_SESSION['success_message'] = "Suscripción renovada correctamente";
+        } else {
+            $_SESSION['error_message'] = "Error al renovar la suscripción";
+        }
+
+        $this->redirectTo('admin/suscripciones');
+    }
+
+    /**
+     * Muestra el historial de cambios de una suscripción
+     */
+    public function historialSuscripcion()
+    {
+        // Título de la página
+        $pageTitle = "Historial de Suscripción";
+
+        // Verificar parámetro necesario
+        if (!isset($_GET['id'])) {
+            $_SESSION['error_message'] = "ID de suscripción no especificado";
+            $this->redirectTo('admin/suscripciones');
+            return;
+        }
+
+        $id = (int)$_GET['id'];
+
+        // Cargar modelos necesarios
+        $suscripcionModel = new Suscripcion();
+
+        // Obtener suscripción y su historial
+        $suscripcion = $suscripcionModel->getById($id);
+
+        if (!$suscripcion) {
+            $_SESSION['error_message'] = "Suscripción no encontrada";
+            $this->redirectTo('admin/suscripciones');
+            return;
+        }
+
+        // Obtener empresa y plan asociados
+        $empresaModel = new Empresa();
+        $planModel = new Plan();
+
+        $empresa = $empresaModel->getById($suscripcion->empresa_id);
+        $plan = $planModel->getById($suscripcion->plan_id);
+
+        // Incluir la vista
+        require_once 'views/admin/suscripciones/historial.php';
+    }
+
+    /**
+     * Método auxiliar para redireccionar
+     */
+    private function redirectTo($path)
+    {
+        // Verificar que no se hayan enviado headers aún
+        if (!headers_sent()) {
+            header("Location: " . base_url . $path);
+        } else {
+            // Usar JavaScript como respaldo si los headers ya se enviaron
+            echo "<script>window.location.href = '" . base_url . $path . "';</script>";
+            echo '<noscript>';
+            echo '<meta http-equiv="refresh" content="0;url=' . base_url . $path . '">';
+            echo '</noscript>';
+        }
+        exit();
     }
 
     /**
