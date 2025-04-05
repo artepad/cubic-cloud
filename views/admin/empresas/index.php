@@ -46,27 +46,27 @@ $empresas = $empresa_model->getAll();
                 <table class="table table-striped" id="tabla-empresas">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Identificación</th>
-                            <th>Administrador</th>
-                            <th>País</th>
-                            <th>Plan</th>
-                            <th>Tipo</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
+                            <th class="text-center">ID</th>
+                            <th class="text-center">Nombre</th>
+                            <th class="text-center">Identificación</th>
+                            <th class="text-center">Administrador</th>
+                            <th class="text-center">País</th>
+                            <th class="text-center">Plan</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (!empty($empresas)): ?>
                             <?php foreach ($empresas as $empresa): ?>
                                 <tr>
-                                    <td><?= $empresa->id ?></td>
+                                    <td class="text-center"><?= $empresa->id ?></td>
                                     <td><?= htmlspecialchars($empresa->nombre) ?></td>
-                                    <td><?= htmlspecialchars($empresa->identificacion_fiscal ?: '-') ?></td>
-                                    <td><?= isset($empresa->admin_nombre) ? htmlspecialchars($empresa->admin_nombre . ' ' . $empresa->admin_apellido) : 'Sin asignar' ?></td>
-                                    <td><?= htmlspecialchars($empresa->pais) ?></td>
-                                    <td>
+                                    <td class="text-center"><?= htmlspecialchars($empresa->identificacion_fiscal ?: '-') ?></td>
+                                    <td class="text-center"><?= isset($empresa->admin_nombre) ? htmlspecialchars($empresa->admin_nombre . ' ' . $empresa->admin_apellido) : 'Sin asignar' ?></td>
+                                    <td class="text-center"><?= htmlspecialchars($empresa->pais) ?></td>
+                                    <td class="text-center">
                                         <?php
                                             // Obtenemos el plan asociado a través de la suscripción activa
                                             $suscripcion = isset($empresa->suscripcion) ? $empresa->suscripcion : null;
@@ -74,21 +74,21 @@ $empresas = $empresa_model->getAll();
                                             echo $plan_nombre;
                                         ?>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <?php if ($empresa->es_demo == 'Si'): ?>
                                             <span class="label label-warning">Demo</span>
                                         <?php else: ?>
                                             <span class="label label-info">Normal</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <?php if ($empresa->estado == 'activa'): ?>
                                             <span class="label label-success">Activa</span>
                                         <?php else: ?>
                                             <span class="label label-danger">Suspendida</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <a href="<?= base_url ?>admin/verEmpresa?id=<?= $empresa->id ?>" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
                                             <i class="fa fa-eye"></i>
                                         </a>
@@ -177,6 +177,14 @@ function confirmarEliminar(id) {
 }
 .table th {
     font-weight: 600;
+    text-align: center;
+}
+.table td {
+    vertical-align: middle;
+}
+.label {
+    display: inline-block;
+    min-width: 80px;
     text-align: center;
 }
 .label {
