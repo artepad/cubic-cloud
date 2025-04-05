@@ -122,6 +122,17 @@ class UsuarioController
         ob_end_flush();
     }
 
+
+        /**
+     * Muestra el formulario para editar un usuario
+     */
+    public function ver()
+    {
+      
+        $pageTitle = "Ver Usuario";
+        require_once 'views/admin/usuarios/ver.php';
+    }
+
     /**
      * Muestra el formulario para editar un usuario
      */

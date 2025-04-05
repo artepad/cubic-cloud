@@ -69,10 +69,10 @@
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <a href="javascript:void(0);" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
+                                        <a href="<?= base_url ?>usuario/ver?id=<?= $usuario->id ?>" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
                                             <i class="icon-eye"></i>
                                         </a>
-                                        <a href="javascript:void(0);" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
+                                        <a href="<?= base_url ?>usuario/editar?id=<?= $usuario->id ?>" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
                                             <i class="icon-pencil"></i>
                                         </a>
                                         <?php if ($usuario->estado == 'Activo'): ?>

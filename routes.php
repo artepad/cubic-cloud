@@ -35,6 +35,7 @@ Router::add('usuario/editar', 'UsuarioController', 'editar', 'auth');
 Router::add('usuario/actualizar', 'UsuarioController', 'actualizar', 'auth');
 Router::add('usuario/eliminar', 'UsuarioController', 'eliminar', 'auth');
 Router::add('usuario/cambiarEstado', 'UsuarioController', 'cambiarEstado', 'auth');
+Router::add('usuario/ver', 'UsuarioController', 'ver', 'auth');
 
 // Rutas para el controlador de Empresas
 Router::add('empresa/index', 'EmpresaController', 'index', 'auth');
