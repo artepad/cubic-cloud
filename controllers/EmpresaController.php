@@ -74,7 +74,7 @@ class EmpresaController
         ];
 
         // Cargar la vista
-        require_once 'views/admin/empresas/listar.php';
+        require_once 'views/admin/empresas/index.php';
     }
 
     /**
