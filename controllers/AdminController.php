@@ -3,12 +3,16 @@
 /**
  * AdminController
  * 
- * Controlador unificado para gestión de superadministradores, incluyendo login, logout,
- * recuperación de contraseñas y todas las funcionalidades del dashboard.
+ * Controlador para gestión de superadministradores, incluyendo login, logout,
+ * recuperación de contraseñas y gestión del dashboard.
+ * Refactorizado para seguir el principio de responsabilidad única.
  */
 class AdminController
 {
     private $adminModel;
+    private $empresaModel;
+    private $planModel;
+    private $suscripcionModel;
 
     /**
      * Constructor
@@ -16,8 +20,15 @@ class AdminController
      */
     public function __construct()
     {
-        // Cargar el modelo
+        // Cargar los modelos
         $this->adminModel = new SystemAdmin();
+        $this->empresaModel = class_exists('Empresa') ? new Empresa() : null;
+        $this->planModel = class_exists('Plan') ? new Plan() : null;
+        
+        // Verificar si existe el modelo de Suscripcion en el sistema
+        if (class_exists('Suscripcion')) {
+            $this->suscripcionModel = new Suscripcion();
+        }
 
         // Verificar autenticación para las acciones del dashboard
         // No aplicar esta verificación para acciones de login/autenticación
@@ -387,17 +398,12 @@ class AdminController
     }
 
     /**
-     * Gestión de usuarios
+     * Configuración del sistema
      */
-    public function usuarios()
+    public function configuracion()
     {
-        $pageTitle = "Gestión de Usuarios";
-
-        // Obtener usuarios de la base de datos
-        $usuarioModel = new Usuario();
-        $usuarios = $usuarioModel->getAll();
-
-        require_once 'views/admin/dashboard/usuarios.php';
+        $pageTitle = "Configuración del Sistema";
+        require_once 'views/admin/dashboard/configuracion.php';
     }
 
     /**
@@ -407,6 +413,13 @@ class AdminController
     {
         // Título de la página
         $pageTitle = "Gestión de Suscripciones";
+
+        // Redirigir si no existe el modelo de suscripción
+        if (!isset($this->suscripcionModel)) {
+            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
+            header("Location: " . base_url . "admin/dashboard");
+            exit();
+        }
 
         // Obtener parámetros de filtrado y paginación
         $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
@@ -434,18 +447,13 @@ class AdminController
             $filters['vencidas'] = true;
         }
 
-        // Cargar modelos necesarios
-        $suscripcionModel = new Suscripcion();
-        $empresaModel = new Empresa();
-        $planModel = new Plan();
-
         // Obtener suscripciones con paginación
-        $suscripciones = $suscripcionModel->getAll($filters, $elementosPorPagina, $offset);
-        $total_suscripciones = $suscripcionModel->countAll($filters);
+        $suscripciones = $this->suscripcionModel->getAll($filters, $elementosPorPagina, $offset);
+        $total_suscripciones = $this->suscripcionModel->countAll($filters);
 
         // Obtener listas para los filtros
-        $empresas = $empresaModel->getAll();
-        $planes = $planModel->getAll();
+        $empresas = $this->empresaModel->getAll();
+        $planes = $this->planModel->getAll();
 
         // Cálculos para paginación
         $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
@@ -462,20 +470,23 @@ class AdminController
         // Título de la página
         $pageTitle = "Crear Nueva Suscripción";
 
-        // Cargar modelos necesarios
-        $empresaModel = new Empresa();
-        $planModel = new Plan();
+        // Verificar que exista el modelo de suscripción
+        if (!isset($this->suscripcionModel)) {
+            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
+            header("Location: " . base_url . "admin/dashboard");
+            exit();
+        }
 
         // Obtener datos para selectores
-        $empresas = $empresaModel->getAll(['estado' => 'activa']);
-        $planes = $planModel->getAll(['estado' => 'Activo']);
+        $empresas = $this->empresaModel->getAll(['estado' => 'activa']);
+        $planes = $this->planModel->getAll(['estado' => 'Activo']);
 
         // Verificar si hay empresa preseleccionada (desde vista empresa)
         $empresa_id_preseleccionado = isset($_GET['empresa_id']) ? intval($_GET['empresa_id']) : null;
         $empresa_preseleccionada = null;
 
         if ($empresa_id_preseleccionado) {
-            $empresa_preseleccionada = $empresaModel->getById($empresa_id_preseleccionado);
+            $empresa_preseleccionada = $this->empresaModel->getById($empresa_id_preseleccionado);
         }
 
         // Cargar la vista
@@ -487,6 +498,13 @@ class AdminController
      */
     public function saveSuscripcion()
     {
+        // Verificar si existe el modelo de suscripción
+        if (!isset($this->suscripcionModel)) {
+            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
+            $this->redirectTo('admin/dashboard');
+            return;
+        }
+
         // Verificar si se ha enviado el formulario
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirectTo('admin/suscripciones');
@@ -561,6 +579,13 @@ class AdminController
      */
     public function cambiarEstadoSuscripcion()
     {
+        // Verificar que exista el modelo de suscripción
+        if (!isset($this->suscripcionModel)) {
+            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
+            $this->redirectTo('admin/dashboard');
+            return;
+        }
+
         // Verificar parámetros necesarios
         if (!isset($_GET['id']) || !isset($_GET['estado'])) {
             $_SESSION['error_message'] = "Parámetros insuficientes";
@@ -580,9 +605,8 @@ class AdminController
         }
 
         // Cargar modelo y actualizar estado
-        $suscripcionModel = new Suscripcion();
         $motivo = "Cambio de estado manual desde el panel de administración";
-        $resultado = $suscripcionModel->cambiarEstado($id, $estado, $motivo);
+        $resultado = $this->suscripcionModel->cambiarEstado($id, $estado, $motivo);
 
         if ($resultado) {
             $_SESSION['success_message'] = "Estado de suscripción actualizado correctamente";
@@ -598,6 +622,13 @@ class AdminController
      */
     public function renovarSuscripcion()
     {
+        // Verificar que exista el modelo de suscripción
+        if (!isset($this->suscripcionModel)) {
+            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
+            $this->redirectTo('admin/dashboard');
+            return;
+        }
+
         // Verificar parámetro necesario
         if (!isset($_GET['id'])) {
             $_SESSION['error_message'] = "ID de suscripción no especificado";
@@ -608,8 +639,7 @@ class AdminController
         $id = (int)$_GET['id'];
 
         // Cargar modelo y renovar
-        $suscripcionModel = new Suscripcion();
-        $resultado = $suscripcionModel->renovar($id);
+        $resultado = $this->suscripcionModel->renovar($id);
 
         if ($resultado) {
             $_SESSION['success_message'] = "Suscripción renovada correctamente";
@@ -625,6 +655,13 @@ class AdminController
      */
     public function historialSuscripcion()
     {
+        // Verificar que exista el modelo de suscripción
+        if (!isset($this->suscripcionModel)) {
+            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
+            $this->redirectTo('admin/dashboard');
+            return;
+        }
+
         // Título de la página
         $pageTitle = "Historial de Suscripción";
 
@@ -637,11 +674,8 @@ class AdminController
 
         $id = (int)$_GET['id'];
 
-        // Cargar modelos necesarios
-        $suscripcionModel = new Suscripcion();
-
         // Obtener suscripción y su historial
-        $suscripcion = $suscripcionModel->getById($id);
+        $suscripcion = $this->suscripcionModel->getById($id);
 
         if (!$suscripcion) {
             $_SESSION['error_message'] = "Suscripción no encontrada";
@@ -650,11 +684,8 @@ class AdminController
         }
 
         // Obtener empresa y plan asociados
-        $empresaModel = new Empresa();
-        $planModel = new Plan();
-
-        $empresa = $empresaModel->getById($suscripcion->empresa_id);
-        $plan = $planModel->getById($suscripcion->plan_id);
+        $empresa = $this->empresaModel->getById($suscripcion->empresa_id);
+        $plan = $this->planModel->getById($suscripcion->plan_id);
 
         // Incluir la vista
         require_once 'views/admin/suscripciones/historial.php';
@@ -679,110 +710,15 @@ class AdminController
     }
 
     /**
-     * Configuración del sistema
-     */
-    public function configuracion()
-    {
-        $pageTitle = "Configuración del Sistema";
-        require_once 'views/admin/dashboard/configuracion.php';
-    }
-
-    /**
-     * Muestra el formulario para crear un nuevo usuario
-     */
-    public function crearUsuario()
-    {
-        // Configurar el título de la página
-        $pageTitle = "Crear Nuevo Usuario";
-
-        // Incluir la vista
-        require_once 'views/admin/dashboard/crear_usuario.php';
-    }
-
-    /**
-     * Guarda los datos del nuevo usuario
-     */
-    public function saveUsuario()
-    {
-        // Iniciar buffer de salida para evitar problemas de redirección
-        ob_start();
-
-        // Verificar que se han enviado los datos del formulario
-        if (isset($_POST['nombre']) && isset($_POST['apellido']) && isset($_POST['email']) && isset($_POST['password'])) {
-
-            // Crear una instancia del modelo de usuario
-            $usuario = new Usuario();
-
-            // Verificar que el email no exista ya
-            if ($usuario->emailExists($_POST['email'])) {
-                $_SESSION['error_message'] = "El correo electrónico ya está registrado";
-                header("Location:" . base_url . "admin/crearUsuario");
-                ob_end_flush();
-                exit();
-            }
-
-            // Verificar que las contraseñas coinciden
-            if ($_POST['password'] !== $_POST['confirm_password']) {
-                $_SESSION['error_message'] = "Las contraseñas no coinciden";
-                header("Location:" . base_url . "admin/crearUsuario");
-                ob_end_flush();
-                exit();
-            }
-
-            // Establecer los datos del usuario
-            $usuario->setNombre($_POST['nombre']);
-            $usuario->setApellido($_POST['apellido']);
-            $usuario->setEmail($_POST['email']);
-            $usuario->setPassword($_POST['password']);
-            $usuario->setTelefono($_POST['telefono'] ?? '');
-            $usuario->setPais($_POST['pais'] ?? 'Chile');
-            $usuario->setCodigoPais($_POST['codigo_pais'] ?? 'CL');
-            $usuario->setNumeroIdentificacion($_POST['numero_identificacion'] ?? '');
-            $usuario->setTipoIdentificacion($_POST['tipo_identificacion'] ?? 'RUT');
-            $usuario->setTipoUsuario($_POST['tipo_usuario'] ?? 'ADMIN');
-            $usuario->setEstado($_POST['estado'] ?? 'Activo');
-
-            // Guardar el usuario
-            $save = $usuario->save();
-
-            if ($save) {
-                $_SESSION['success_message'] = "Usuario creado correctamente";
-
-                // Usar una redirección JavaScript como respaldo en caso de que header() falle
-                echo "<script>window.location.href = '" . base_url . "admin/usuarios';</script>";
-
-                // Intentar redirección normal
-                header("Location: " . base_url . "admin/usuarios");
-                ob_end_flush();
-                exit();
-            } else {
-                $_SESSION['error_message'] = "Error al crear el usuario";
-                header("Location: " . base_url . "admin/crearUsuario");
-                ob_end_flush();
-                exit();
-            }
-        } else {
-            $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
-            header("Location: " . base_url . "admin/crearUsuario");
-            ob_end_flush();
-            exit();
-        }
-
-        // Si algo falla, mostrar una página de redirección manual
-        require_once 'views/admin/dashboard/redirect.php';
-        ob_end_flush();
-        exit();
-    }
-
-    /**
      * Obtiene la cantidad total de empresas
      * @return int Número de empresas
      */
     private function getEmpresasCount()
     {
-        // En un caso real, esto consultaría la base de datos
-        // Por ahora retornamos un valor de ejemplo
-        return 15;
+        if ($this->empresaModel) {
+            return $this->empresaModel->countAll();
+        }
+        return 0;
     }
 
     /**
@@ -791,8 +727,8 @@ class AdminController
      */
     private function getUsuariosCount()
     {
-        // En un caso real, esto consultaría la base de datos
-        return 54;
+        $usuarioModel = new Usuario();
+        return $usuarioModel->countAll();
     }
 
     /**
