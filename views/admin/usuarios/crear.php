@@ -39,7 +39,7 @@ $pageTitle = "Crear Usuario";
             <?php endif; ?>
 
             <!-- Formulario de creación de usuario -->
-            <form id="formCrearUsuario" class="form-horizontal" method="post" action="<?= base_url ?>admin/saveUsuario">
+            <form id="formCrearUsuario" class="form-horizontal" method="post" action="<?= base_url ?>usuario/guardar">
                 <!-- Token CSRF para seguridad -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 

@@ -107,7 +107,7 @@ class UsuarioController
 
             if ($save) {
                 $_SESSION['success_message'] = "Usuario creado correctamente";
-                $this->redirectTo('usuario/listar');
+                $this->redirectTo('usuario/index');
             } else {
                 $_SESSION['error_message'] = "Error al crear el usuario";
                 $this->redirectTo('usuario/crear');

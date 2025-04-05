@@ -24,7 +24,7 @@
             <!-- Acciones de gestión -->
             <div class="row m-t-20 m-b-20">
                 <div class="col-md-12">
-                    <a href="<?= base_url ?>admin/crearUsuario" class="btn btn-info waves-effect waves-light m-r-10">
+                    <a href="<?= base_url ?>usuario/crear" class="btn btn-info waves-effect waves-light m-r-10">
                         <i class="icon-plus"></i> Nuevo Usuario
                     </a>
                     <a href="javascript:void(0);" class="btn btn-success waves-effect waves-light m-r-10">
