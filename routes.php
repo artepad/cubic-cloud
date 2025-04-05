@@ -28,7 +28,6 @@ Router::add('admin/configuracion', 'AdminController', 'configuracion', 'auth');
 
 // Rutas del UsuarioController
 Router::add('usuario/index', 'UsuarioController', 'index', 'auth');
-Router::add('usuario/listar', 'UsuarioController', 'listar', 'auth');
 Router::add('usuario/crear', 'UsuarioController', 'crear', 'auth');
 Router::add('usuario/guardar', 'UsuarioController', 'guardar', 'auth');
 Router::add('usuario/editar', 'UsuarioController', 'editar', 'auth');

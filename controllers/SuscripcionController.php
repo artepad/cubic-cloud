@@ -44,43 +44,6 @@ class SuscripcionController
         // Título de la página
         $pageTitle = "Gestión de Suscripciones";
 
-        // Obtener parámetros de filtrado y paginación
-        $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
-        $elementosPorPagina = 10;
-        $offset = ($pagina - 1) * $elementosPorPagina;
-
-        // Aplicar filtros si existen
-        $filters = [];
-        if (isset($_GET['estado']) && !empty($_GET['estado'])) {
-            $filters['estado'] = $_GET['estado'];
-        }
-        if (isset($_GET['empresa_id']) && !empty($_GET['empresa_id'])) {
-            $filters['empresa_id'] = $_GET['empresa_id'];
-        }
-        if (isset($_GET['plan_id']) && !empty($_GET['plan_id'])) {
-            $filters['plan_id'] = $_GET['plan_id'];
-        }
-        if (isset($_GET['busqueda']) && !empty($_GET['busqueda'])) {
-            $filters['busqueda'] = $_GET['busqueda'];
-        }
-        if (isset($_GET['periodo']) && !empty($_GET['periodo'])) {
-            $filters['periodo'] = $_GET['periodo'];
-        }
-        if (isset($_GET['vencidas']) && $_GET['vencidas'] == '1') {
-            $filters['vencidas'] = true;
-        }
-
-        // Obtener suscripciones con paginación
-        $suscripciones = $this->suscripcionModel->getAll($filters, $elementosPorPagina, $offset);
-        $total_suscripciones = $this->suscripcionModel->countAll($filters);
-
-        // Obtener listas para los filtros
-        $empresas = $this->empresaModel->getAll();
-        $planes = $this->planModel->getAll();
-
-        // Cálculos para paginación
-        $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
-
         // Cargar la vista
         require_once 'views/admin/suscripciones/index.php';
     }

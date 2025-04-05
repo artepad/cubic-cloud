@@ -95,27 +95,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Paginación -->
-            <div class="text-center m-t-20">
-                <ul class="pagination">
-                    <li class="disabled">
-                        <a href="javascript:void(0);"><i class="icon-arrow-left-circle"></i></a>
-                    </li>
-                    <li class="active">
-                        <a href="javascript:void(0);">1</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);">2</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);">3</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);"><i class="icon-arrow-right-circle"></i></a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
 </div>

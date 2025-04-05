@@ -48,7 +48,7 @@ class UsuarioController
         // Obtener usuarios de la base de datos
         $usuarios = $this->usuarioModel->getAll();
 
-        require_once 'views/admin/usuarios/listar.php';
+        require_once 'views/admin/usuarios/index.php';
     }
 
     /**

@@ -28,7 +28,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="waves-effect" href="<?=base_url?>admin/usuarios" aria-expanded="false">
+                        <a class="waves-effect" href="<?=base_url?>usuario/index" aria-expanded="false">
                             <i class="icon-people fa-fw"></i>
                             <span class="hide-menu"> Usuarios
                                 <span class="label label-rounded label-success pull-right">54</span>
