@@ -36,11 +36,6 @@ Router::add('usuario/actualizar', 'UsuarioController', 'actualizar', 'auth');
 Router::add('usuario/eliminar', 'UsuarioController', 'eliminar', 'auth');
 Router::add('usuario/cambiarEstado', 'UsuarioController', 'cambiarEstado', 'auth');
 
-// Rutas para compatibilidad con la versión anterior (redirigen al nuevo controlador)
-Router::add('admin/usuarios', 'UsuarioController', 'listar', 'auth');
-Router::add('admin/crearUsuario', 'UsuarioController', 'crear', 'auth');
-Router::add('admin/saveUsuario', 'UsuarioController', 'guardar', 'auth');
-
 // Rutas para el controlador de Suscripciones
 Router::add('suscripcion/index', 'SuscripcionController', 'index', 'auth');
 Router::add('suscripcion/crear', 'SuscripcionController', 'crear', 'auth');

@@ -35,7 +35,7 @@ class PlanController
         $planes = $this->planModel->getAll();
 
         // Incluir la vista
-        require_once 'views/admin/planes/index.php';
+        require_once 'views/admin/planes/listar.php';
     }
 
     /**
