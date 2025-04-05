@@ -7,9 +7,6 @@ if (!isAdminLoggedIn()) {
 // Obtener empresas de la base de datos
 $empresa_model = new Empresa();
 $empresas = $empresa_model->getAll();
-
-// Contador para la paginación
-$total_empresas = count($empresas);
 ?>
 
 <div class="row">
@@ -35,43 +32,10 @@ $total_empresas = count($empresas);
                 <?php unset($_SESSION['error_message']); ?>
             <?php endif; ?>
 
-            <!-- Filtros de búsqueda -->
-            <div class="row m-t-10 m-b-20">
-                <div class="col-md-12">
-                    <form id="searchForm" class="form-inline" method="get" action="<?= base_url ?>admin/empresas">
-                        <div class="form-group m-r-10">
-                            <input type="text" class="form-control" name="busqueda" id="busqueda" 
-                                placeholder="Buscar por nombre..." 
-                                value="<?= isset($_GET['busqueda']) ? htmlspecialchars($_GET['busqueda']) : '' ?>">
-                        </div>
-                        <div class="form-group m-r-10">
-                            <select class="form-control" name="estado" id="estado">
-                                <option value="">Todos los estados</option>
-                                <option value="activa" <?= (isset($_GET['estado']) && $_GET['estado'] == 'activa') ? 'selected' : '' ?>>Activa</option>
-                                <option value="suspendida" <?= (isset($_GET['estado']) && $_GET['estado'] == 'suspendida') ? 'selected' : '' ?>>Suspendida</option>
-                            </select>
-                        </div>
-                        <div class="form-group m-r-10">
-                            <select class="form-control" name="es_demo" id="es_demo">
-                                <option value="">Todos los tipos</option>
-                                <option value="Si" <?= (isset($_GET['es_demo']) && $_GET['es_demo'] == 'Si') ? 'selected' : '' ?>>Demo</option>
-                                <option value="No" <?= (isset($_GET['es_demo']) && $_GET['es_demo'] == 'No') ? 'selected' : '' ?>>Normal</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-info waves-effect waves-light">
-                            <i class="fa fa-search"></i> Filtrar
-                        </button>
-                        <a href="<?= base_url ?>admin/empresas" class="btn btn-default waves-effect waves-light m-l-5">
-                            <i class="fa fa-refresh"></i> Limpiar
-                        </a>
-                    </form>
-                </div>
-            </div>
-
             <!-- Botón para crear nueva empresa -->
             <div class="row m-t-10 m-b-20">
                 <div class="col-md-12">
-                    <a href="<?= base_url ?>admin/crearEmpresa" class="btn btn-success waves-effect waves-light">
+                    <a href="<?= base_url ?>empresa/crear" class="btn btn-success waves-effect waves-light">
                         <i class="fa fa-plus"></i> Nueva Empresa
                     </a>
                 </div>
@@ -156,35 +120,6 @@ $total_empresas = count($empresas);
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Paginación -->
-            <?php if ($total_empresas > 0): ?>
-                <div class="text-center m-t-20">
-                    <ul class="pagination">
-                        <!-- Simulación de paginación, esto debe ser reemplazado con paginación real -->
-                        <li class="<?= !isset($_GET['pagina']) || $_GET['pagina'] <= 1 ? 'disabled' : '' ?>">
-                            <a href="<?= base_url ?>admin/empresas?pagina=<?= isset($_GET['pagina']) ? max(1, intval($_GET['pagina']) - 1) : 1 ?>">
-                                <i class="fa fa-angle-left"></i>
-                            </a>
-                        </li>
-                        <li class="active">
-                            <a href="javascript:void(0);"><?= isset($_GET['pagina']) ? intval($_GET['pagina']) : 1 ?></a>
-                        </li>
-                        <?php if ($total_empresas > 10): // Si hay más de 10 empresas, mostrar segunda página ?>
-                            <li>
-                                <a href="<?= base_url ?>admin/empresas?pagina=<?= isset($_GET['pagina']) ? intval($_GET['pagina']) + 1 : 2 ?>">
-                                    <?= isset($_GET['pagina']) ? intval($_GET['pagina']) + 1 : 2 ?>
-                                </a>
-                            </li>
-                        <?php endif; ?>
-                        <li class="<?= $total_empresas <= 10 ? 'disabled' : '' ?>">
-                            <a href="<?= base_url ?>admin/empresas?pagina=<?= isset($_GET['pagina']) ? intval($_GET['pagina']) + 1 : 2 ?>">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -239,14 +174,6 @@ function confirmarEliminar(id) {
     align-items: center;
     justify-content: center;
     margin-right: 5px;
-}
-.pagination > li > a {
-    color: #26c6da;
-}
-.pagination > .active > a, 
-.pagination > .active > a:hover {
-    background-color: #26c6da;
-    border-color: #26c6da;
 }
 .table th {
     font-weight: 600;

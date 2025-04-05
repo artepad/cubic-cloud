@@ -483,85 +483,34 @@ class Empresa
     }
 
     /**
-     * Obtiene todas las empresas con posibilidad de filtrado
+     * Obtiene todas las empresas
      * 
-     * @param array $filters Criterios de filtrado (opcional)
-     * @param int $limit Límite de resultados (opcional)
-     * @param int $offset Desplazamiento para paginación (opcional)
      * @return array Lista de empresas
      */
-    public function getAll($filters = [], $limit = null, $offset = 0)
+    public function getAll()
     {
         try {
             // Construir la consulta base
             $sql = "SELECT e.*, u.nombre as admin_nombre, u.apellido as admin_apellido, u.email as admin_email 
-                   FROM empresas e 
-                   LEFT JOIN usuarios u ON e.usuario_id = u.id 
-                   WHERE 1=1";
-            
-            $params = [];
-            $types = "";
-            
-            // Aplicar filtros si existen
-            if (!empty($filters)) {
-                if (isset($filters['estado']) && $filters['estado']) {
-                    $sql .= " AND e.estado = ?";
-                    $params[] = $filters['estado'];
-                    $types .= "s";
-                }
-                
-                if (isset($filters['es_demo']) && $filters['es_demo']) {
-                    $sql .= " AND e.es_demo = ?";
-                    $params[] = $filters['es_demo'];
-                    $types .= "s";
-                }
-                
-                if (isset($filters['pais']) && $filters['pais']) {
-                    $sql .= " AND e.codigo_pais = ?";
-                    $params[] = $filters['pais'];
-                    $types .= "s";
-                }
-                
-                if (isset($filters['busqueda']) && $filters['busqueda']) {
-                    $busqueda = "%" . $filters['busqueda'] . "%";
-                    $sql .= " AND (e.nombre LIKE ? OR e.identificacion_fiscal LIKE ?)";
-                    $params[] = $busqueda;
-                    $params[] = $busqueda;
-                    $types .= "ss";
-                }
-            }
-            
-            // Ordenar resultados
-            $sql .= " ORDER BY e.id DESC";
-            
-            // Limitar resultados para paginación
-            if ($limit !== null) {
-                $sql .= " LIMIT ?, ?";
-                $params[] = (int)$offset;
-                $params[] = (int)$limit;
-                $types .= "ii";
-            }
-            
+               FROM empresas e 
+               LEFT JOIN usuarios u ON e.usuario_id = u.id 
+               ORDER BY e.id DESC";
+
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return [];
             }
-            
-            // Bind de parámetros si existen
-            if (!empty($params)) {
-                $stmt->bind_param($types, ...$params);
-            }
-            
+
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             $empresas = [];
             while ($empresa = $result->fetch_object()) {
                 $empresas[] = $empresa;
             }
-            
+
             $stmt->close();
             return $empresas;
         } catch (Exception $e) {
@@ -583,7 +532,7 @@ class Empresa
             $sql = "SELECT COUNT(*) as total FROM empresas WHERE 1=1";
             $params = [];
             $types = "";
-            
+
             // Aplicar filtros si existen
             if (!empty($filters)) {
                 if (isset($filters['estado']) && $filters['estado']) {
@@ -591,19 +540,19 @@ class Empresa
                     $params[] = $filters['estado'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['es_demo']) && $filters['es_demo']) {
                     $sql .= " AND es_demo = ?";
                     $params[] = $filters['es_demo'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['pais']) && $filters['pais']) {
                     $sql .= " AND codigo_pais = ?";
                     $params[] = $filters['pais'];
                     $types .= "s";
                 }
-                
+
                 if (isset($filters['busqueda']) && $filters['busqueda']) {
                     $busqueda = "%" . $filters['busqueda'] . "%";
                     $sql .= " AND (nombre LIKE ? OR identificacion_fiscal LIKE ?)";
@@ -612,23 +561,23 @@ class Empresa
                     $types .= "ss";
                 }
             }
-            
+
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return 0;
             }
-            
+
             // Bind de parámetros si existen
             if (!empty($params)) {
                 $stmt->bind_param($types, ...$params);
             }
-            
+
             $stmt->execute();
             $result = $stmt->get_result();
             $row = $result->fetch_object();
-            
+
             $stmt->close();
             return (int)$row->total;
         } catch (Exception $e) {
@@ -647,19 +596,19 @@ class Empresa
     {
         try {
             $id = (int)$id; // Asegurar que es un entero
-            
+
             $sql = "DELETE FROM empresas WHERE id = ?";
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $stmt->bind_param("i", $id);
             $result = $stmt->execute();
             $stmt->close();
-            
+
             return $result;
         } catch (Exception $e) {
             error_log("Error en delete: " . $e->getMessage());
@@ -678,24 +627,24 @@ class Empresa
     {
         try {
             $id = (int)$id; // Asegurar que es un entero
-            
+
             // Validar estado
             if (!in_array($estado, ['activa', 'suspendida'])) {
                 return false;
             }
-            
+
             $sql = "UPDATE empresas SET estado = ? WHERE id = ?";
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-            
+
             $stmt->bind_param("si", $estado, $id);
             $result = $stmt->execute();
             $stmt->close();
-            
+
             return $result;
         } catch (Exception $e) {
             error_log("Error en cambiarEstado: " . $e->getMessage());
@@ -717,32 +666,32 @@ class Empresa
             if (empty($identificacion)) {
                 return false;
             }
-            
+
             $sql = "SELECT id FROM empresas WHERE identificacion_fiscal = ?";
-            
+
             // Si se proporciona un ID para excluir, modificar la consulta
             if ($exclude_id) {
                 $sql .= " AND id != ?";
             }
-            
+
             $stmt = $this->db->prepare($sql);
-            
+
             if (!$stmt) {
                 error_log("Error preparando consulta: " . $this->db->error);
                 return true; // Devolver true por precaución
             }
-            
+
             if ($exclude_id) {
                 $stmt->bind_param("si", $identificacion, $exclude_id);
             } else {
                 $stmt->bind_param("s", $identificacion);
             }
-            
+
             $stmt->execute();
             $stmt->store_result();
             $exists = $stmt->num_rows > 0;
             $stmt->close();
-            
+
             return $exists;
         } catch (Exception $e) {
             error_log("Error en identificacionExists: " . $e->getMessage());

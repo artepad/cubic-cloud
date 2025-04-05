@@ -44,34 +44,8 @@ class EmpresaController
         // Título de la página
         $pageTitle = "Gestión de Empresas";
 
-        // Procesar filtros si existen
-        $filters = [];
-        if (isset($_GET['busqueda']) && !empty($_GET['busqueda'])) {
-            $filters['busqueda'] = trim($_GET['busqueda']);
-        }
-        if (isset($_GET['estado']) && !empty($_GET['estado'])) {
-            $filters['estado'] = $_GET['estado'];
-        }
-        if (isset($_GET['es_demo']) && !empty($_GET['es_demo'])) {
-            $filters['es_demo'] = $_GET['es_demo'];
-        }
-
-        // Configuración de paginación
-        $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
-        $elementosPorPagina = 10;
-        $offset = ($pagina - 1) * $elementosPorPagina;
-
-        // Obtener empresas según filtros y paginación
-        $empresas = $this->empresaModel->getAll($filters, $elementosPorPagina, $offset);
-        $total_empresas = $this->empresaModel->countAll($filters);
-
-        // Cálculos para la paginación
-        $total_paginas = ceil($total_empresas / $elementosPorPagina);
-        $paginacion = [
-            'pagina_actual' => $pagina,
-            'total_paginas' => $total_paginas,
-            'total_elementos' => $total_empresas
-        ];
+        // Obtener todas las empresas sin filtros ni paginación
+        $empresas = $this->empresaModel->getAll();
 
         // Cargar la vista
         require_once 'views/admin/empresas/index.php';
