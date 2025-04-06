@@ -494,19 +494,22 @@ class EmpresaController
     /**
      * Muestra los detalles de una empresa
      */
-    public function ver()
+    public function ver($id = null)
     {
-        // Título de la página
-        $pageTitle = "Detalles de Empresa";
+        // Si se pasó un array de parámetros en lugar de un ID directo
+        if (is_array($id) && isset($id['id'])) {
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+        } else {
+            $id = (int)$id;
+        }
 
-        // Obtener el ID de la empresa a ver
-        if (!isset($_GET['id'])) {
+        if (!$id) {
             $_SESSION['error_message'] = "ID de empresa no especificado";
             $this->redirectTo('empresa/index');
             return;
         }
-
-        $id = (int)$_GET['id'];
 
         // Obtener la empresa por ID
         $empresa = $this->empresaModel->getById($id);
@@ -519,6 +522,9 @@ class EmpresaController
 
         // Obtener información del administrador
         $admin = $this->usuarioModel->getById($empresa->usuario_id);
+
+        // Título de la página
+        $pageTitle = "Detalles de Empresa";
 
         // Cargar la vista
         require_once 'views/admin/empresas/ver.php';
