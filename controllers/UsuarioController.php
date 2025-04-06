@@ -123,7 +123,7 @@ class UsuarioController
     }
 
 
-   /**
+    /**
      * Muestra los detalles de un usuario específico
      */
     public function ver($id = null)
@@ -160,22 +160,30 @@ class UsuarioController
 
     /**
      * Muestra el formulario para editar un usuario
+     * @param mixed $id ID del usuario a editar (puede ser entero o array con parámetros)
      */
-    public function editar()
+    public function editar($id = null)
     {
-        // Obtener el id del usuario a editar
-        if (!isset($_GET['id'])) {
+        // Si se pasó un array de parámetros en lugar de un ID directo
+        if (is_array($id) && isset($id['id'])) {
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+        } else {
+            $id = (int)$id;
+        }
+
+        if (!$id) {
             $_SESSION['error_message'] = "ID de usuario no especificado";
-            $this->redirectTo('usuario/listar');
+            $this->redirectTo('usuario/index');
             return;
         }
 
-        $id = (int)$_GET['id'];
         $usuario = $this->usuarioModel->getById($id);
 
         if (!$usuario) {
             $_SESSION['error_message'] = "Usuario no encontrado";
-            $this->redirectTo('usuario/listar');
+            $this->redirectTo('usuario/index');
             return;
         }
 
@@ -188,9 +196,16 @@ class UsuarioController
      */
     public function actualizar()
     {
+        // Verificar token CSRF
+        if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+            $_SESSION['error_message'] = "Error de seguridad. Intente nuevamente.";
+            $this->redirectTo('usuario/index');
+            return;
+        }
+
         if (!isset($_POST['id'])) {
             $_SESSION['error_message'] = "ID de usuario no especificado";
-            $this->redirectTo('usuario/listar');
+            $this->redirectTo('usuario/index');
             return;
         }
 
@@ -199,7 +214,7 @@ class UsuarioController
 
         if (!$usuario_actual) {
             $_SESSION['error_message'] = "Usuario no encontrado";
-            $this->redirectTo('usuario/listar');
+            $this->redirectTo('usuario/index');
             return;
         }
 
@@ -209,16 +224,16 @@ class UsuarioController
             $this->usuarioModel->emailExists($_POST['email'], $id)
         ) {
             $_SESSION['error_message'] = "El correo electrónico ya está registrado para otro usuario";
-            $this->redirectTo('usuario/editar?id=' . $id);
+            $this->redirectTo('usuario/editar/' . $id);
             return;
         }
 
         // Establecer los datos del usuario
         $usuario = new Usuario();
         $usuario->setId($id);
-        $usuario->setNombre($_POST['nombre']);
-        $usuario->setApellido($_POST['apellido']);
-        $usuario->setEmail($_POST['email']);
+        $usuario->setNombre(trim($_POST['nombre']));
+        $usuario->setApellido(trim($_POST['apellido']));
+        $usuario->setEmail(trim($_POST['email']));
         $usuario->setTelefono($_POST['telefono'] ?? '');
         $usuario->setPais($_POST['pais'] ?? 'Chile');
         $usuario->setCodigoPais($_POST['codigo_pais'] ?? 'CL');
@@ -232,9 +247,17 @@ class UsuarioController
             // Verificar que las contraseñas coinciden
             if ($_POST['password'] !== $_POST['confirm_password']) {
                 $_SESSION['error_message'] = "Las contraseñas no coinciden";
-                $this->redirectTo('usuario/editar?id=' . $id);
+                $this->redirectTo('usuario/editar/' . $id);
                 return;
             }
+
+            // Verificar longitud mínima
+            if (strlen($_POST['password']) < 8) {
+                $_SESSION['error_message'] = "La contraseña debe tener al menos 8 caracteres";
+                $this->redirectTo('usuario/editar/' . $id);
+                return;
+            }
+
             $usuario->setPassword($_POST['password']);
         }
 
@@ -243,10 +266,10 @@ class UsuarioController
 
         if ($update) {
             $_SESSION['success_message'] = "Usuario actualizado correctamente";
-            $this->redirectTo('usuario/listar');
+            $this->redirectTo('usuario/index');
         } else {
             $_SESSION['error_message'] = "Error al actualizar el usuario";
-            $this->redirectTo('usuario/editar?id=' . $id);
+            $this->redirectTo('usuario/editar/' . $id);
         }
     }
 

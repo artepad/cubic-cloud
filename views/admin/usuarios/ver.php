@@ -183,7 +183,7 @@
                                             Opciones <span class="caret"></span>
                                         </button>
                                         <ul role="menu" class="dropdown-menu">
-                                            <li><a href="<?= base_url ?>usuario/editar?id=<?= $usuario->id ?>" style="color: #333;"><i class="fa fa-pencil"></i> Editar</a></li>
+                                            <li><a href="<?= base_url ?>usuario/editar/<?= $usuario->id ?>" style="color: #333;"><i class="fa fa-pencil"></i> Editar</a></li>
                                             <?php if ($usuario->estado == 'Activo'): ?>
                                                 <li><a href="<?= base_url ?>usuario/cambiarEstado?id=<?= $usuario->id ?>&estado=Inactivo" class="text-danger" onclick="return confirm('¿Está seguro que desea suspender a este usuario?')">
                                                     <i class="fa fa-ban"></i> Suspender
