@@ -72,7 +72,7 @@
                                         <a href="<?= base_url ?>usuario/ver/<?= $usuario->id ?>" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
                                             <i class="icon-eye"></i>
                                         </a>
-                                        <a href="<?= base_url ?>usuario/editar?id=<?= $usuario->id ?>" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
+                                        <a href="<?= base_url ?>usuario/editar/<?= $usuario->id ?>" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
                                             <i class="icon-pencil"></i>
                                         </a>
                                         <?php if ($usuario->estado == 'Activo'): ?>
