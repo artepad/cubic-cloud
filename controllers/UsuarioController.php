@@ -315,29 +315,49 @@ class UsuarioController
 
     /**
      * Cambia el estado de un usuario (Activo/Inactivo)
+     * 
+     * @param mixed $params Parámetros de la ruta (puede ser array o valores individuales)
      */
-    public function cambiarEstado()
+    public function cambiarEstado($params = null)
     {
-        if (!isset($_GET['id']) || !isset($_GET['estado'])) {
-            $_SESSION['error_message'] = "Parámetros insuficientes";
-            $this->redirectTo('usuario/listar');
-            return;
+        // Obtener parámetros ya sea desde la ruta o desde GET
+        $id = null;
+        $estado = null;
+
+        // Si vienen como parámetros de ruta
+        if (is_array($params) && isset($params['id']) && isset($params['estado'])) {
+            $id = (int)$params['id'];
+            $estado = $params['estado'];
+        }
+        // Si vienen como parámetros individuales de ruta
+        elseif (!is_array($params) && $params !== null) {
+            $id = (int)$params;
+            $estado = func_get_arg(1); // Obtener el segundo parámetro
+        }
+        // Si vienen como parámetros GET
+        elseif (isset($_GET['id']) && isset($_GET['estado'])) {
+            $id = (int)$_GET['id'];
+            $estado = $_GET['estado'];
         }
 
-        $id = (int)$_GET['id'];
-        $estado = $_GET['estado'];
+        if (!$id || !$estado) {
+            $_SESSION['error_message'] = "Parámetros insuficientes";
+            $this->redirectTo('usuario/index');
+            return;
+        }
 
         // Validar estado
         if (!in_array($estado, ['Activo', 'Inactivo'])) {
             $_SESSION['error_message'] = "Estado no válido";
-            $this->redirectTo('usuario/listar');
+            $this->redirectTo('usuario/index');
             return;
         }
 
-        // No permitir cambiar el estado del usuario actual
-        if (isset($_SESSION['admin']) && $_SESSION['admin']->id == $id) {
-            $_SESSION['error_message'] = "No puedes cambiar el estado de tu propio usuario";
-            $this->redirectTo('usuario/listar');
+        // Verificar si el usuario existe
+        $usuario = $this->usuarioModel->getById($id);
+        if (!$usuario) {
+            $_SESSION['error_message'] = "Usuario no encontrado";
+            $this->redirectTo('usuario/index');
             return;
         }
 
@@ -350,7 +370,7 @@ class UsuarioController
             $_SESSION['error_message'] = "Error al actualizar el estado del usuario";
         }
 
-        $this->redirectTo('usuario/listar');
+        $this->redirectTo('usuario/index');
     }
 
     /**

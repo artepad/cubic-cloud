@@ -76,11 +76,19 @@
                                             <i class="icon-pencil"></i>
                                         </a>
                                         <?php if ($usuario->estado == 'Activo'): ?>
-                                            <a href="javascript:void(0);" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Suspender">
+                                            <a href="<?= base_url ?>usuario/cambiarEstado/<?= $usuario->id ?>/Inactivo"
+                                                class="btn btn-danger btn-circle"
+                                                data-toggle="tooltip"
+                                                data-original-title="Suspender"
+                                                onclick="return confirm('¿Está seguro que desea suspender a este usuario?')">
                                                 <i class="icon-ban"></i>
                                             </a>
                                         <?php else: ?>
-                                            <a href="javascript:void(0);" class="btn btn-success btn-circle" data-toggle="tooltip" data-original-title="Activar">
+                                            <a href="<?= base_url ?>usuario/cambiarEstado/<?= $usuario->id ?>/Activo"
+                                                class="btn btn-success btn-circle"
+                                                data-toggle="tooltip"
+                                                data-original-title="Activar"
+                                                onclick="return confirm('¿Está seguro que desea activar a este usuario?')">
                                                 <i class="icon-check"></i>
                                             </a>
                                         <?php endif; ?>
