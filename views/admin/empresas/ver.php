@@ -296,7 +296,7 @@ if (class_exists('Suscripcion')) {
                                                         case 'USD': $simbolo = 'US$'; break;
                                                         case 'EUR': $simbolo = '€'; break;
                                                     }
-                                                    echo $simbolo . ' ' . number_format($suscripcion->precio_final, 2);
+                                                    echo $simbolo . ' ' . number_format($suscripcion->precio_total ?? 0, 2);
                                                     ?>
                                                 </strong>
                                             </p>
