@@ -23,7 +23,7 @@
                             <?php unset($_SESSION['success_message']); ?>
                         </div>
                     <?php endif; ?>
-                    
+
                     <?php if (isset($_SESSION['error_message'])): ?>
                         <div class="alert alert-danger alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
@@ -184,7 +184,7 @@
                                         </a>
                                     </div>
                                     <div class="btn-group m-r-10">
-                                        <a href="<?= base_url ?>usuario/listar" class="btn btn-info waves-effect waves-light">
+                                        <a href="<?= base_url ?>usuario/index" class="btn btn-info waves-effect waves-light">
                                             <i class="fa fa-arrow-left"></i> Volver
                                         </a>
                                     </div>

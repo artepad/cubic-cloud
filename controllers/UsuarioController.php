@@ -126,16 +126,17 @@ class UsuarioController
     /**
      * Muestra los detalles de un usuario específico
      */
-    public function ver()
+    public function ver($params = [])
     {
-        // Obtener el id del usuario a mostrar
-        if (!isset($_GET['id'])) {
+        // Obtener el id del usuario desde los parámetros de la ruta
+        $id = isset($params['id']) ? (int)$params['id'] : null;
+
+        if (!$id) {
             $_SESSION['error_message'] = "ID de usuario no especificado";
             $this->redirectTo('usuario/index');
             return;
         }
 
-        $id = (int)$_GET['id'];
         $usuario = $this->usuarioModel->getById($id);
 
         if (!$usuario) {
