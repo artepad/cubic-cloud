@@ -116,7 +116,7 @@
                                             <?php if ($usuario->estado == 'Activo'): ?>
                                                 <span class="label label-success">Activo</span>
                                             <?php else: ?>
-                                                <span class="label label-warning">Inactivo</span>
+                                                <span class="label label-danger">Inactivo</span>
                                             <?php endif; ?>
                                         </p>
                                     </div>
@@ -185,11 +185,11 @@
                                         <ul role="menu" class="dropdown-menu">
                                             <li><a href="<?= base_url ?>usuario/editar/<?= $usuario->id ?>" style="color: #333;"><i class="fa fa-pencil"></i> Editar</a></li>
                                             <?php if ($usuario->estado == 'Activo'): ?>
-                                                <li><a href="<?= base_url ?>usuario/cambiarEstado?id=<?= $usuario->id ?>&estado=Inactivo" class="text-danger" onclick="return confirm('¿Está seguro que desea suspender a este usuario?')">
+                                                <li><a href="<?= base_url ?>usuario/cambiarEstado/<?= $usuario->id ?>/Inactivo" class="text-danger" onclick="return confirm('¿Está seguro que desea suspender a este usuario?')">
                                                     <i class="fa fa-ban"></i> Suspender
                                                 </a></li>
                                             <?php else: ?>
-                                                <li><a href="<?= base_url ?>usuario/cambiarEstado?id=<?= $usuario->id ?>&estado=Activo" class="text-success" onclick="return confirm('¿Está seguro que desea activar a este usuario?')">
+                                                <li><a href="<?= base_url ?>usuario/cambiarEstado/<?= $usuario->id ?>/Activo" class="text-success" onclick="return confirm('¿Está seguro que desea activar a este usuario?')">
                                                     <i class="fa fa-check"></i> Activar
                                                 </a></li>
                                             <?php endif; ?>
