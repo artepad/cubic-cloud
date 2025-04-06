@@ -32,8 +32,16 @@ if (class_exists('Suscripcion')) {
         <div class="panel panel-info">
             <div class="panel-heading">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-8">
                         <h3 class="panel-title" style="color: white; font-weight: bold;">Detalles de la Empresa</h3>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <span class="label label-<?= $empresa->estado == 'activa' ? 'success' : 'danger' ?> m-r-5" style="font-size: 12px; padding: 5px 10px;">
+                            <?= $empresa->estado == 'activa' ? 'Activa' : 'Suspendida' ?>
+                        </span>
+                        <?php if ($empresa->es_demo == 'Si'): ?>
+                            <span class="label label-warning" style="font-size: 12px; padding: 5px 10px;">Cuenta Demo</span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -55,16 +63,6 @@ if (class_exists('Suscripcion')) {
                             <?php unset($_SESSION['error_message']); ?>
                         </div>
                     <?php endif; ?>
-
-                    <!-- Estado y tipo de empresa -->
-                    <div class="m-b-20">
-                        <span class="label label-<?= $empresa->estado == 'activa' ? 'success' : 'danger' ?> m-r-10">
-                            <?= $empresa->estado == 'activa' ? 'Activa' : 'Suspendida' ?>
-                        </span>
-                        <?php if ($empresa->es_demo == 'Si'): ?>
-                            <span class="label label-warning">Cuenta Demo</span>
-                        <?php endif; ?>
-                    </div>
 
                     <!-- Información de la empresa -->
                     <div class="form-horizontal">
