@@ -123,13 +123,19 @@ class UsuarioController
     }
 
 
-    /**
+   /**
      * Muestra los detalles de un usuario específico
      */
-    public function ver($params = [])
+    public function ver($id = null)
     {
-        // Obtener el id del usuario desde los parámetros de la ruta
-        $id = isset($params['id']) ? (int)$params['id'] : null;
+        // Si se pasó un array de parámetros en lugar de un ID directo
+        if (is_array($id) && isset($id['id'])) {
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+        } else {
+            $id = (int)$id;
+        }
 
         if (!$id) {
             $_SESSION['error_message'] = "ID de usuario no especificado";

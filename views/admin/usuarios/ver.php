@@ -174,20 +174,30 @@
                             </div>
                         </div>
 
-                        <!-- Botones de acciones  -->
-                        <div class="form-actions m-t-30">
+                   <!-- Botones de acciones  -->
+                   <div class="form-actions m-t-30">
                             <div class="row">
                                 <div class="col-md-12 text-center">
-                                    <div class="btn-group m-r-10">
-                                        <a href="<?= base_url ?>usuario/editar?id=<?= $usuario->id ?>" class="btn btn-warning waves-effect waves-light">
-                                            <i class="fa fa-pencil"></i> Editar
-                                        </a>
+                                    <div class="btn-group dropup m-r-10">
+                                        <button aria-expanded="false" data-toggle="dropdown" class="btn btn-warning dropdown-toggle waves-effect waves-light" type="button" style="color: #fff;">
+                                            Opciones <span class="caret"></span>
+                                        </button>
+                                        <ul role="menu" class="dropdown-menu">
+                                            <li><a href="<?= base_url ?>usuario/editar?id=<?= $usuario->id ?>" style="color: #333;"><i class="fa fa-pencil"></i> Editar</a></li>
+                                            <?php if ($usuario->estado == 'Activo'): ?>
+                                                <li><a href="<?= base_url ?>usuario/cambiarEstado?id=<?= $usuario->id ?>&estado=Inactivo" class="text-danger" onclick="return confirm('¿Está seguro que desea suspender a este usuario?')">
+                                                    <i class="fa fa-ban"></i> Suspender
+                                                </a></li>
+                                            <?php else: ?>
+                                                <li><a href="<?= base_url ?>usuario/cambiarEstado?id=<?= $usuario->id ?>&estado=Activo" class="text-success" onclick="return confirm('¿Está seguro que desea activar a este usuario?')">
+                                                    <i class="fa fa-check"></i> Activar
+                                                </a></li>
+                                            <?php endif; ?>
+                                        </ul>
                                     </div>
-                                    <div class="btn-group m-r-10">
-                                        <a href="<?= base_url ?>usuario/index" class="btn btn-info waves-effect waves-light">
-                                            <i class="fa fa-arrow-left"></i> Volver
-                                        </a>
-                                    </div>
+                                    <a href="<?= base_url ?>usuario/index" class="btn btn-info waves-effect waves-light m-r-10" style="color: #fff;">
+                                        <i class="fa fa-arrow-left"></i> Volver
+                                    </a>
                                 </div>
                             </div>
                         </div>
