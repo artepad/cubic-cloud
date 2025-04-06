@@ -65,7 +65,7 @@
                                         <?php if ($usuario->estado == 'Activo'): ?>
                                             <span class="label label-success">Activo</span>
                                         <?php else: ?>
-                                            <span class="label label-warning">Inactivo</span>
+                                            <span class="label label-danger">Inactivo</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>

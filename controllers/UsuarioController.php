@@ -316,34 +316,27 @@ class UsuarioController
     /**
      * Cambia el estado de un usuario (Activo/Inactivo)
      * 
-     * @param mixed $params Parámetros de la ruta (puede ser array o valores individuales)
+     * @param mixed $id ID del usuario a cambiar de estado
+     * @param string $estado Nuevo estado (Activo/Inactivo)
      */
-    public function cambiarEstado($params = null)
+    public function cambiarEstado($id = null, $estado = null)
     {
-        // Obtener parámetros ya sea desde la ruta o desde GET
-        $id = null;
-        $estado = null;
-
-        // Si vienen como parámetros de ruta
-        if (is_array($params) && isset($params['id']) && isset($params['estado'])) {
-            $id = (int)$params['id'];
-            $estado = $params['estado'];
-        }
-        // Si vienen como parámetros individuales de ruta
-        elseif (!is_array($params) && $params !== null) {
-            $id = (int)$params;
-            $estado = func_get_arg(1); // Obtener el segundo parámetro
-        }
-        // Si vienen como parámetros GET
-        elseif (isset($_GET['id']) && isset($_GET['estado'])) {
-            $id = (int)$_GET['id'];
-            $estado = $_GET['estado'];
+        // Si no se especificaron parámetros, intentar obtenerlos de $_GET
+        if ($id === null || $estado === null) {
+            if (isset($_GET['id']) && isset($_GET['estado'])) {
+                $id = (int)$_GET['id'];
+                $estado = $_GET['estado'];
+            } else {
+                $_SESSION['error_message'] = "Parámetros insuficientes para cambiar el estado del usuario";
+                $this->redirectTo('usuario/index');
+                return;
+            }
         }
 
-        if (!$id || !$estado) {
-            $_SESSION['error_message'] = "Parámetros insuficientes";
-            $this->redirectTo('usuario/index');
-            return;
+        // Si los parámetros vienen en un array (desde el Router)
+        if (is_array($id) && isset($id['id']) && isset($id['estado'])) {
+            $estado = $id['estado'];
+            $id = (int)$id['id'];
         }
 
         // Validar estado
