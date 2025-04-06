@@ -1,23 +1,6 @@
 <?php
-// Datos de ejemplo
-$usuario = (object)[
-    'id' => 1,
-    'nombre' => 'Juan',
-    'apellido' => 'Pérez',
-    'email' => 'juan.perez@ejemplo.com',
-    'telefono' => '+56 9 8765 4321',
-    'pais' => 'Chile',
-    'codigo_pais' => 'CL',
-    'tipo_identificacion' => 'RUT',
-    'numero_identificacion' => '12.345.678-9',
-    'tipo_usuario' => 'ADMIN',
-    'estado' => 'Activo',
-    'ultimo_login' => '2025-04-02 15:30:45',
-    'ip_ultimo_acceso' => '192.168.1.100',
-    'intentos_fallidos' => 0,
-    'fecha_creacion' => '2024-12-15 09:20:30',
-    'fecha_actualizacion' => '2025-03-28 14:15:20'
-];
+// En lugar de usar datos de ejemplo, usaremos el objeto $usuario que viene del controlador
+// $usuario se obtiene del método getById del modelo Usuario
 ?>
 
 <div class="row">
@@ -33,10 +16,21 @@ $usuario = (object)[
             <div class="panel-wrapper collapse in" aria-expanded="true">
                 <div class="panel-body">
                     <!-- Mensajes de éxito y error -->
-                    <div class="alert alert-success alert-dismissible">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                        Usuario actualizado correctamente
-                    </div>
+                    <?php if (isset($_SESSION['success_message'])): ?>
+                        <div class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <?= $_SESSION['success_message'] ?>
+                            <?php unset($_SESSION['success_message']); ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($_SESSION['error_message'])): ?>
+                        <div class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <?= $_SESSION['error_message'] ?>
+                            <?php unset($_SESSION['error_message']); ?>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Información del usuario -->
                     <div class="form-horizontal">
@@ -140,7 +134,7 @@ $usuario = (object)[
                                     <label class="control-label col-md-4">Último acceso:</label>
                                     <div class="col-md-8">
                                         <p class="form-control-static">
-                                            <strong><?= date('d/m/Y H:i', strtotime($usuario->ultimo_login)) ?></strong>
+                                            <strong><?= $usuario->ultimo_login ? date('d/m/Y H:i', strtotime($usuario->ultimo_login)) : 'Nunca' ?></strong>
                                         </p>
                                     </div>
                                 </div>
@@ -150,7 +144,7 @@ $usuario = (object)[
                                     <label class="control-label col-md-4">IP último acceso:</label>
                                     <div class="col-md-8">
                                         <p class="form-control-static">
-                                            <strong><?= htmlspecialchars($usuario->ip_ultimo_acceso) ?></strong>
+                                            <strong><?= htmlspecialchars($usuario->ip_ultimo_acceso ?? 'No disponible') ?></strong>
                                         </p>
                                     </div>
                                 </div>
@@ -184,28 +178,15 @@ $usuario = (object)[
                         <div class="form-actions m-t-30">
                             <div class="row">
                                 <div class="col-md-12 text-center">
-                                    <div class="btn-group dropup m-r-10">
-                                        <button aria-expanded="false" data-toggle="dropdown" class="btn btn-info dropdown-toggle waves-effect waves-light" type="button">
-                                            Acciones <span class="caret"></span>
-                                        </button>
-                                        <ul role="menu" class="dropdown-menu">
-                                            <li><a href="#" data-toggle="modal" data-target="#resetPasswordModal">Cambiar Contraseña</a></li>
-                                            <?php if ($usuario->estado == 'Activo'): ?>
-                                                <li><a href="javascript:void(0);" class="cambiar-estado" data-id="<?= $usuario->id ?>" data-estado="Inactivo">Suspender</a></li>
-                                            <?php else: ?>
-                                                <li><a href="javascript:void(0);" class="cambiar-estado" data-id="<?= $usuario->id ?>" data-estado="Activo">Activar</a></li>
-                                            <?php endif; ?>
-                                            <li><a href="#" data-toggle="modal" data-target="#enviarEmailModal">Enviar Email</a></li>
-                                        </ul>
+                                    <div class="btn-group m-r-10">
+                                        <a href="<?= base_url ?>usuario/editar?id=<?= $usuario->id ?>" class="btn btn-warning waves-effect waves-light">
+                                            <i class="fa fa-pencil"></i> Editar
+                                        </a>
                                     </div>
-                                    <div class="btn-group dropup m-r-10">
-                                        <button aria-expanded="false" data-toggle="dropdown" class="btn btn-warning dropdown-toggle waves-effect waves-light" type="button">
-                                            Opciones <span class="caret"></span>
-                                        </button>
-                                        <ul role="menu" class="dropdown-menu">
-                                            <li><a href="<?= base_url ?>usuario/editar?id=<?= $usuario->id ?>">Editar</a></li>
-                                            <li><a href="<?= base_url ?>usuario/listar">Volver</a></li>
-                                        </ul>
+                                    <div class="btn-group m-r-10">
+                                        <a href="<?= base_url ?>usuario/listar" class="btn btn-info waves-effect waves-light">
+                                            <i class="fa fa-arrow-left"></i> Volver
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -217,168 +198,14 @@ $usuario = (object)[
     </div>
 </div>
 
-<!-- Modal para Restablecer Contraseña -->
-<div class="modal fade" id="resetPasswordModal" tabindex="-1" role="dialog" aria-labelledby="resetPasswordModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="resetPasswordModalLabel">Restablecer Contraseña</h4>
-            </div>
-            <form action="<?= base_url ?>usuario/resetearPassword" method="post">
-                <div class="modal-body">
-                    <input type="hidden" name="id" value="<?= $usuario->id ?>">
-                    <div class="form-group">
-                        <label for="nueva_password">Nueva Contraseña</label>
-                        <input type="password" class="form-control" id="nueva_password" name="nueva_password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmar_password">Confirmar Contraseña</label>
-                        <input type="password" class="form-control" id="confirmar_password" name="confirmar_password" required>
-                    </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="notificar_usuario"> Notificar al usuario por email
-                        </label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para Enviar Email -->
-<div class="modal fade" id="enviarEmailModal" tabindex="-1" role="dialog" aria-labelledby="enviarEmailModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="enviarEmailModalLabel">Enviar Email</h4>
-            </div>
-            <form action="<?= base_url ?>usuario/enviarEmail" method="post">
-                <div class="modal-body">
-                    <input type="hidden" name="id" value="<?= $usuario->id ?>">
-                    <div class="form-group">
-                        <label for="asunto">Asunto</label>
-                        <input type="text" class="form-control" id="asunto" name="asunto" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="mensaje">Mensaje</label>
-                        <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Enviar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar los dropdowns de Bootstrap
-        $('.dropdown-toggle').dropdown();
-        
-        // Gestionar cambio de estado
-        const botonesEstado = document.querySelectorAll('.cambiar-estado');
-        
-        botonesEstado.forEach(function(boton) {
-            boton.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                const estado = this.getAttribute('data-estado');
-                
-                if (confirm(`¿Estás seguro de que deseas cambiar el estado del usuario a ${estado}?`)) {
-                    window.location.href = `<?= base_url ?>usuario/cambiarEstado?id=${id}&estado=${estado}`;
-                }
-            });
-        });
-        
-        // Validación de contraseñas coincidentes
-        const formResetPassword = document.querySelector('#resetPasswordModal form');
-        
-        if (formResetPassword) {
-            formResetPassword.addEventListener('submit', function(event) {
-                const password = document.getElementById('nueva_password').value;
-                const confirmPassword = document.getElementById('confirmar_password').value;
-                
-                if (password !== confirmPassword) {
-                    event.preventDefault();
-                    alert('Las contraseñas no coinciden');
-                }
-            });
+        // Inicializar componentes necesarios
+        if (typeof $ !== 'undefined') {
+            // Inicializar tooltips si están disponibles
+            if (typeof $.fn.tooltip !== 'undefined') {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
         }
     });
 </script>
-
-<style>
-    .m-t-0 { margin-top: 0; }
-    .m-b-20 { margin-bottom: 20px; }
-    .m-t-30 { margin-top: 30px; }
-    .m-r-10 { margin-right: 10px; }
-    
-    .form-horizontal .form-group {
-        margin-bottom: 15px;
-    }
-    
-    .form-control-static {
-        min-height: 34px;
-        padding-top: 7px;
-        padding-bottom: 7px;
-    }
-    
-    .table>tbody>tr>td {
-        vertical-align: middle;
-    }
-    
-    .panel-heading {
-        padding: 15px;
-    }
-    
-    .panel-title {
-        margin-top: 5px;
-    }
-    
-    .box-title {
-        font-size: 18px;
-        margin-bottom: 0;
-    }
-    
-    hr {
-        border-top: 1px solid #eee;
-    }
-    
-    .label {
-        display: inline-block;
-        padding: 5px 10px;
-        font-size: 12px;
-    }
-    
-    .form-actions {
-        padding: 15px 0;
-        border-top: 1px solid #eee;
-    }
-    
-    /* Estilos para los botones desplegables */
-    .btn-group.dropup {
-        margin-bottom: 10px;
-    }
-    
-    .dropdown-menu {
-        min-width: 160px;
-    }
-    
-    .dropdown-menu > li > a {
-        padding: 8px 20px;
-    }
-    
-    .dropdown-menu > li > a:hover {
-        background-color: #f5f5f5;
-    }
-</style>
-

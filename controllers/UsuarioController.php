@@ -123,13 +123,31 @@ class UsuarioController
     }
 
 
-        /**
-     * Muestra el formulario para editar un usuario
+    /**
+     * Muestra los detalles de un usuario específico
      */
     public function ver()
     {
-      
-        $pageTitle = "Ver Usuario";
+        // Obtener el id del usuario a mostrar
+        if (!isset($_GET['id'])) {
+            $_SESSION['error_message'] = "ID de usuario no especificado";
+            $this->redirectTo('usuario/index');
+            return;
+        }
+
+        $id = (int)$_GET['id'];
+        $usuario = $this->usuarioModel->getById($id);
+
+        if (!$usuario) {
+            $_SESSION['error_message'] = "Usuario no encontrado";
+            $this->redirectTo('usuario/index');
+            return;
+        }
+
+        // Configurar el título de la página
+        $pageTitle = "Detalles del Usuario";
+
+        // Incluir la vista
         require_once 'views/admin/usuarios/ver.php';
     }
 
@@ -179,8 +197,10 @@ class UsuarioController
         }
 
         // Verificar que el email no exista para otro usuario
-        if ($_POST['email'] !== $usuario_actual->email && 
-            $this->usuarioModel->emailExists($_POST['email'], $id)) {
+        if (
+            $_POST['email'] !== $usuario_actual->email &&
+            $this->usuarioModel->emailExists($_POST['email'], $id)
+        ) {
             $_SESSION['error_message'] = "El correo electrónico ya está registrado para otro usuario";
             $this->redirectTo('usuario/editar?id=' . $id);
             return;
@@ -235,7 +255,7 @@ class UsuarioController
         }
 
         $id = (int)$_GET['id'];
-        
+
         // No permitir eliminar al usuario actual
         if (isset($_SESSION['admin']) && $_SESSION['admin']->id == $id) {
             $_SESSION['error_message'] = "No puedes eliminar tu propio usuario";
