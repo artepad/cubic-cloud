@@ -35,14 +35,6 @@ class UsuarioController
      */
     public function index()
     {
-        return $this->listar();
-    }
-
-    /**
-     * Lista todos los usuarios del sistema
-     */
-    public function listar()
-    {
         $pageTitle = "Gestión de Usuarios";
 
         // Obtener usuarios de la base de datos
@@ -121,7 +113,6 @@ class UsuarioController
         require_once 'views/admin/redirect.php';
         ob_end_flush();
     }
-
 
     /**
      * Muestra los detalles de un usuario específico
