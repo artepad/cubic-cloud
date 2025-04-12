@@ -288,13 +288,6 @@ class UsuarioController
             return;
         }
 
-        // No permitir eliminar al usuario actual
-        if (isset($_SESSION['admin']) && $_SESSION['admin']->id == $id) {
-            $_SESSION['error_message'] = "No puedes eliminar tu propio usuario";
-            $this->redirectTo('usuario/index');
-            return;
-        }
-
         // Verificar si el usuario existe
         $usuario = $this->usuarioModel->getById($id);
         if (!$usuario) {
