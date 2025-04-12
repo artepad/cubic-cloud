@@ -1,35 +1,7 @@
-
-
 <?php
 // Verificar que el usuario esté autenticado
 if (!isAdminLoggedIn()) {
     redirectTo('admin/login');
-}
-
-// Obtener parámetros de filtrado y paginación
-$pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
-$elementosPorPagina = 10;
-$offset = ($pagina - 1) * $elementosPorPagina;
-
-// Aplicar filtros si existen
-$filters = [];
-if (isset($_GET['estado']) && !empty($_GET['estado'])) {
-    $filters['estado'] = $_GET['estado'];
-}
-if (isset($_GET['empresa_id']) && !empty($_GET['empresa_id'])) {
-    $filters['empresa_id'] = intval($_GET['empresa_id']);
-}
-if (isset($_GET['plan_id']) && !empty($_GET['plan_id'])) {
-    $filters['plan_id'] = intval($_GET['plan_id']);
-}
-if (isset($_GET['busqueda']) && !empty($_GET['busqueda'])) {
-    $filters['busqueda'] = $_GET['busqueda'];
-}
-if (isset($_GET['periodo']) && !empty($_GET['periodo'])) {
-    $filters['periodo'] = $_GET['periodo'];
-}
-if (isset($_GET['vencidas']) && $_GET['vencidas'] == '1') {
-    $filters['vencidas'] = true;
 }
 
 // Cargar modelos necesarios
@@ -37,16 +9,8 @@ $suscripcionModel = new Suscripcion();
 $empresaModel = new Empresa();
 $planModel = new Plan();
 
-// Obtener suscripciones con paginación
-$suscripciones = $suscripcionModel->getAll($filters, $elementosPorPagina, $offset);
-$total_suscripciones = $suscripcionModel->countAll($filters);
-
-// Obtener listas para los filtros
-$empresas = $empresaModel->getAll();
-$planes = $planModel->getAll();
-
-// Cálculos para paginación
-$total_paginas = ceil($total_suscripciones / $elementosPorPagina);
+// Obtener todas las suscripciones sin paginación
+$suscripciones = $suscripcionModel->getAll();
 ?>
 
 <div class="row">
@@ -71,68 +35,6 @@ $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
                 </div>
                 <?php unset($_SESSION['error_message']); ?>
             <?php endif; ?>
-
-            <!-- Filtros y búsqueda -->
-            <div class="row m-b-15">
-                <div class="col-md-12">
-                    <form id="filtroSuscripciones" method="get" action="<?= base_url ?>admin/suscripciones" class="form-inline">
-                        <div class="form-group m-r-10">
-                            <select class="form-control" name="estado" id="filtro-estado">
-                                <option value="">-- Estado --</option>
-                                <option value="Activa" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Activa') ? 'selected' : '' ?>>Activa</option>
-                                <option value="Pendiente" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Pendiente') ? 'selected' : '' ?>>Pendiente</option>
-                                <option value="Suspendida" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Suspendida') ? 'selected' : '' ?>>Suspendida</option>
-                                <option value="Cancelada" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Cancelada') ? 'selected' : '' ?>>Cancelada</option>
-                                <option value="Finalizada" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Finalizada') ? 'selected' : '' ?>>Finalizada</option>
-                            </select>
-                        </div>
-                        <div class="form-group m-r-10">
-                            <select class="form-control" name="empresa_id" id="filtro-empresa">
-                                <option value="">-- Empresa --</option>
-                                <?php foreach ($empresas as $empresa): ?>
-                                    <option value="<?= $empresa->id ?>" <?= (isset($_GET['empresa_id']) && $_GET['empresa_id'] == $empresa->id) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($empresa->nombre) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group m-r-10">
-                            <select class="form-control" name="plan_id" id="filtro-plan">
-                                <option value="">-- Plan --</option>
-                                <?php foreach ($planes as $plan): ?>
-                                    <option value="<?= $plan->id ?>" <?= (isset($_GET['plan_id']) && $_GET['plan_id'] == $plan->id) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($plan->nombre) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group m-r-10">
-                            <select class="form-control" name="periodo" id="filtro-periodo">
-                                <option value="">-- Período --</option>
-                                <option value="Mensual" <?= (isset($_GET['periodo']) && $_GET['periodo'] == 'Mensual') ? 'selected' : '' ?>>Mensual</option>
-                                <option value="Semestral" <?= (isset($_GET['periodo']) && $_GET['periodo'] == 'Semestral') ? 'selected' : '' ?>>Semestral</option>
-                                <option value="Anual" <?= (isset($_GET['periodo']) && $_GET['periodo'] == 'Anual') ? 'selected' : '' ?>>Anual</option>
-                            </select>
-                        </div>
-                        <div class="form-group m-r-10">
-                            <div class="checkbox checkbox-primary">
-                                <input type="checkbox" name="vencidas" id="filtro-vencidas" value="1" <?= (isset($_GET['vencidas']) && $_GET['vencidas'] == '1') ? 'checked' : '' ?>>
-                                <label for="filtro-vencidas">Vencidas</label>
-                            </div>
-                        </div>
-                        <div class="form-group m-r-10">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="busqueda" placeholder="Buscar..." value="<?= isset($_GET['busqueda']) ? htmlspecialchars($_GET['busqueda']) : '' ?>">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-info">Filtrar</button>
-                        <a href="<?= base_url ?>admin/suscripciones" class="btn btn-default m-l-5">Limpiar</a>
-                    </form>
-                </div>
-            </div>
 
             <!-- Botón para crear nueva suscripción -->
             <div class="row m-t-10 m-b-20">
@@ -291,59 +193,6 @@ $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Paginación -->
-            <?php if ($total_paginas > 1): ?>
-                <div class="row">
-                    <div class="col-md-12 text-center">
-                        <ul class="pagination">
-                            <?php if ($pagina > 1): ?>
-                                <li>
-                                    <a href="<?= base_url ?>admin/suscripciones?pagina=<?= ($pagina - 1) . $this->getQueryParams() ?>">
-                                        <i class="fa fa-angle-left"></i>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            
-                            <?php
-                            $rango = 2;
-                            $mostrar_inicio = true;
-                            $mostrar_fin = true;
-                            $inicio_paginacion = max(1, $pagina - $rango);
-                            $fin_paginacion = min($total_paginas, $pagina + $rango);
-                            
-                            if ($inicio_paginacion > 1) {
-                                echo '<li><a href="' . base_url . 'admin/suscripciones?pagina=1' . $this->getQueryParams() . '">1</a></li>';
-                                if ($inicio_paginacion > 2) {
-                                    echo '<li class="disabled"><a href="javascript:void(0);">...</a></li>';
-                                }
-                            }
-                            
-                            for ($i = $inicio_paginacion; $i <= $fin_paginacion; $i++) {
-                                $clase = $i == $pagina ? 'active' : '';
-                                echo '<li class="' . $clase . '"><a href="' . base_url . 'admin/suscripciones?pagina=' . $i . $this->getQueryParams() . '">' . $i . '</a></li>';
-                            }
-                            
-                            if ($fin_paginacion < $total_paginas) {
-                                if ($fin_paginacion < $total_paginas - 1) {
-                                    echo '<li class="disabled"><a href="javascript:void(0);">...</a></li>';
-                                }
-                                echo '<li><a href="' . base_url . 'admin/suscripciones?pagina=' . $total_paginas . $this->getQueryParams() . '">' . $total_paginas . '</a></li>';
-                            }
-                            ?>
-                            
-                            <?php if ($pagina < $total_paginas): ?>
-                                <li>
-                                    <a href="<?= base_url ?>admin/suscripciones?pagina=<?= ($pagina + 1) . $this->getQueryParams() ?>">
-                                        <i class="fa fa-angle-right"></i>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
-                </div>
-            <?php endif; ?>
-            
         </div>
     </div>
 </div>
@@ -398,14 +247,6 @@ $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
             window.location.href = '<?= base_url ?>admin/renovarSuscripcion?id=' + id;
         }
     }
-    
-    // Método auxiliar para generar los parámetros de URL para paginación
-    function getQueryParams() {
-        // Implementar este método en PHP o usar JavaScript para generar los parámetros de consulta
-        let params = '';
-        // ... código para generar los parámetros ...
-        return params;
-    }
 </script>
 
 <!-- Estilos adicionales -->
@@ -438,13 +279,5 @@ $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
         display: inline-block;
         min-width: 80px;
         text-align: center;
-    }
-    
-    .pagination {
-        margin: 20px 0 0;
-    }
-    
-    .checkbox {
-        margin-top: 10px;
     }
 </style>
