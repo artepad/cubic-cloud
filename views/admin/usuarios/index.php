@@ -25,7 +25,7 @@
             <div class="row m-t-20 m-b-20">
                 <div class="col-md-12">
                     <a href="<?= base_url ?>usuario/crear" class="btn btn-success waves-effect waves-light m-r-10">
-                        <i class="icon-plus"></i> Nuevo Usuario
+                        <i class="fa fa-plus"></i> Nuevo Usuario
                     </a>
                 </div>
             </div>

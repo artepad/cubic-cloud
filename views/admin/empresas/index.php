@@ -33,10 +33,10 @@ $empresas = $empresa_model->getAll();
             <?php endif; ?>
 
             <!-- Botón para crear nueva empresa -->
-            <div class="row m-t-10 m-b-20">
+            <div class="row m-t-20 m-b-20">
                 <div class="col-md-12">
-                    <a href="<?= base_url ?>empresa/crear" class="btn btn-success waves-effect waves-light">
-                        <i class="fa fa-plus"></i> Nueva Empresa
+                    <a href="<?= base_url ?>empresa/crear" class="btn btn-success waves-effect waves-light m-r-10">
+                        <i class="fa fa-plus"></i> Nuevo Empresa
                     </a>
                 </div>
             </div>
