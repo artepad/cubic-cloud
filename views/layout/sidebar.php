@@ -1,3 +1,11 @@
+<?php
+// Cargar los contadores para el menú
+$usuarioModel = new Usuario();
+$empresaModel = new Empresa();
+$usuarios_count = $usuarioModel->countAll();
+$empresas_count = $empresaModel->countAll();
+?>
+
 <!-- ===== Left-Sidebar ===== -->
 <aside class="sidebar">
     <div class="scroll-sidebar">
