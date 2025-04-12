@@ -62,7 +62,7 @@ $planes = $plan_model->getPlanesPublicados();
                                 <small class="help-block">Seleccione el usuario que administrará esta empresa</small>
                             </div>
                             <div class="col-md-3">
-                                <a href="<?= base_url ?>admin/crearUsuario" class="btn btn-info btn-sm">
+                                <a href="<?= base_url ?>usuario/crear" class="btn btn-success btn-sm">
                                     <i class="fa fa-plus"></i> Crear Nuevo Administrador
                                 </a>
                             </div>
