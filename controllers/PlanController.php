@@ -161,30 +161,41 @@ class PlanController
         }
         exit();
     }
+    
     /**
      * Muestra el formulario para editar un plan existente
      */
-    public function editar()
+    public function editar($id = null)
     {
         // Título de la página
         $pageTitle = "Editar Plan";
 
-        // Obtener el ID del plan a editar
-        if (!isset($_GET['id'])) {
-            $_SESSION['error_message'] = "ID de plan no especificado";
-            header("Location:" . base_url . "plan/index");
-            exit();
+        // Si se pasó un array de parámetros en lugar de un ID directo
+        if (is_array($id) && isset($id['id'])) {
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+        } else if ($id === null && isset($_GET['id'])) {
+            // Para mantener compatibilidad con el formato anterior
+            $id = (int)$_GET['id'];
+        } else {
+            $id = (int)$id;
         }
 
-        $id = (int)$_GET['id'];
+        // Verificar que el ID sea válido
+        if ($id <= 0) {
+            $_SESSION['error_message'] = "ID de plan no especificado o inválido";
+            $this->redirectTo("plan/index");
+            return;
+        }
 
         // Obtener el plan por ID
         $plan = $this->planModel->getById($id);
 
         if (!$plan) {
             $_SESSION['error_message'] = "Plan no encontrado";
-            header("Location:" . base_url . "plan/index");
-            exit();
+            $this->redirectTo("plan/index");
+            return;
         }
 
         // Convertir características de JSON a array
@@ -209,18 +220,16 @@ class PlanController
             if (isset($_POST['csrf_token'])) {
                 if (!validateCsrfToken($_POST['csrf_token'])) {
                     $_SESSION['error_message'] = "Error de seguridad: token inválido";
-                    header("Location:" . base_url . "plan/index");
-                    ob_end_flush();
-                    exit();
+                    $this->redirectTo("plan/index");
+                    return;
                 }
             }
 
             // Verificar ID del plan
             if (!isset($_POST['id']) || empty($_POST['id'])) {
                 $_SESSION['error_message'] = "ID de plan no especificado";
-                header("Location:" . base_url . "plan/index");
-                ob_end_flush();
-                exit();
+                $this->redirectTo("plan/index");
+                return;
             }
 
             $id = (int)$_POST['id'];
@@ -230,9 +239,8 @@ class PlanController
 
             if (!$plan) {
                 $_SESSION['error_message'] = "Plan no encontrado";
-                header("Location:" . base_url . "plan/index");
-                ob_end_flush();
-                exit();
+                $this->redirectTo("plan/index");
+                return;
             }
 
             // Crear y configurar el objeto Plan
@@ -274,33 +282,40 @@ class PlanController
 
             if ($resultado) {
                 $_SESSION['success_message'] = "Plan actualizado correctamente";
-                header("Location:" . base_url . "plan/index");
+                $this->redirectTo("plan/index");
             } else {
                 $_SESSION['error_message'] = "Error al actualizar el plan";
-                header("Location:" . base_url . "plan/editar?id=" . $id);
+                $this->redirectTo("plan/editar/" . $id);
             }
         } else {
             // Si no es POST, redirigir al listado
-            header("Location:" . base_url . "plan/index");
+            $this->redirectTo("plan/index");
         }
-
-        ob_end_flush();
-        exit();
     }
 
     /**
      * Elimina un plan
      */
-    public function delete()
+    public function delete($id = null)
     {
-        // Verificar si hay un ID
-        if (!isset($_GET['id'])) {
-            $_SESSION['error_message'] = "ID de plan no especificado";
-            header("Location:" . base_url . "plan/index");
-            exit();
+        // Si se pasó un array de parámetros en lugar de un ID directo
+        if (is_array($id) && isset($id['id'])) {
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+        } else if ($id === null && isset($_GET['id'])) {
+            // Para mantener compatibilidad con el formato anterior
+            $id = (int)$_GET['id'];
+        } else {
+            $id = (int)$id;
         }
 
-        $id = (int)$_GET['id'];
+        // Verificar que el ID sea válido
+        if ($id <= 0) {
+            $_SESSION['error_message'] = "ID de plan no especificado o inválido";
+            $this->redirectTo("plan/index");
+            return;
+        }
 
         // Intentar eliminar el plan
         $resultado = $this->planModel->delete($id);
@@ -311,31 +326,39 @@ class PlanController
             $_SESSION['error_message'] = "No se puede eliminar el plan. Puede tener suscripciones asociadas";
         }
 
-        header("Location:" . base_url . "plan/index");
-        exit();
+        $this->redirectTo("plan/index");
     }
 
     /**
      * Cambia el estado de un plan (Activo, Inactivo, Descontinuado)
      */
-    public function cambiarEstado()
+    public function cambiarEstado($id = null, $estado = null)
     {
-        // Verificar parámetros
-        if (!isset($_GET['id']) || !isset($_GET['estado'])) {
-            $_SESSION['error_message'] = "Parámetros insuficientes";
-            header("Location:" . base_url . "plan/index");
-            exit();
+        // Si se pasó un array de parámetros en lugar de ID y estado directos
+        if (is_array($id) && isset($id['id']) && isset($id['estado'])) {
+            $estado = $id['estado'];
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+            $estado = null;
+        } else if ($id === null || $estado === null) {
+            // Para mantener compatibilidad con el formato anterior
+            if (isset($_GET['id']) && isset($_GET['estado'])) {
+                $id = (int)$_GET['id'];
+                $estado = $_GET['estado'];
+            } else {
+                $_SESSION['error_message'] = "Parámetros insuficientes";
+                $this->redirectTo("plan/index");
+                return;
+            }
         }
-
-        $id = (int)$_GET['id'];
-        $estado = $_GET['estado'];
 
         // Validar estado
         $estados_validos = ['Activo', 'Inactivo', 'Descontinuado'];
         if (!in_array($estado, $estados_validos)) {
             $_SESSION['error_message'] = "Estado no válido";
-            header("Location:" . base_url . "plan/index");
-            exit();
+            $this->redirectTo("plan/index");
+            return;
         }
 
         // Cambiar estado
@@ -347,26 +370,35 @@ class PlanController
             $_SESSION['error_message'] = "Error al actualizar el estado del plan";
         }
 
-        header("Location:" . base_url . "plan/index");
-        exit();
+        $this->redirectTo("plan/index");
     }
 
     /**
      * Muestra los detalles de un plan específico
+     * 
+     * @param mixed $id ID del plan a ver (puede ser entero o array con parámetros)
      */
     public function ver($id = null)
     {
         // Título de la página
         $pageTitle = "Detalles del Plan";
-
-        // Obtener el ID del plan desde el parámetro de la URL
-        // El ID se pasa directamente como parámetro en la ruta
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        
+        // Si se pasó un array de parámetros en lugar de un ID directo
+        if (is_array($id) && isset($id['id'])) {
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+        } else if ($id === null && isset($_GET['id'])) {
+            // Para mantener compatibilidad con el formato anterior
+            $id = (int)$_GET['id'];
+        } else {
+            $id = (int)$id;
+        }
 
         if ($id <= 0) {
             $_SESSION['error_message'] = "ID de plan no especificado o inválido";
-            header("Location:" . base_url . "plan/index");
-            exit();
+            $this->redirectTo("plan/index");
+            return;
         }
 
         // Obtener el plan por ID
@@ -374,8 +406,8 @@ class PlanController
 
         if (!$plan) {
             $_SESSION['error_message'] = "Plan no encontrado";
-            header("Location:" . base_url . "plan/index");
-            exit();
+            $this->redirectTo("plan/index");
+            return;
         }
 
         // Convertir características de JSON a array
@@ -388,23 +420,32 @@ class PlanController
     /**
      * Cambia la visibilidad de un plan (Si, No)
      */
-    public function cambiarVisibilidad()
+    public function cambiarVisibilidad($id = null, $visible = null)
     {
-        // Verificar parámetros
-        if (!isset($_GET['id']) || !isset($_GET['visible'])) {
-            $_SESSION['error_message'] = "Parámetros insuficientes";
-            header("Location:" . base_url . "plan/index");
-            exit();
+        // Si se pasó un array de parámetros en lugar de ID y visible directos
+        if (is_array($id) && isset($id['id']) && isset($id['visibilidad'])) {
+            $visible = $id['visibilidad'];
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+            $visible = null;
+        } else if ($id === null || $visible === null) {
+            // Para mantener compatibilidad con el formato anterior
+            if (isset($_GET['id']) && isset($_GET['visible'])) {
+                $id = (int)$_GET['id'];
+                $visible = $_GET['visible'];
+            } else {
+                $_SESSION['error_message'] = "Parámetros insuficientes";
+                $this->redirectTo("plan/index");
+                return;
+            }
         }
-
-        $id = (int)$_GET['id'];
-        $visible = $_GET['visible'];
 
         // Validar visibilidad
         if ($visible !== 'Si' && $visible !== 'No') {
             $_SESSION['error_message'] = "Valor de visibilidad no válido";
-            header("Location:" . base_url . "plan/index");
-            exit();
+            $this->redirectTo("plan/index");
+            return;
         }
 
         // Cambiar visibilidad
@@ -416,7 +457,6 @@ class PlanController
             $_SESSION['error_message'] = "Error al actualizar la visibilidad del plan";
         }
 
-        header("Location:" . base_url . "plan/index");
-        exit();
+        $this->redirectTo("plan/index");
     }
 }
