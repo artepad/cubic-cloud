@@ -248,7 +248,7 @@ class PlanController
             $planObj->setMaxUsuarios($_POST['max_usuarios'] ?? 1);
             $planObj->setMaxArtistas($_POST['max_artistas'] ?? 5);
             $planObj->setMaxEventos($_POST['max_eventos'] ?? 10);
-            
+
 
             // Procesar características (actualizadas según la estructura de la base de datos)
             $caracteristicas = [
@@ -349,6 +349,40 @@ class PlanController
 
         header("Location:" . base_url . "plan/index");
         exit();
+    }
+
+    /**
+     * Muestra los detalles de un plan específico
+     */
+    public function ver($id = null)
+    {
+        // Título de la página
+        $pageTitle = "Detalles del Plan";
+
+        // Obtener el ID del plan desde el parámetro de la URL
+        // El ID se pasa directamente como parámetro en la ruta
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+        if ($id <= 0) {
+            $_SESSION['error_message'] = "ID de plan no especificado o inválido";
+            header("Location:" . base_url . "plan/index");
+            exit();
+        }
+
+        // Obtener el plan por ID
+        $plan = $this->planModel->getById($id);
+
+        if (!$plan) {
+            $_SESSION['error_message'] = "Plan no encontrado";
+            header("Location:" . base_url . "plan/index");
+            exit();
+        }
+
+        // Convertir características de JSON a array
+        $plan->caracteristicas_array = json_decode($plan->caracteristicas, true);
+
+        // Incluir la vista
+        require_once 'views/admin/planes/ver.php';
     }
 
     /**

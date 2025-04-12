@@ -92,7 +92,7 @@ if (!isAdminLoggedIn()) {
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="<?= base_url ?>plan/ver?id=<?= $plan->id ?>" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
+                                        <a href="<?= base_url ?>plan/ver/<?= $plan->id ?>" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
                                             <i class="fa fa-eye"></i>
                                         </a>
                                         

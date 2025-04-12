@@ -58,6 +58,7 @@ Router::add('plan/cambiarEstado/:id/:estado', 'PlanController', 'cambiarEstado',
 Router::add('plan/cambiarVisibilidad/:id/:visibilidad', 'PlanController', 'cambiarVisibilidad', 'auth');
 Router::add('plan/ver/:id', 'PlanController', 'ver', 'auth');
 
+
 // Rutas para el controlador de Suscripciones
 Router::add('suscripcion/index', 'SuscripcionController', 'index', 'auth');
 Router::add('suscripcion/crear', 'SuscripcionController', 'crear', 'auth');
