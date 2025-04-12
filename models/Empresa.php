@@ -483,17 +483,26 @@ class Empresa
     }
 
     /**
-     * Obtiene todas las empresas
+     * Obtiene todas las empresas con su información de suscripción activa
      * 
      * @return array Lista de empresas
      */
     public function getAll()
     {
         try {
-            // Construir la consulta base
-            $sql = "SELECT e.*, u.nombre as admin_nombre, u.apellido as admin_apellido, u.email as admin_email 
+            // Construir la consulta base con JOIN a la suscripción activa
+            $sql = "SELECT e.*, u.nombre as admin_nombre, u.apellido as admin_apellido, 
+                u.email as admin_email, p.nombre as plan_nombre, s.id as suscripcion_id,
+                s.estado as suscripcion_estado, s.periodo_facturacion
                FROM empresas e 
                LEFT JOIN usuarios u ON e.usuario_id = u.id 
+               LEFT JOIN (
+                   SELECT * FROM suscripciones 
+                   WHERE estado IN ('Activa', 'Pendiente') 
+                   ORDER BY id DESC
+               ) AS s ON e.id = s.empresa_id AND s.estado IN ('Activa', 'Pendiente')
+               LEFT JOIN planes p ON s.plan_id = p.id
+               GROUP BY e.id
                ORDER BY e.id DESC";
 
             $stmt = $this->db->prepare($sql);
@@ -508,6 +517,20 @@ class Empresa
 
             $empresas = [];
             while ($empresa = $result->fetch_object()) {
+                // Si hay una suscripción activa, añadir la información completa
+                if (!empty($empresa->suscripcion_id)) {
+                    $empresa->suscripcion = new stdClass();
+                    $empresa->suscripcion->id = $empresa->suscripcion_id;
+                    $empresa->suscripcion->estado = $empresa->suscripcion_estado;
+                    $empresa->suscripcion->periodo_facturacion = $empresa->periodo_facturacion;
+                    $empresa->suscripcion->plan_nombre = $empresa->plan_nombre;
+                }
+
+                // Eliminar campos redundantes
+                unset($empresa->suscripcion_id);
+                unset($empresa->suscripcion_estado);
+                unset($empresa->periodo_facturacion);
+
                 $empresas[] = $empresa;
             }
 

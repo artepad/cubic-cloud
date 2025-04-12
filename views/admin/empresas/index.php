@@ -62,16 +62,17 @@ $empresas = $empresa_model->getAll();
                             <?php foreach ($empresas as $empresa): ?>
                                 <tr>
                                     <td class="text-center"><?= $empresa->id ?></td>
-                                    <td><?= htmlspecialchars($empresa->nombre) ?></td>
+                                    <td class="text-center"><?= htmlspecialchars($empresa->nombre) ?></td>
                                     <td class="text-center"><?= htmlspecialchars($empresa->identificacion_fiscal ?: '-') ?></td>
                                     <td class="text-center"><?= isset($empresa->admin_nombre) ? htmlspecialchars($empresa->admin_nombre . ' ' . $empresa->admin_apellido) : 'Sin asignar' ?></td>
                                     <td class="text-center"><?= htmlspecialchars($empresa->pais) ?></td>
                                     <td class="text-center">
                                         <?php
-                                        // Obtenemos el plan asociado a través de la suscripción activa
-                                        $suscripcion = isset($empresa->suscripcion) ? $empresa->suscripcion : null;
-                                        $plan_nombre = $suscripcion ? htmlspecialchars($suscripcion->plan_nombre) : 'Sin plan';
-                                        echo $plan_nombre;
+                                        if (isset($empresa->suscripcion)) {
+                                            echo htmlspecialchars($empresa->suscripcion->plan_nombre ?: 'Sin plan');
+                                        } else {
+                                            echo 'Sin plan';
+                                        }
                                         ?>
                                     </td>
                                     <td class="text-center">
