@@ -24,14 +24,8 @@
             <!-- Acciones de gestión -->
             <div class="row m-t-20 m-b-20">
                 <div class="col-md-12">
-                    <a href="<?= base_url ?>usuario/crear" class="btn btn-info waves-effect waves-light m-r-10">
+                    <a href="<?= base_url ?>usuario/crear" class="btn btn-success waves-effect waves-light m-r-10">
                         <i class="icon-plus"></i> Nuevo Usuario
-                    </a>
-                    <a href="javascript:void(0);" class="btn btn-success waves-effect waves-light m-r-10">
-                        <i class="icon-refresh"></i> Actualizar
-                    </a>
-                    <a href="javascript:void(0);" class="btn btn-warning waves-effect waves-light">
-                        <i class="icon-cloud-download"></i> Exportar
                     </a>
                 </div>
             </div>
@@ -92,6 +86,9 @@
                                                 <i class="icon-check"></i>
                                             </a>
                                         <?php endif; ?>
+                                        <a href="javascript:void(0);" onclick="confirmarEliminar(<?= $usuario->id ?>)" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Eliminar">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -114,4 +111,10 @@
             $('[data-toggle="tooltip"]').tooltip();
         }
     });
+
+    function confirmarEliminar(userId) {
+        if (confirm('¿Está seguro que desea eliminar este usuario? Esta acción no se puede deshacer.')) {
+            window.location.href = '<?= base_url ?>usuario/eliminar/' + userId;
+        }
+    }
 </script>

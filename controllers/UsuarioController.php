@@ -266,21 +266,32 @@ class UsuarioController
 
     /**
      * Elimina un usuario
+     * @param mixed $id ID del usuario a eliminar (puede ser entero o array con parámetros)
      */
-    public function eliminar()
+    public function eliminar($id = null)
     {
-        if (!isset($_GET['id'])) {
-            $_SESSION['error_message'] = "ID de usuario no especificado";
-            $this->redirectTo('usuario/listar');
-            return;
+        // Si se pasó un array de parámetros en lugar de un ID directo
+        if (is_array($id) && isset($id['id'])) {
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+        } else if ($id === null && isset($_GET['id'])) {
+            // Para mantener compatibilidad con el formato anterior
+            $id = (int)$_GET['id'];
+        } else {
+            $id = (int)$id;
         }
 
-        $id = (int)$_GET['id'];
+        if (!$id) {
+            $_SESSION['error_message'] = "ID de usuario no especificado";
+            $this->redirectTo('usuario/index');
+            return;
+        }
 
         // No permitir eliminar al usuario actual
         if (isset($_SESSION['admin']) && $_SESSION['admin']->id == $id) {
             $_SESSION['error_message'] = "No puedes eliminar tu propio usuario";
-            $this->redirectTo('usuario/listar');
+            $this->redirectTo('usuario/index');
             return;
         }
 
@@ -288,7 +299,7 @@ class UsuarioController
         $usuario = $this->usuarioModel->getById($id);
         if (!$usuario) {
             $_SESSION['error_message'] = "Usuario no encontrado";
-            $this->redirectTo('usuario/listar');
+            $this->redirectTo('usuario/index');
             return;
         }
 
@@ -301,7 +312,7 @@ class UsuarioController
             $_SESSION['error_message'] = "Error al eliminar el usuario";
         }
 
-        $this->redirectTo('usuario/listar');
+        $this->redirectTo('usuario/index');
     }
 
     /**
