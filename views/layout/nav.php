@@ -5,7 +5,7 @@
             <i class="fa fa-bars"></i>
         </a>
         <div class="top-left-part">
-            <a class="logo" href="index.php">
+            <a class="logo" href="<?=base_url?>admin/dashboard">
                 <b>
                     <img src="<?=base_url?>assets/plugins/images/logo.png" alt="home" />
                 </b>

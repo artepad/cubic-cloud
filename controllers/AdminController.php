@@ -3,35 +3,25 @@
 /**
  * AdminController
  * 
- * Controlador para gestión de superadministradores, incluyendo login, logout,
- * recuperación de contraseñas y gestión del dashboard.
- * Refactorizado para seguir el principio de responsabilidad única.
+ * Controlador para gestión de administradores del sistema, incluyendo autenticación,
+ * dashboard principal y configuraciones básicas.
  */
 class AdminController
 {
     private $adminModel;
     private $empresaModel;
-    private $planModel;
-    private $suscripcionModel;
+
 
     /**
      * Constructor
-     * Inicializa el modelo de administrador
+     * Inicializa los modelos necesarios y verifica autenticación
      */
     public function __construct()
     {
         // Cargar los modelos
         $this->adminModel = new SystemAdmin();
         $this->empresaModel = class_exists('Empresa') ? new Empresa() : null;
-        $this->planModel = class_exists('Plan') ? new Plan() : null;
-
-        // Verificar si existe el modelo de Suscripcion en el sistema
-        if (class_exists('Suscripcion')) {
-            $this->suscripcionModel = new Suscripcion();
-        }
-
-        // Verificar autenticación para las acciones del dashboard
-        // No aplicar esta verificación para acciones de login/autenticación
+        // Verificar autenticación para acciones protegidas
         $publicMethods = ['index', 'login', 'validate', 'recover', 'requestReset', 'reset', 'doReset'];
         $currentMethod = isset($_GET['action']) ? $_GET['action'] : 'index';
 
@@ -58,16 +48,13 @@ class AdminController
         $this->login();
     }
 
-
-
-
-
     /**
-     *   ***************** MENU INDEX *****************
+     * Dashboard principal del sistema
+     * Muestra estadísticas y resumen general
      */
     public function dashboard()
     {
-        // Configurar el título de la página (si se usa en el layout)
+        // Configurar el título de la página
         $pageTitle = "Dashboard del Sistema";
 
         // Cargar datos necesarios para el dashboard
@@ -84,23 +71,14 @@ class AdminController
         require_once 'views/admin/dashboard/index.php';
     }
 
-
-
     /**
-     *   ***************** MENU CONFIGURACIONES *****************
+     * Configuración del sistema
      */
     public function configuracion()
     {
         $pageTitle = "Configuración del Sistema";
         require_once 'views/admin/dashboard/configuracion.php';
     }
-
-
-
-
-    // =========================== LOGIN ===========================
-
-
 
     /**
      * Muestra la pantalla de login de administrador
@@ -122,7 +100,7 @@ class AdminController
      */
     public function welcome()
     {
-        // Configurar el título de la página (si se usa en el layout)
+        // Configurar el título de la página
         $pageTitle = "Bienvenida al Sistema";
 
         // Obtener datos del admin actual
@@ -138,7 +116,6 @@ class AdminController
         // Incluir la vista
         require_once 'views/admin/dashboard/welcome.php';
     }
-
 
     /**
      * Valida las credenciales del administrador
@@ -212,7 +189,6 @@ class AdminController
             exit();
         }
     }
-
 
     /**
      * Cierra la sesión del administrador
@@ -466,9 +442,6 @@ class AdminController
             'samesite' => 'Lax'
         ]);
     }
-
-
-    // =========================== CONTADOR ===========================
 
     /**
      * Obtiene la cantidad total de empresas
