@@ -196,338 +196,53 @@ class EmpresaController
     }
 
     /**
-     * Muestra el formulario para editar una empresa
+     * Procesa un archivo subido y lo mueve al directorio especificado
+     * 
+     * @param array $file Archivo subido ($_FILES['nombre'])
+     * @param string $upload_dir Directorio donde guardar el archivo
+     * @return string|false Ruta del archivo guardado o false si falla
      */
-    public function editar()
+    private function processUploadedFile($file, $upload_dir)
     {
-        // Título de la página
-        $pageTitle = "Editar Empresa";
-
-        // Obtener el ID de la empresa a editar
-        if (!isset($_GET['id'])) {
-            $_SESSION['error_message'] = "ID de empresa no especificado";
-            $this->redirectTo('empresa/index');
-            return;
+        // Verificar que el archivo sea válido
+        if ($file['error'] != 0) {
+            return false;
         }
 
-        $id = (int)$_GET['id'];
-
-        // Obtener la empresa por ID
-        $empresa = $this->empresaModel->getById($id);
-
-        if (!$empresa) {
-            $_SESSION['error_message'] = "Empresa no encontrada";
-            $this->redirectTo('empresa/index');
-            return;
+        // Verificar el tipo de archivo (solo imágenes)
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!in_array($file['type'], $allowed_types)) {
+            return false;
         }
 
-        // Cargar la vista
-        require_once 'views/admin/empresas/editar.php';
+        // Verificar tamaño máximo (2MB)
+        if ($file['size'] > 2097152) { // 2MB en bytes
+            return false;
+        }
+
+        // Generar nombre único para el archivo
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('empresa_') . '.' . $extension;
+        $filepath = $upload_dir . $filename;
+
+        // Mover archivo al directorio de destino
+        if (move_uploaded_file($file['tmp_name'], $filepath)) {
+            return $filepath;
+        }
+
+        return false;
     }
 
     /**
-     * Actualiza una empresa existente
+     * Elimina una imagen si existe
+     * 
+     * @param string $image_path Ruta de la imagen a eliminar
      */
-    public function update()
+    private function deleteImage($image_path)
     {
-        // Verificar si se ha enviado el formulario
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirectTo('empresa/index');
-            return;
+        if (!empty($image_path) && file_exists($image_path)) {
+            unlink($image_path);
         }
-
-        // Verificar token CSRF
-        if (isset($_POST['csrf_token'])) {
-            if (!validateCsrfToken($_POST['csrf_token'])) {
-                $_SESSION['error_message'] = "Error de seguridad: token inválido";
-                $this->redirectTo('empresa/index');
-                return;
-            }
-        }
-
-        // Verificar ID de la empresa
-        if (!isset($_POST['id']) || empty($_POST['id'])) {
-            $_SESSION['error_message'] = "ID de empresa no especificado";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        $id = (int)$_POST['id'];
-
-        // Obtener la empresa existente
-        $empresa_actual = $this->empresaModel->getById($id);
-
-        if (!$empresa_actual) {
-            $_SESSION['error_message'] = "Empresa no encontrada";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        // Validar campos obligatorios
-        if (empty($_POST['nombre']) || empty($_POST['usuario_id']) || empty($_POST['direccion']) || empty($_POST['pais'])) {
-            $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
-            $this->redirectTo('empresa/editar?id=' . $id);
-            return;
-        }
-
-        try {
-            // Verificar que el usuario exista y sea tipo ADMIN
-            $usuario = $this->usuarioModel->getById($_POST['usuario_id']);
-            if (!$usuario || $usuario->tipo_usuario != 'ADMIN') {
-                $_SESSION['error_message'] = "El usuario seleccionado no existe o no es un administrador";
-                $this->redirectTo('empresa/editar?id=' . $id);
-                return;
-            }
-
-            // Verificar que la identificación fiscal no esté duplicada (si se proporciona)
-            if (
-                !empty($_POST['identificacion_fiscal']) &&
-                $this->empresaModel->identificacionExists($_POST['identificacion_fiscal'], $id)
-            ) {
-                $_SESSION['error_message'] = "La identificación fiscal ya está registrada para otra empresa";
-                $this->redirectTo('empresa/editar?id=' . $id);
-                return;
-            }
-
-            // Crear y configurar el objeto Empresa
-            $empresa = new Empresa();
-            $empresa->setId($id);
-            $empresa->setUsuarioId($_POST['usuario_id']);
-            $empresa->setNombre($_POST['nombre']);
-            $empresa->setIdentificacionFiscal($_POST['identificacion_fiscal'] ?? '');
-            $empresa->setDireccion($_POST['direccion']);
-            $empresa->setTelefono($_POST['telefono'] ?? '');
-            $empresa->setEmailContacto($_POST['email_contacto'] ?? '');
-
-            // Configurar datos de facturación como campos individuales
-            $empresa->setRazonSocialFacturacion($_POST['razon_social_facturacion'] ?? '');
-            $empresa->setDireccionFacturacion($_POST['direccion_facturacion'] ?? '');
-            $empresa->setCiudadFacturacion($_POST['ciudad_facturacion'] ?? '');
-            $empresa->setCodigoPostal($_POST['codigo_postal'] ?? '');
-            $empresa->setContactoFacturacion($_POST['contacto_facturacion'] ?? '');
-            $empresa->setEmailFacturacion($_POST['email_facturacion'] ?? '');
-
-            $empresa->setPais($_POST['pais']);
-            $empresa->setCodigoPais($_POST['codigo_pais'] ?? '');
-            $empresa->setTipoMoneda($_POST['tipo_moneda'] ?? 'CLP');
-            $empresa->setEstado($_POST['estado'] ?? 'activa');
-
-            // Configuración de demo
-            $es_demo = isset($_POST['es_demo']) ? 'Si' : 'No';
-            $empresa->setEsDemo($es_demo);
-
-            if ($es_demo == 'Si') {
-                $empresa->setDemoInicio($_POST['demo_inicio'] ?? null);
-                $empresa->setDemoFin($_POST['demo_fin'] ?? null);
-            } else {
-                $empresa->setDemoInicio(null);
-                $empresa->setDemoFin(null);
-            }
-
-            // Mantener imágenes actuales si no se han cambiado
-            $empresa->setImagenEmpresa($empresa_actual->imagen_empresa);
-            $empresa->setImagenDocumento($empresa_actual->imagen_documento);
-            $empresa->setImagenFirma($empresa_actual->imagen_firma);
-
-            // Procesar imágenes si se han subido
-            $upload_dir = 'uploads/empresas/';
-
-            // Crear el directorio si no existe
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0755, true);
-            }
-
-            // Procesar imagen de empresa
-            if (isset($_FILES['imagen_empresa']) && $_FILES['imagen_empresa']['error'] == 0) {
-                $imagen_empresa = $this->processUploadedFile($_FILES['imagen_empresa'], $upload_dir);
-                if ($imagen_empresa) {
-                    // Eliminar imagen anterior si existe
-                    if (!empty($empresa_actual->imagen_empresa) && file_exists($empresa_actual->imagen_empresa)) {
-                        unlink($empresa_actual->imagen_empresa);
-                    }
-                    $empresa->setImagenEmpresa($imagen_empresa);
-                }
-            } elseif (isset($_POST['eliminar_imagen_empresa'])) {
-                // Eliminar imagen si se ha marcado la casilla
-                if (!empty($empresa_actual->imagen_empresa) && file_exists($empresa_actual->imagen_empresa)) {
-                    unlink($empresa_actual->imagen_empresa);
-                }
-                $empresa->setImagenEmpresa('');
-            }
-
-            // Procesar imagen de documento
-            if (isset($_FILES['imagen_documento']) && $_FILES['imagen_documento']['error'] == 0) {
-                $imagen_documento = $this->processUploadedFile($_FILES['imagen_documento'], $upload_dir);
-                if ($imagen_documento) {
-                    // Eliminar imagen anterior si existe
-                    if (!empty($empresa_actual->imagen_documento) && file_exists($empresa_actual->imagen_documento)) {
-                        unlink($empresa_actual->imagen_documento);
-                    }
-                    $empresa->setImagenDocumento($imagen_documento);
-                }
-            } elseif (isset($_POST['eliminar_imagen_documento'])) {
-                // Eliminar imagen si se ha marcado la casilla
-                if (!empty($empresa_actual->imagen_documento) && file_exists($empresa_actual->imagen_documento)) {
-                    unlink($empresa_actual->imagen_documento);
-                }
-                $empresa->setImagenDocumento('');
-            }
-
-            // Procesar imagen de firma
-            if (isset($_FILES['imagen_firma']) && $_FILES['imagen_firma']['error'] == 0) {
-                $imagen_firma = $this->processUploadedFile($_FILES['imagen_firma'], $upload_dir);
-                if ($imagen_firma) {
-                    // Eliminar imagen anterior si existe
-                    if (!empty($empresa_actual->imagen_firma) && file_exists($empresa_actual->imagen_firma)) {
-                        unlink($empresa_actual->imagen_firma);
-                    }
-                    $empresa->setImagenFirma($imagen_firma);
-                }
-            } elseif (isset($_POST['eliminar_imagen_firma'])) {
-                // Eliminar imagen si se ha marcado la casilla
-                if (!empty($empresa_actual->imagen_firma) && file_exists($empresa_actual->imagen_firma)) {
-                    unlink($empresa_actual->imagen_firma);
-                }
-                $empresa->setImagenFirma('');
-            }
-
-            // Actualizar la empresa
-            $resultado = $empresa->update();
-
-            if ($resultado) {
-                $_SESSION['success_message'] = "Empresa actualizada correctamente";
-                $this->redirectTo('empresa/index');
-            } else {
-                $_SESSION['error_message'] = "Error al actualizar la empresa";
-                $this->redirectTo('empresa/editar?id=' . $id);
-            }
-        } catch (Exception $e) {
-            // Registrar el error
-            error_log("Error actualizando empresa: " . $e->getMessage());
-            $_SESSION['error_message'] = "Error al actualizar la empresa: " . $e->getMessage();
-            $this->redirectTo('empresa/editar?id=' . $id);
-        }
-    }
-
-    /**
-     * Elimina una empresa del sistema
-     */
-    public function delete()
-    {
-        // Verificar si hay un ID
-        if (!isset($_GET['id'])) {
-            $_SESSION['error_message'] = "ID de empresa no especificado";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        $id = (int)$_GET['id'];
-
-        // Obtener la empresa para poder eliminar sus imágenes
-        $empresa = $this->empresaModel->getById($id);
-
-        if (!$empresa) {
-            $_SESSION['error_message'] = "Empresa no encontrada";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        // Eliminar las imágenes si existen
-        $this->deleteImage($empresa->imagen_empresa);
-        $this->deleteImage($empresa->imagen_documento);
-        $this->deleteImage($empresa->imagen_firma);
-
-        // Intentar eliminar la empresa
-        $resultado = $this->empresaModel->delete($id);
-
-        if ($resultado) {
-            $_SESSION['success_message'] = "Empresa eliminada correctamente";
-        } else {
-            $_SESSION['error_message'] = "Error al eliminar la empresa";
-        }
-
-        $this->redirectTo('empresa/index');
-    }
-
-    /**
-     * Cambia el estado de una empresa (activa/suspendida)
-     */
-    public function cambiarEstado()
-    {
-        // Verificar parámetros
-        if (!isset($_GET['id']) || !isset($_GET['estado'])) {
-            $_SESSION['error_message'] = "Parámetros insuficientes";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        $id = (int)$_GET['id'];
-        $estado = $_GET['estado'];
-
-        // Validar estado
-        if (!in_array($estado, ['activa', 'suspendida'])) {
-            $_SESSION['error_message'] = "Estado no válido";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        // Verificar que la empresa existe
-        $empresa = $this->empresaModel->getById($id);
-        if (!$empresa) {
-            $_SESSION['error_message'] = "Empresa no encontrada";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        // Cambiar estado
-        $resultado = $this->empresaModel->cambiarEstado($id, $estado);
-
-        if ($resultado) {
-            $_SESSION['success_message'] = "Estado de la empresa actualizado correctamente";
-        } else {
-            $_SESSION['error_message'] = "Error al actualizar el estado de la empresa";
-        }
-
-        $this->redirectTo('empresa/index');
-    }
-
-    /**
-     * Muestra los detalles de una empresa
-     */
-    public function ver($id = null)
-    {
-        // Si se pasó un array de parámetros en lugar de un ID directo
-        if (is_array($id) && isset($id['id'])) {
-            $id = (int)$id['id'];
-        } elseif (is_array($id)) {
-            $id = null;
-        } else {
-            $id = (int)$id;
-        }
-
-        if (!$id) {
-            $_SESSION['error_message'] = "ID de empresa no especificado";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        // Obtener la empresa por ID
-        $empresa = $this->empresaModel->getById($id);
-
-        if (!$empresa) {
-            $_SESSION['error_message'] = "Empresa no encontrada";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        // Obtener información del administrador
-        $admin = $this->usuarioModel->getById($empresa->usuario_id);
-
-        // Título de la página
-        $pageTitle = "Detalles de Empresa";
-
-        // Cargar la vista
-        require_once 'views/admin/empresas/ver.php';
     }
 
     /**
@@ -609,53 +324,42 @@ class EmpresaController
     }
 
     /**
-     * Procesa un archivo subido y lo mueve al directorio especificado
-     * 
-     * @param array $file Archivo subido ($_FILES['nombre'])
-     * @param string $upload_dir Directorio donde guardar el archivo
-     * @return string|false Ruta del archivo guardado o false si falla
+     * Muestra los detalles de una empresa
      */
-    private function processUploadedFile($file, $upload_dir)
+    public function ver($id = null)
     {
-        // Verificar que el archivo sea válido
-        if ($file['error'] != 0) {
-            return false;
+        // Si se pasó un array de parámetros en lugar de un ID directo
+        if (is_array($id) && isset($id['id'])) {
+            $id = (int)$id['id'];
+        } elseif (is_array($id)) {
+            $id = null;
+        } else {
+            $id = (int)$id;
         }
 
-        // Verificar el tipo de archivo (solo imágenes)
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!in_array($file['type'], $allowed_types)) {
-            return false;
+        if (!$id) {
+            $_SESSION['error_message'] = "ID de empresa no especificado";
+            $this->redirectTo('empresa/index');
+            return;
         }
 
-        // Verificar tamaño máximo (2MB)
-        if ($file['size'] > 2097152) { // 2MB en bytes
-            return false;
+        // Obtener la empresa por ID
+        $empresa = $this->empresaModel->getById($id);
+
+        if (!$empresa) {
+            $_SESSION['error_message'] = "Empresa no encontrada";
+            $this->redirectTo('empresa/index');
+            return;
         }
 
-        // Generar nombre único para el archivo
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = uniqid('empresa_') . '.' . $extension;
-        $filepath = $upload_dir . $filename;
+        // Obtener información del administrador
+        $admin = $this->usuarioModel->getById($empresa->usuario_id);
 
-        // Mover archivo al directorio de destino
-        if (move_uploaded_file($file['tmp_name'], $filepath)) {
-            return $filepath;
-        }
+        // Título de la página
+        $pageTitle = "Detalles de Empresa";
 
-        return false;
-    }
-
-    /**
-     * Elimina una imagen si existe
-     * 
-     * @param string $image_path Ruta de la imagen a eliminar
-     */
-    private function deleteImage($image_path)
-    {
-        if (!empty($image_path) && file_exists($image_path)) {
-            unlink($image_path);
-        }
+        // Cargar la vista
+        require_once 'views/admin/empresas/ver.php';
     }
 
     /**
