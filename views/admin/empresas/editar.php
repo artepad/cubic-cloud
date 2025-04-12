@@ -41,7 +41,7 @@ $administradores = $usuario_model->getAll(['tipo_usuario' => 'ADMIN', 'estado' =
             <?php endif; ?>
 
             <!-- Formulario de edición de empresa -->
-            <form id="formEditarEmpresa" class="form-horizontal" method="post" action="<?= base_url ?>admin/updateEmpresa" enctype="multipart/form-data">
+            <form id="formEditarEmpresa" class="form-horizontal" method="post" action="<?= base_url ?>empresa/actualizar" enctype="multipart/form-data">
                 <!-- Token CSRF para seguridad -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                 <input type="hidden" name="id" value="<?= $empresa->id ?>">
