@@ -24,7 +24,7 @@ class AdminController
         $this->adminModel = new SystemAdmin();
         $this->empresaModel = class_exists('Empresa') ? new Empresa() : null;
         $this->planModel = class_exists('Plan') ? new Plan() : null;
-        
+
         // Verificar si existe el modelo de Suscripcion en el sistema
         if (class_exists('Suscripcion')) {
             $this->suscripcionModel = new Suscripcion();
@@ -58,6 +58,106 @@ class AdminController
         $this->login();
     }
 
+
+
+
+
+    /**
+     *   ***************** MENU INDEX *****************
+     */
+    public function dashboard()
+    {
+        // Configurar el título de la página (si se usa en el layout)
+        $pageTitle = "Dashboard del Sistema";
+
+        // Cargar datos necesarios para el dashboard
+        $admin = $_SESSION['admin'];
+        $ultimo_login = $admin->ultimo_login ? date('d/m/Y H:i', strtotime($admin->ultimo_login)) : 'Este es tu primer acceso';
+
+        // Datos de estadísticas
+        $empresas_count = $this->getEmpresasCount();
+        $usuarios_count = $this->getUsuariosCount();
+        $eventos_count = $this->getEventosCount();
+        $ingresos = $this->getIngresosEstimados();
+
+        // Incluir la vista
+        require_once 'views/admin/dashboard/index.php';
+    }
+
+
+
+    /**
+     *   ***************** MENU SUSCRIPCIONES *****************
+     */
+    public function suscripciones()
+    {
+        // Título de la página
+        $pageTitle = "Gestión de Suscripciones";
+
+        // Redirigir si no existe el modelo de suscripción
+        if (!isset($this->suscripcionModel)) {
+            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
+            header("Location: " . base_url . "admin/dashboard");
+            exit();
+        }
+
+        // Obtener parámetros de filtrado y paginación
+        $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
+        $elementosPorPagina = 10;
+        $offset = ($pagina - 1) * $elementosPorPagina;
+
+        // Aplicar filtros si existen
+        $filters = [];
+        if (isset($_GET['estado']) && !empty($_GET['estado'])) {
+            $filters['estado'] = $_GET['estado'];
+        }
+        if (isset($_GET['empresa_id']) && !empty($_GET['empresa_id'])) {
+            $filters['empresa_id'] = $_GET['empresa_id'];
+        }
+        if (isset($_GET['plan_id']) && !empty($_GET['plan_id'])) {
+            $filters['plan_id'] = $_GET['plan_id'];
+        }
+        if (isset($_GET['busqueda']) && !empty($_GET['busqueda'])) {
+            $filters['busqueda'] = $_GET['busqueda'];
+        }
+        if (isset($_GET['periodo']) && !empty($_GET['periodo'])) {
+            $filters['periodo'] = $_GET['periodo'];
+        }
+        if (isset($_GET['vencidas']) && $_GET['vencidas'] == '1') {
+            $filters['vencidas'] = true;
+        }
+
+        // Obtener suscripciones con paginación
+        $suscripciones = $this->suscripcionModel->getAll($filters, $elementosPorPagina, $offset);
+        $total_suscripciones = $this->suscripcionModel->countAll($filters);
+
+        // Obtener listas para los filtros
+        $empresas = $this->empresaModel->getAll();
+        $planes = $this->planModel->getAll();
+
+        // Cálculos para paginación
+        $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
+
+        // Cargar la vista
+        require_once 'views/admin/suscripciones/index.php';
+    }
+
+    /**
+     *   ***************** MENU CONFIGURACIONES *****************
+     */
+    public function configuracion()
+    {
+        $pageTitle = "Configuración del Sistema";
+        require_once 'views/admin/dashboard/configuracion.php';
+    }
+
+
+
+
+    // =========================== LOGIN ===========================
+
+
+
     /**
      * Muestra la pantalla de login de administrador
      */
@@ -72,6 +172,29 @@ class AdminController
         // Incluir directamente la vista de login sin layouts
         require_once 'views/admin/login/login.php';
     }
+
+    /**
+     * Vista de bienvenida después del login
+     */
+    public function welcome()
+    {
+        // Configurar el título de la página (si se usa en el layout)
+        $pageTitle = "Bienvenida al Sistema";
+
+        // Obtener datos del admin actual
+        $admin = $_SESSION['admin'];
+        $ultimo_login = $admin->ultimo_login ? date('d/m/Y H:i', strtotime($admin->ultimo_login)) : 'Este es tu primer acceso';
+
+        // Cargar datos de resumen del sistema
+        $empresas_count = $this->getEmpresasCount();
+        $usuarios_count = $this->getUsuariosCount();
+        $eventos_count = $this->getEventosCount();
+        $ingresos = $this->getIngresosEstimados();
+
+        // Incluir la vista
+        require_once 'views/admin/dashboard/welcome.php';
+    }
+
 
     /**
      * Valida las credenciales del administrador
@@ -145,6 +268,7 @@ class AdminController
             exit();
         }
     }
+
 
     /**
      * Cierra la sesión del administrador
@@ -354,404 +478,6 @@ class AdminController
     }
 
     /**
-     * Vista principal del dashboard
-     */
-    public function dashboard()
-    {
-        // Configurar el título de la página (si se usa en el layout)
-        $pageTitle = "Dashboard del Sistema";
-
-        // Cargar datos necesarios para el dashboard
-        $admin = $_SESSION['admin'];
-        $ultimo_login = $admin->ultimo_login ? date('d/m/Y H:i', strtotime($admin->ultimo_login)) : 'Este es tu primer acceso';
-
-        // Datos de estadísticas
-        $empresas_count = $this->getEmpresasCount();
-        $usuarios_count = $this->getUsuariosCount();
-        $eventos_count = $this->getEventosCount();
-        $ingresos = $this->getIngresosEstimados();
-
-        // Incluir la vista
-        require_once 'views/admin/dashboard/index.php';
-    }
-
-    /**
-     * Vista de bienvenida después del login
-     */
-    public function welcome()
-    {
-        // Configurar el título de la página (si se usa en el layout)
-        $pageTitle = "Bienvenida al Sistema";
-
-        // Obtener datos del admin actual
-        $admin = $_SESSION['admin'];
-        $ultimo_login = $admin->ultimo_login ? date('d/m/Y H:i', strtotime($admin->ultimo_login)) : 'Este es tu primer acceso';
-
-        // Cargar datos de resumen del sistema
-        $empresas_count = $this->getEmpresasCount();
-        $usuarios_count = $this->getUsuariosCount();
-        $eventos_count = $this->getEventosCount();
-        $ingresos = $this->getIngresosEstimados();
-
-        // Incluir la vista
-        require_once 'views/admin/dashboard/welcome.php';
-    }
-
-    /**
-     * Configuración del sistema
-     */
-    public function configuracion()
-    {
-        $pageTitle = "Configuración del Sistema";
-        require_once 'views/admin/dashboard/configuracion.php';
-    }
-
-    /**
-     * Muestra la lista de suscripciones
-     */
-    public function suscripciones()
-    {
-        // Título de la página
-        $pageTitle = "Gestión de Suscripciones";
-
-        // Redirigir si no existe el modelo de suscripción
-        if (!isset($this->suscripcionModel)) {
-            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
-            header("Location: " . base_url . "admin/dashboard");
-            exit();
-        }
-
-        // Obtener parámetros de filtrado y paginación
-        $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
-        $elementosPorPagina = 10;
-        $offset = ($pagina - 1) * $elementosPorPagina;
-
-        // Aplicar filtros si existen
-        $filters = [];
-        if (isset($_GET['estado']) && !empty($_GET['estado'])) {
-            $filters['estado'] = $_GET['estado'];
-        }
-        if (isset($_GET['empresa_id']) && !empty($_GET['empresa_id'])) {
-            $filters['empresa_id'] = $_GET['empresa_id'];
-        }
-        if (isset($_GET['plan_id']) && !empty($_GET['plan_id'])) {
-            $filters['plan_id'] = $_GET['plan_id'];
-        }
-        if (isset($_GET['busqueda']) && !empty($_GET['busqueda'])) {
-            $filters['busqueda'] = $_GET['busqueda'];
-        }
-        if (isset($_GET['periodo']) && !empty($_GET['periodo'])) {
-            $filters['periodo'] = $_GET['periodo'];
-        }
-        if (isset($_GET['vencidas']) && $_GET['vencidas'] == '1') {
-            $filters['vencidas'] = true;
-        }
-
-        // Obtener suscripciones con paginación
-        $suscripciones = $this->suscripcionModel->getAll($filters, $elementosPorPagina, $offset);
-        $total_suscripciones = $this->suscripcionModel->countAll($filters);
-
-        // Obtener listas para los filtros
-        $empresas = $this->empresaModel->getAll();
-        $planes = $this->planModel->getAll();
-
-        // Cálculos para paginación
-        $total_paginas = ceil($total_suscripciones / $elementosPorPagina);
-
-        // Cargar la vista
-        require_once 'views/admin/suscripciones/index.php';
-    }
-
-    /**
-     * Muestra el formulario para crear una nueva suscripción
-     */
-    public function crearSuscripcion()
-    {
-        // Título de la página
-        $pageTitle = "Crear Nueva Suscripción";
-
-        // Verificar que exista el modelo de suscripción
-        if (!isset($this->suscripcionModel)) {
-            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
-            header("Location: " . base_url . "admin/dashboard");
-            exit();
-        }
-
-        // Obtener datos para selectores
-        $empresas = $this->empresaModel->getAll(['estado' => 'activa']);
-        $planes = $this->planModel->getAll(['estado' => 'Activo']);
-
-        // Verificar si hay empresa preseleccionada (desde vista empresa)
-        $empresa_id_preseleccionado = isset($_GET['empresa_id']) ? intval($_GET['empresa_id']) : null;
-        $empresa_preseleccionada = null;
-
-        if ($empresa_id_preseleccionado) {
-            $empresa_preseleccionada = $this->empresaModel->getById($empresa_id_preseleccionado);
-        }
-
-        // Cargar la vista
-        require_once 'views/admin/suscripciones/crear.php';
-    }
-
-    /**
-     * Procesa el formulario para guardar una nueva suscripción
-     */
-    public function saveSuscripcion()
-    {
-        // Verificar si existe el modelo de suscripción
-        if (!isset($this->suscripcionModel)) {
-            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
-            $this->redirectTo('admin/dashboard');
-            return;
-        }
-
-        // Verificar si se ha enviado el formulario
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirectTo('admin/suscripciones');
-            return;
-        }
-
-        // Verificar token CSRF
-        if (isset($_POST['csrf_token'])) {
-            if (!validateCsrfToken($_POST['csrf_token'])) {
-                $_SESSION['error_message'] = "Error de seguridad: token inválido";
-                $this->redirectTo('admin/crearSuscripcion');
-                return;
-            }
-        }
-
-        // Validar campos obligatorios
-        if (empty($_POST['empresa_id']) || empty($_POST['plan_id']) || empty($_POST['precio_total']) || empty($_POST['fecha_inicio'])) {
-            $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
-            $this->redirectTo('admin/crearSuscripcion');
-            return;
-        }
-
-        try {
-            // Crear y configurar el objeto Suscripcion
-            $suscripcion = new Suscripcion();
-            $suscripcion->setEmpresaId($_POST['empresa_id']);
-            $suscripcion->setPlanId($_POST['plan_id']);
-            $suscripcion->setNumeroSuscripcion($_POST['numero_suscripcion']);
-            $suscripcion->setPeriodoFacturacion($_POST['periodo_facturacion']);
-            $suscripcion->setFechaInicio($_POST['fecha_inicio']);
-
-            // Calcular fecha siguiente factura según período
-            $fecha_inicio = new DateTime($_POST['fecha_inicio']);
-            $fecha_siguiente = clone $fecha_inicio;
-
-            switch ($_POST['periodo_facturacion']) {
-                case 'Mensual':
-                    $fecha_siguiente->add(new DateInterval('P1M'));
-                    break;
-                case 'Semestral':
-                    $fecha_siguiente->add(new DateInterval('P6M'));
-                    break;
-                case 'Anual':
-                    $fecha_siguiente->add(new DateInterval('P1Y'));
-                    break;
-            }
-
-            $suscripcion->setFechaSiguienteFactura($fecha_siguiente->format('Y-m-d'));
-            $suscripcion->setPrecioTotal($_POST['precio_total']);
-            $suscripcion->setMoneda($_POST['moneda']);
-            $suscripcion->setEstado($_POST['estado']);
-
-            // Guardar la suscripción
-            $id = $suscripcion->save();
-
-            if ($id) {
-                $_SESSION['success_message'] = "Suscripción creada correctamente";
-                $this->redirectTo('admin/suscripciones');
-            } else {
-                $_SESSION['error_message'] = "Error al crear la suscripción";
-                $this->redirectTo('admin/crearSuscripcion');
-            }
-        } catch (Exception $e) {
-            error_log("Error en saveSuscripcion: " . $e->getMessage());
-            $_SESSION['error_message'] = "Error al procesar la solicitud: " . $e->getMessage();
-            $this->redirectTo('admin/crearSuscripcion');
-        }
-    }
-
-    /**
-     * Cambia el estado de una suscripción
-     */
-    public function cambiarEstadoSuscripcion()
-    {
-        // Verificar que exista el modelo de suscripción
-        if (!isset($this->suscripcionModel)) {
-            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
-            $this->redirectTo('admin/dashboard');
-            return;
-        }
-
-        // Verificar parámetros necesarios
-        if (!isset($_GET['id']) || !isset($_GET['estado'])) {
-            $_SESSION['error_message'] = "Parámetros insuficientes";
-            $this->redirectTo('admin/suscripciones');
-            return;
-        }
-
-        $id = (int)$_GET['id'];
-        $estado = $_GET['estado'];
-
-        // Validar estado
-        $estados_validos = ['Activa', 'Suspendida', 'Cancelada', 'Finalizada', 'Pendiente'];
-        if (!in_array($estado, $estados_validos)) {
-            $_SESSION['error_message'] = "Estado no válido";
-            $this->redirectTo('admin/suscripciones');
-            return;
-        }
-
-        // Cargar modelo y actualizar estado
-        $motivo = "Cambio de estado manual desde el panel de administración";
-        $resultado = $this->suscripcionModel->cambiarEstado($id, $estado, $motivo);
-
-        if ($resultado) {
-            $_SESSION['success_message'] = "Estado de suscripción actualizado correctamente";
-        } else {
-            $_SESSION['error_message'] = "Error al actualizar el estado de la suscripción";
-        }
-
-        $this->redirectTo('admin/suscripciones');
-    }
-
-    /**
-     * Renueva una suscripción
-     */
-    public function renovarSuscripcion()
-    {
-        // Verificar que exista el modelo de suscripción
-        if (!isset($this->suscripcionModel)) {
-            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
-            $this->redirectTo('admin/dashboard');
-            return;
-        }
-
-        // Verificar parámetro necesario
-        if (!isset($_GET['id'])) {
-            $_SESSION['error_message'] = "ID de suscripción no especificado";
-            $this->redirectTo('admin/suscripciones');
-            return;
-        }
-
-        $id = (int)$_GET['id'];
-
-        // Cargar modelo y renovar
-        $resultado = $this->suscripcionModel->renovar($id);
-
-        if ($resultado) {
-            $_SESSION['success_message'] = "Suscripción renovada correctamente";
-        } else {
-            $_SESSION['error_message'] = "Error al renovar la suscripción";
-        }
-
-        $this->redirectTo('admin/suscripciones');
-    }
-
-    /**
-     * Muestra el historial de cambios de una suscripción
-     */
-    public function historialSuscripcion()
-    {
-        // Verificar que exista el modelo de suscripción
-        if (!isset($this->suscripcionModel)) {
-            $_SESSION['error_message'] = "El módulo de suscripciones no está disponible";
-            $this->redirectTo('admin/dashboard');
-            return;
-        }
-
-        // Título de la página
-        $pageTitle = "Historial de Suscripción";
-
-        // Verificar parámetro necesario
-        if (!isset($_GET['id'])) {
-            $_SESSION['error_message'] = "ID de suscripción no especificado";
-            $this->redirectTo('admin/suscripciones');
-            return;
-        }
-
-        $id = (int)$_GET['id'];
-
-        // Obtener suscripción y su historial
-        $suscripcion = $this->suscripcionModel->getById($id);
-
-        if (!$suscripcion) {
-            $_SESSION['error_message'] = "Suscripción no encontrada";
-            $this->redirectTo('admin/suscripciones');
-            return;
-        }
-
-        // Obtener empresa y plan asociados
-        $empresa = $this->empresaModel->getById($suscripcion->empresa_id);
-        $plan = $this->planModel->getById($suscripcion->plan_id);
-
-        // Incluir la vista
-        require_once 'views/admin/suscripciones/historial.php';
-    }
-
-    /**
-     * Método auxiliar para redireccionar
-     */
-    private function redirectTo($path)
-    {
-        // Verificar que no se hayan enviado headers aún
-        if (!headers_sent()) {
-            header("Location: " . base_url . $path);
-        } else {
-            // Usar JavaScript como respaldo si los headers ya se enviaron
-            echo "<script>window.location.href = '" . base_url . $path . "';</script>";
-            echo '<noscript>';
-            echo '<meta http-equiv="refresh" content="0;url=' . base_url . $path . '">';
-            echo '</noscript>';
-        }
-        exit();
-    }
-
-    /**
-     * Obtiene la cantidad total de empresas
-     * @return int Número de empresas
-     */
-    private function getEmpresasCount()
-    {
-        if ($this->empresaModel) {
-            return $this->empresaModel->countAll();
-        }
-        return 0;
-    }
-
-    /**
-     * Obtiene la cantidad total de usuarios
-     * @return int Número de usuarios
-     */
-    private function getUsuariosCount()
-    {
-        $usuarioModel = new Usuario();
-        return $usuarioModel->countAll();
-    }
-
-    /**
-     * Obtiene la cantidad total de eventos activos
-     * @return int Número de eventos
-     */
-    private function getEventosCount()
-    {
-        // En un caso real, esto consultaría la base de datos
-        return 32;
-    }
-
-    /**
-     * Obtiene los ingresos estimados
-     * @return string Ingresos formateados
-     */
-    private function getIngresosEstimados()
-    {
-        // En un caso real, esto consultaría la base de datos
-        return '$4,500';
-    }
-
-    /**
      * Establece un mensaje de error para el login
      * @param string $message Mensaje de error
      */
@@ -795,5 +521,50 @@ class AdminController
             'httponly' => true,
             'samesite' => 'Lax'
         ]);
+    }
+
+
+    // =========================== CONTADOR ===========================
+
+    /**
+     * Obtiene la cantidad total de empresas
+     * @return int Número de empresas
+     */
+    private function getEmpresasCount()
+    {
+        if ($this->empresaModel) {
+            return $this->empresaModel->countAll();
+        }
+        return 0;
+    }
+
+    /**
+     * Obtiene la cantidad total de usuarios
+     * @return int Número de usuarios
+     */
+    private function getUsuariosCount()
+    {
+        $usuarioModel = new Usuario();
+        return $usuarioModel->countAll();
+    }
+
+    /**
+     * Obtiene la cantidad total de eventos activos
+     * @return int Número de eventos
+     */
+    private function getEventosCount()
+    {
+        // En un caso real, esto consultaría la base de datos
+        return 32;
+    }
+
+    /**
+     * Obtiene los ingresos estimados
+     * @return string Ingresos formateados
+     */
+    private function getIngresosEstimados()
+    {
+        // En un caso real, esto consultaría la base de datos
+        return '$4,500';
     }
 }

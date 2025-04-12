@@ -69,7 +69,7 @@ class SuscripcionController
         }
 
         // Cargar la vista
-        require_once 'views/admin/suscripciones/crear.php';
+        require_once 'views/admin/suscripcioness/crear.php';
     }
 
     /**
