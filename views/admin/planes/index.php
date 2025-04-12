@@ -31,7 +31,7 @@ if (!isAdminLoggedIn()) {
             <!-- Acciones de gestión -->
             <div class="row m-t-10 m-b-20">
                 <div class="col-md-12">
-                    <a href="<?= base_url ?>plan/crear" class="btn btn-info waves-effect waves-light m-r-10">
+                    <a href="<?= base_url ?>plan/crear" class="btn btn-success waves-effect waves-light m-r-10">
                         <i class="fa fa-plus"></i> Nuevo Plan
                     </a>
                 </div>
@@ -69,7 +69,7 @@ if (!isAdminLoggedIn()) {
                                             case 'USD': $simbolo = 'US$'; break;
                                             case 'EUR': $simbolo = '€'; break;
                                         }
-                                        echo $simbolo . number_format($plan->precio_mensual, 2);
+                                        echo $simbolo . number_format($plan->precio_mensual, 0, ',', '.');
                                         ?>
                                     </td>
                                     <td><?= $plan->max_usuarios == 0 ? 'Ilimitados' : $plan->max_usuarios ?></td>
@@ -92,27 +92,21 @@ if (!isAdminLoggedIn()) {
                                         </span>
                                     </td>
                                     <td>
+                                        <a href="<?= base_url ?>plan/ver?id=<?= $plan->id ?>" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        
                                         <a href="<?= base_url ?>plan/editar?id=<?= $plan->id ?>" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
                                             <i class="fa fa-pencil"></i>
                                         </a>
                                         
                                         <?php if ($plan->estado == 'Activo'): ?>
-                                            <a href="javascript:void(0);" onclick="confirmarCambioEstado(<?= $plan->id ?>, 'Inactivo')" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Desactivar">
+                                            <a href="javascript:void(0);" onclick="confirmarCambioEstado(<?= $plan->id ?>, 'Inactivo')" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Desactivar">
                                                 <i class="fa fa-ban"></i>
                                             </a>
                                         <?php else: ?>
                                             <a href="javascript:void(0);" onclick="confirmarCambioEstado(<?= $plan->id ?>, 'Activo')" class="btn btn-success btn-circle" data-toggle="tooltip" data-original-title="Activar">
                                                 <i class="fa fa-check"></i>
-                                            </a>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($plan->visible == 'Si'): ?>
-                                            <a href="javascript:void(0);" onclick="confirmarCambioVisibilidad(<?= $plan->id ?>, 'No')" class="btn btn-default btn-circle" data-toggle="tooltip" data-original-title="Ocultar">
-                                                <i class="fa fa-eye-slash"></i>
-                                            </a>
-                                        <?php else: ?>
-                                            <a href="javascript:void(0);" onclick="confirmarCambioVisibilidad(<?= $plan->id ?>, 'Si')" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Mostrar">
-                                                <i class="fa fa-eye"></i>
                                             </a>
                                         <?php endif; ?>
                                         
@@ -156,20 +150,6 @@ if (!isAdminLoggedIn()) {
         
         if (confirm(mensaje)) {
             window.location.href = '<?= base_url ?>plan/cambiarEstado?id=' + id + '&estado=' + nuevoEstado;
-        }
-    }
-    
-    // Confirmar cambio de visibilidad
-    function confirmarCambioVisibilidad(id, nuevoEstado) {
-        var mensaje = '';
-        if (nuevoEstado === 'Si') {
-            mensaje = '¿Estás seguro de que deseas hacer visible este plan?';
-        } else {
-            mensaje = '¿Estás seguro de que deseas ocultar este plan?';
-        }
-        
-        if (confirm(mensaje)) {
-            window.location.href = '<?= base_url ?>plan/cambiarVisibilidad?id=' + id + '&visible=' + nuevoEstado;
         }
     }
     
