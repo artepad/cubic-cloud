@@ -377,6 +377,9 @@ class Empresa
     public function update()
     {
         try {
+            // Registrar inicio para depuración
+            error_log("Iniciando actualización de empresa ID: " . $this->id);
+            
             $sql = "UPDATE empresas SET 
                 usuario_id = ?,
                 nombre = ?,
@@ -408,14 +411,21 @@ class Empresa
                 error_log("Error preparando consulta: " . $this->db->error);
                 return false;
             }
-
-            // Valores por defecto para campos NULL
-            $demo_inicio = $this->demo_inicio ?: null;
-            $demo_fin = $this->demo_fin ?: null;
-
-            $stmt->bind_param(
-                "issssssssssssssssssssssi",
-                $this->usuario_id,
+            
+            // Asegurar que los IDs son enteros
+            $usuario_id = (int)$this->usuario_id;
+            $id = (int)$this->id;
+            
+            // Formatear fechas correctamente o dejarlas como NULL si no existen
+            $demo_inicio = !empty($this->demo_inicio) ? date('Y-m-d', strtotime($this->demo_inicio)) : null;
+            $demo_fin = !empty($this->demo_fin) ? date('Y-m-d', strtotime($this->demo_fin)) : null;
+            
+            error_log("Preparando parámetros para update - demo_inicio: " . ($demo_inicio ?? 'NULL') . ", demo_fin: " . ($demo_fin ?? 'NULL'));
+            
+            // Binding de parámetros con tipos correctos
+            $result = $stmt->bind_param(
+                "isssssssssssssssssssssi",
+                $usuario_id,
                 $this->nombre,
                 $this->identificacion_fiscal,
                 $this->direccion,
@@ -437,15 +447,28 @@ class Empresa
                 $this->es_demo,
                 $demo_inicio,
                 $demo_fin,
-                $this->id
+                $id
             );
-
+            
+            if (!$result) {
+                error_log("Error en bind_param: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+            
             $result = $stmt->execute();
+            
+            if (!$result) {
+                error_log("Error en execute: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+            
+            error_log("Actualización exitosa");
             $stmt->close();
-
-            return $result;
+            return true;
         } catch (Exception $e) {
-            error_log("Error en update: " . $e->getMessage());
+            error_log("Error en update: " . $e->getMessage() . "\n" . $e->getTraceAsString());
             return false;
         }
     }

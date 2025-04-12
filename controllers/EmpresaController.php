@@ -245,9 +245,6 @@ class EmpresaController
         }
     }
 
-
-
-
     /**
      * Muestra el formulario para editar una empresa existente
      * 
@@ -291,36 +288,56 @@ class EmpresaController
      */
     public function actualizar()
     {
-        // Verificar token CSRF
-        if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
-            $_SESSION['error_message'] = "Error de seguridad. Intente nuevamente.";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        if (!isset($_POST['id'])) {
-            $_SESSION['error_message'] = "ID de empresa no especificado";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        $id = (int)$_POST['id'];
-        $empresa_actual = $this->empresaModel->getById($id);
-
-        if (!$empresa_actual) {
-            $_SESSION['error_message'] = "Empresa no encontrada";
-            $this->redirectTo('empresa/index');
-            return;
-        }
-
-        // Verificar campos obligatorios
-        if (empty($_POST['nombre']) || empty($_POST['usuario_id']) || empty($_POST['direccion']) || empty($_POST['pais'])) {
-            $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
-            $this->redirectTo('empresa/editar/' . $id);
-            return;
-        }
-
         try {
+            // Iniciar registro para depuración
+            error_log("Iniciando actualización de empresa");
+            
+            // Verificar si se ha enviado el formulario
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $_SESSION['error_message'] = "Método de solicitud incorrecto";
+                $this->redirectTo('empresa/index');
+                return;
+            }
+            
+            error_log("Método POST verificado");
+
+            // Verificar token CSRF
+            if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+                $_SESSION['error_message'] = "Error de seguridad. Intente nuevamente.";
+                $this->redirectTo('empresa/index');
+                return;
+            }
+            
+            error_log("Token CSRF válido");
+
+            if (!isset($_POST['id']) || empty($_POST['id'])) {
+                $_SESSION['error_message'] = "ID de empresa no especificado";
+                $this->redirectTo('empresa/index');
+                return;
+            }
+
+            $id = (int)$_POST['id'];
+            error_log("ID de empresa: " . $id);
+            
+            $empresa_actual = $this->empresaModel->getById($id);
+
+            if (!$empresa_actual) {
+                $_SESSION['error_message'] = "Empresa no encontrada";
+                $this->redirectTo('empresa/index');
+                return;
+            }
+            
+            error_log("Empresa encontrada: " . $empresa_actual->nombre);
+
+            // Verificar campos obligatorios
+            if (empty($_POST['nombre']) || empty($_POST['usuario_id']) || empty($_POST['direccion']) || empty($_POST['pais'])) {
+                $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
+                $this->redirectTo('empresa/editar/' . $id);
+                return;
+            }
+            
+            error_log("Campos obligatorios verificados");
+
             // Verificar que el usuario exista y sea tipo ADMIN
             $usuario = $this->usuarioModel->getById($_POST['usuario_id']);
             if (!$usuario || $usuario->tipo_usuario != 'ADMIN') {
@@ -328,6 +345,8 @@ class EmpresaController
                 $this->redirectTo('empresa/editar/' . $id);
                 return;
             }
+            
+            error_log("Usuario administrador verificado: " . $usuario->nombre);
 
             // Verificar que la identificación fiscal no esté duplicada (si se proporciona)
             if (
@@ -339,6 +358,8 @@ class EmpresaController
                 $this->redirectTo('empresa/editar/' . $id);
                 return;
             }
+            
+            error_log("Identificación fiscal verificada");
 
             // Crear y configurar el objeto Empresa
             $empresa = new Empresa();
@@ -362,17 +383,26 @@ class EmpresaController
             $empresa->setCodigoPais($_POST['codigo_pais'] ?? '');
             $empresa->setTipoMoneda($_POST['tipo_moneda'] ?? 'CLP');
             $empresa->setEstado($_POST['estado'] ?? 'activa');
+            
+            error_log("Datos básicos configurados");
 
             // Configuración de demo
             $es_demo = isset($_POST['es_demo']) ? 'Si' : 'No';
             $empresa->setEsDemo($es_demo);
 
             if ($es_demo == 'Si') {
-                $empresa->setDemoInicio($_POST['demo_inicio'] ?? null);
-                $empresa->setDemoFin($_POST['demo_fin'] ?? null);
+                $demo_inicio = !empty($_POST['demo_inicio']) ? $_POST['demo_inicio'] : null;
+                $demo_fin = !empty($_POST['demo_fin']) ? $_POST['demo_fin'] : null;
+                
+                $empresa->setDemoInicio($demo_inicio);
+                $empresa->setDemoFin($demo_fin);
+                
+                error_log("Configuración demo - inicio: " . ($demo_inicio ?? 'null') . ", fin: " . ($demo_fin ?? 'null'));
             } else {
                 $empresa->setDemoInicio(null);
                 $empresa->setDemoFin(null);
+                
+                error_log("Demo desactivado, fechas establecidas a null");
             }
 
             // Procesar imágenes
@@ -381,33 +411,41 @@ class EmpresaController
             // Crear el directorio si no existe
             if (!file_exists($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
+                error_log("Directorio creado: " . $upload_dir);
             }
 
             // Procesar imagen de empresa
             if (isset($_FILES['imagen_empresa']) && $_FILES['imagen_empresa']['error'] == 0) {
+                error_log("Procesando nueva imagen de empresa");
                 // Eliminar imagen anterior si existe
                 if (!empty($empresa_actual->imagen_empresa)) {
+                    error_log("Eliminando imagen anterior: " . $empresa_actual->imagen_empresa);
                     $this->deleteImage($empresa_actual->imagen_empresa);
                 }
 
                 $imagen_empresa = $this->processUploadedFile($_FILES['imagen_empresa'], $upload_dir);
                 if ($imagen_empresa) {
+                    error_log("Nueva imagen guardada: " . $imagen_empresa);
                     $empresa->setImagenEmpresa($imagen_empresa);
                 } else {
+                    error_log("Error al procesar nueva imagen, manteniendo la anterior");
                     $empresa->setImagenEmpresa($empresa_actual->imagen_empresa);
                 }
             } else {
                 // Mantener la imagen existente a menos que se haya marcado para eliminar
                 if (isset($_POST['eliminar_imagen_empresa']) && $_POST['eliminar_imagen_empresa'] == 1) {
+                    error_log("Eliminando imagen empresa por solicitud del usuario");
                     $this->deleteImage($empresa_actual->imagen_empresa);
                     $empresa->setImagenEmpresa('');
                 } else {
+                    error_log("Manteniendo imagen empresa actual: " . $empresa_actual->imagen_empresa);
                     $empresa->setImagenEmpresa($empresa_actual->imagen_empresa);
                 }
             }
 
             // Procesar imagen de documento
             if (isset($_FILES['imagen_documento']) && $_FILES['imagen_documento']['error'] == 0) {
+                error_log("Procesando nueva imagen de documento");
                 // Eliminar imagen anterior si existe
                 if (!empty($empresa_actual->imagen_documento)) {
                     $this->deleteImage($empresa_actual->imagen_documento);
@@ -431,6 +469,7 @@ class EmpresaController
 
             // Procesar imagen de firma
             if (isset($_FILES['imagen_firma']) && $_FILES['imagen_firma']['error'] == 0) {
+                error_log("Procesando nueva imagen de firma");
                 // Eliminar imagen anterior si existe
                 if (!empty($empresa_actual->imagen_firma)) {
                     $this->deleteImage($empresa_actual->imagen_firma);
@@ -451,22 +490,27 @@ class EmpresaController
                     $empresa->setImagenFirma($empresa_actual->imagen_firma);
                 }
             }
+            
+            error_log("Procesamiento de imágenes completado");
 
             // Actualizar la empresa
+            error_log("Iniciando actualización en base de datos");
             $result = $empresa->update();
 
             if ($result) {
+                error_log("Empresa actualizada con éxito");
                 $_SESSION['success_message'] = "Empresa actualizada correctamente";
                 $this->redirectTo('empresa/index');
             } else {
-                $_SESSION['error_message'] = "Error al actualizar la empresa";
+                error_log("Error al actualizar empresa en la base de datos");
+                $_SESSION['error_message'] = "Error al actualizar la empresa en la base de datos";
                 $this->redirectTo('empresa/editar/' . $id);
             }
         } catch (Exception $e) {
             // Registrar el error
-            error_log("Error actualizando empresa: " . $e->getMessage());
+            error_log("Error en actualizar(): " . $e->getMessage() . "\n" . $e->getTraceAsString());
             $_SESSION['error_message'] = "Error al actualizar la empresa: " . $e->getMessage();
-            $this->redirectTo('empresa/editar/' . $id);
+            $this->redirectTo('empresa/editar/' . (isset($id) ? $id : ''));
         }
     }
 
