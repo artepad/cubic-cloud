@@ -21,14 +21,21 @@ class AdminController
         // Cargar los modelos
         $this->adminModel = new SystemAdmin();
         $this->empresaModel = class_exists('Empresa') ? new Empresa() : null;
+        
         // Verificar autenticación para acciones protegidas
         $publicMethods = ['index', 'login', 'validate', 'recover', 'requestReset', 'reset', 'doReset'];
         $currentMethod = isset($_GET['action']) ? $_GET['action'] : 'index';
-
+    
         if (!in_array($currentMethod, $publicMethods) && !isAdminLoggedIn()) {
             $_SESSION['error_login'] = "Acceso denegado. Se requiere cuenta de administrador.";
             header("Location:" . base_url . "admin/login");
             exit();
+        }
+        
+        // Cargar contadores para el sidebar si hay sesión activa
+        if (isAdminLoggedIn() && !in_array($currentMethod, $publicMethods)) {
+            $GLOBALS['empresas_count'] = $this->getEmpresasCount();
+            $GLOBALS['usuarios_count'] = $this->getUsuariosCount();
         }
     }
 
@@ -56,17 +63,17 @@ class AdminController
     {
         // Configurar el título de la página
         $pageTitle = "Dashboard del Sistema";
-
+    
         // Cargar datos necesarios para el dashboard
         $admin = $_SESSION['admin'];
         $ultimo_login = $admin->ultimo_login ? date('d/m/Y H:i', strtotime($admin->ultimo_login)) : 'Este es tu primer acceso';
-
+    
         // Datos de estadísticas
         $empresas_count = $this->getEmpresasCount();
         $usuarios_count = $this->getUsuariosCount();
         $eventos_count = $this->getEventosCount();
         $ingresos = $this->getIngresosEstimados();
-
+    
         // Incluir la vista
         require_once 'views/admin/dashboard/index.php';
     }
