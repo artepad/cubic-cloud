@@ -306,12 +306,12 @@ class Empresa
     {
         try {
             $sql = "INSERT INTO empresas (
-                usuario_id, nombre, identificacion_fiscal, direccion, telefono, 
-                email_contacto, razon_social_facturacion, direccion_facturacion, 
-                ciudad_facturacion, codigo_postal, contacto_facturacion, email_facturacion,
-                pais, codigo_pais, imagen_empresa, imagen_documento, imagen_firma,
-                tipo_moneda, estado, es_demo, demo_inicio, demo_fin
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            usuario_id, nombre, identificacion_fiscal, direccion, telefono, 
+            email_contacto, razon_social_facturacion, direccion_facturacion, 
+            ciudad_facturacion, codigo_postal, contacto_facturacion, email_facturacion,
+            pais, codigo_pais, imagen_empresa, imagen_documento, imagen_firma,
+            tipo_moneda, estado, es_demo, demo_inicio, demo_fin
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt = $this->db->prepare($sql);
 
@@ -320,13 +320,17 @@ class Empresa
                 return false;
             }
 
-            // Valores por defecto para campos NULL
-            $demo_inicio = $this->demo_inicio ?: null;
-            $demo_fin = $this->demo_fin ?: null;
+            // Asegurar que el usuario_id es un entero
+            $usuario_id = (int)$this->usuario_id;
 
+            // Formatear fechas correctamente o dejarlas como NULL si no existen
+            $demo_inicio = !empty($this->demo_inicio) ? date('Y-m-d', strtotime($this->demo_inicio)) : null;
+            $demo_fin = !empty($this->demo_fin) ? date('Y-m-d', strtotime($this->demo_fin)) : null;
+
+            // Binding de parámetros con tipos correctos
             $stmt->bind_param(
                 "isssssssssssssssssssss",
-                $this->usuario_id,
+                $usuario_id,
                 $this->nombre,
                 $this->identificacion_fiscal,
                 $this->direccion,
@@ -356,6 +360,7 @@ class Empresa
                 return $id;
             }
 
+            error_log("Error en execute: " . $stmt->error);
             $stmt->close();
             return false;
         } catch (Exception $e) {

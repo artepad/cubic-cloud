@@ -39,7 +39,7 @@ $planes = $plan_model->getPlanesPublicados();
             <?php endif; ?>
 
             <!-- Formulario de creación de empresa -->
-            <form id="formCrearEmpresa" class="form-horizontal" method="post" action="<?= base_url ?>empresa/save" enctype="multipart/form-data">
+            <form id="formCrearEmpresa" class="form-horizontal" method="post" action="<?= base_url ?>empresa/guardar" enctype="multipart/form-data">    
                 <!-- Token CSRF para seguridad -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 

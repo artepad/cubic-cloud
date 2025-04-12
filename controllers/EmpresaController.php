@@ -66,7 +66,7 @@ class EmpresaController
     /**
      * Guarda una nueva empresa en la base de datos
      */
-    public function save()
+    public function guardar()
     {
         // Verificar si se ha enviado el formulario
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
