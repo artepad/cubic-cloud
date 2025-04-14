@@ -25,6 +25,7 @@ class Plan
     private $estado;
     private $visible;
     private $db;
+    private $lastError;
 
     /**
      * Constructor de la clase
@@ -33,6 +34,28 @@ class Plan
     public function __construct()
     {
         $this->db = Database::connect();
+        $this->lastError = null;
+    }
+    
+    /**
+     * Obtiene el último error registrado
+     * 
+     * @return string|null Mensaje de error o null si no hay error
+     */
+    public function getLastError()
+    {
+        return $this->lastError;
+    }
+
+    /**
+     * Establece un mensaje de error
+     * 
+     * @param string $error Mensaje de error
+     */
+    private function setError($error)
+    {
+        $this->lastError = $error;
+        error_log("Error en Plan: " . $error);
     }
 
     /**
@@ -212,6 +235,7 @@ class Plan
             if (json_last_error() === JSON_ERROR_NONE) {
                 $this->caracteristicas = $caracteristicas;
             } else {
+                $this->setError("Error en formato JSON: " . json_last_error_msg());
                 $this->caracteristicas = '{}'; // JSON vacío por defecto
             }
         }
@@ -256,6 +280,17 @@ class Plan
     public function save()
     {
         try {
+            // Verificar que tenemos los campos mínimos requeridos
+            if (empty($this->nombre) || empty($this->tipo_plan) || !isset($this->precio_mensual)) {
+                $this->setError("Faltan campos obligatorios");
+                return false;
+            }
+
+            // Asegurarse de que descripción nunca sea null para evitar problemas con NOT NULL
+            if (empty($this->descripcion)) {
+                $this->descripcion = '';
+            }
+
             $sql = "INSERT INTO planes (
                 nombre, descripcion, tipo_plan, 
                 precio_mensual, precio_semestral, precio_anual, moneda,
@@ -266,11 +301,12 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return false;
             }
 
-            $stmt->bind_param(
+            // Bindear los parámetros
+            if (!$stmt->bind_param(
                 "sssdddsiiisss",
                 $this->nombre,
                 $this->descripcion,
@@ -285,18 +321,24 @@ class Plan
                 $this->caracteristicas,
                 $this->estado,
                 $this->visible
-            );
-
-            if ($stmt->execute()) {
-                $id = $this->db->insert_id;
+            )) {
+                $this->setError("Error en bind_param: " . $stmt->error);
                 $stmt->close();
-                return $id;
+                return false;
             }
 
+            // Ejecutar la consulta
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
+            $id = $this->db->insert_id;
             $stmt->close();
-            return false;
+            return $id;
         } catch (Exception $e) {
-            error_log("Error en save: " . $e->getMessage());
+            $this->setError("Error en save: " . $e->getMessage());
             return false;
         }
     }
@@ -309,6 +351,17 @@ class Plan
     public function update()
     {
         try {
+            // Verificar que tenemos un ID
+            if (empty($this->id) || $this->id <= 0) {
+                $this->setError("ID de plan no válido");
+                return false;
+            }
+
+            // Asegurarse de que descripción nunca sea null para evitar problemas con NOT NULL
+            if (empty($this->descripcion)) {
+                $this->descripcion = '';
+            }
+
             $sql = "UPDATE planes SET 
                 nombre = ?, 
                 descripcion = ?, 
@@ -328,12 +381,13 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return false;
             }
 
-            $stmt->bind_param(
-                "sssdddsiiifssi",
+            // Bindear los parámetros
+            if (!$stmt->bind_param(
+                "sssdddsiiisssi",
                 $this->nombre,
                 $this->descripcion,
                 $this->tipo_plan,
@@ -348,14 +402,23 @@ class Plan
                 $this->estado,
                 $this->visible,
                 $this->id
-            );
+            )) {
+                $this->setError("Error en bind_param: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
 
-            $result = $stmt->execute();
+            // Ejecutar la consulta
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
             $stmt->close();
-
-            return $result;
+            return true;
         } catch (Exception $e) {
-            error_log("Error en update: " . $e->getMessage());
+            $this->setError("Error en update: " . $e->getMessage());
             return false;
         }
     }
@@ -375,12 +438,22 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return false;
             }
 
-            $stmt->bind_param("i", $id);
-            $stmt->execute();
+            if (!$stmt->bind_param("i", $id)) {
+                $this->setError("Error en bind_param: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
             $result = $stmt->get_result();
 
             if ($result && $result->num_rows == 1) {
@@ -392,7 +465,7 @@ class Plan
             $stmt->close();
             return false;
         } catch (Exception $e) {
-            error_log("Error en getById: " . $e->getMessage());
+            $this->setError("Error en getById: " . $e->getMessage());
             return false;
         }
     }
@@ -410,11 +483,16 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return [];
             }
 
-            $stmt->execute();
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return [];
+            }
+
             $result = $stmt->get_result();
 
             $planes = [];
@@ -425,7 +503,7 @@ class Plan
             $stmt->close();
             return $planes;
         } catch (Exception $e) {
-            error_log("Error en getAll: " . $e->getMessage());
+            $this->setError("Error en getAll: " . $e->getMessage());
             return [];
         }
     }
@@ -446,18 +524,29 @@ class Plan
             $check_stmt = $this->db->prepare($check_sql);
 
             if (!$check_stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return false;
             }
 
-            $check_stmt->bind_param("i", $id);
-            $check_stmt->execute();
+            if (!$check_stmt->bind_param("i", $id)) {
+                $this->setError("Error en bind_param: " . $check_stmt->error);
+                $check_stmt->close();
+                return false;
+            }
+
+            if (!$check_stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $check_stmt->error);
+                $check_stmt->close();
+                return false;
+            }
+
             $check_result = $check_stmt->get_result();
             $row = $check_result->fetch_object();
             $check_stmt->close();
 
             // Si hay suscripciones asociadas, no permitir eliminar el plan
             if ($row->count > 0) {
+                $this->setError("No se puede eliminar el plan porque tiene suscripciones asociadas");
                 return false;
             }
 
@@ -466,17 +555,26 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return false;
             }
 
-            $stmt->bind_param("i", $id);
-            $result = $stmt->execute();
-            $stmt->close();
+            if (!$stmt->bind_param("i", $id)) {
+                $this->setError("Error en bind_param: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
 
-            return $result;
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
+            $stmt->close();
+            return true;
         } catch (Exception $e) {
-            error_log("Error en delete: " . $e->getMessage());
+            $this->setError("Error en delete: " . $e->getMessage());
             return false;
         }
     }
@@ -496,6 +594,7 @@ class Plan
             // Validar estado
             $estados_validos = ['Activo', 'Inactivo', 'Descontinuado'];
             if (!in_array($estado, $estados_validos)) {
+                $this->setError("Estado no válido: " . $estado);
                 return false;
             }
 
@@ -503,17 +602,26 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return false;
             }
 
-            $stmt->bind_param("si", $estado, $id);
-            $result = $stmt->execute();
-            $stmt->close();
+            if (!$stmt->bind_param("si", $estado, $id)) {
+                $this->setError("Error en bind_param: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
 
-            return $result;
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
+            $stmt->close();
+            return true;
         } catch (Exception $e) {
-            error_log("Error en cambiarEstado: " . $e->getMessage());
+            $this->setError("Error en cambiarEstado: " . $e->getMessage());
             return false;
         }
     }
@@ -532,6 +640,7 @@ class Plan
 
             // Validar visibilidad
             if ($visible !== 'Si' && $visible !== 'No') {
+                $this->setError("Valor de visibilidad no válido: " . $visible);
                 return false;
             }
 
@@ -539,17 +648,26 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return false;
             }
 
-            $stmt->bind_param("si", $visible, $id);
-            $result = $stmt->execute();
-            $stmt->close();
+            if (!$stmt->bind_param("si", $visible, $id)) {
+                $this->setError("Error en bind_param: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
 
-            return $result;
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
+            $stmt->close();
+            return true;
         } catch (Exception $e) {
-            error_log("Error en cambiarVisibilidad: " . $e->getMessage());
+            $this->setError("Error en cambiarVisibilidad: " . $e->getMessage());
             return false;
         }
     }
@@ -600,23 +718,32 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return 0;
             }
 
             // Bind de parámetros si existen
             if (!empty($params)) {
-                $stmt->bind_param($types, ...$params);
+                if (!$stmt->bind_param($types, ...$params)) {
+                    $this->setError("Error en bind_param: " . $stmt->error);
+                    $stmt->close();
+                    return 0;
+                }
             }
 
-            $stmt->execute();
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return 0;
+            }
+
             $result = $stmt->get_result();
             $row = $result->fetch_object();
 
             $stmt->close();
             return (int)$row->total;
         } catch (Exception $e) {
-            error_log("Error en countAll: " . $e->getMessage());
+            $this->setError("Error en countAll: " . $e->getMessage());
             return 0;
         }
     }
@@ -633,11 +760,16 @@ class Plan
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
-                error_log("Error preparando consulta: " . $this->db->error);
+                $this->setError("Error preparando consulta: " . $this->db->error);
                 return [];
             }
 
-            $stmt->execute();
+            if (!$stmt->execute()) {
+                $this->setError("Error ejecutando consulta: " . $stmt->error);
+                $stmt->close();
+                return [];
+            }
+
             $result = $stmt->get_result();
 
             $planes = [];
@@ -650,7 +782,7 @@ class Plan
             $stmt->close();
             return $planes;
         } catch (Exception $e) {
-            error_log("Error en getPlanesPublicados: " . $e->getMessage());
+            $this->setError("Error en getPlanesPublicados: " . $e->getMessage());
             return [];
         }
     }

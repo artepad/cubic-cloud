@@ -53,21 +53,20 @@ class PlanController
     /**
      * Procesa el formulario de creación de plan
      */
-    public function save()
+    public function guardar()
     {
-        // Iniciar buffer de salida para evitar problemas de redirección
-        ob_start();
-
-        // Verificar si se ha enviado el formulario
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        try {
+            // Verificar si se ha enviado el formulario
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $this->redirectTo("plan/crear");
+                return;
+            }
 
             // Verificar token CSRF
-            if (isset($_POST['csrf_token'])) {
-                if (!validateCsrfToken($_POST['csrf_token'])) {
-                    $_SESSION['error_message'] = "Error de seguridad: token inválido";
-                    $this->redirectTo("plan/crear");
-                    exit();
-                }
+            if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+                $_SESSION['error_message'] = "Error de seguridad: token inválido";
+                $this->redirectTo("plan/crear");
+                return;
             }
 
             // Validar campos obligatorios
@@ -75,64 +74,57 @@ class PlanController
                 empty($_POST['nombre']) || empty($_POST['tipo_plan']) ||
                 !isset($_POST['precio_mensual']) || !isset($_POST['moneda'])
             ) {
-
                 $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
                 $this->redirectTo("plan/crear");
-                exit();
+                return;
             }
 
-            try {
-                // Crear y configurar el objeto Plan
-                $plan = new Plan();
-                $plan->setNombre($_POST['nombre']);
-                $plan->setDescripcion($_POST['descripcion'] ?? '');
-                $plan->setTipoPlan($_POST['tipo_plan']);
-                $plan->setPrecioMensual($_POST['precio_mensual']);
-                $plan->setPrecioSemestral($_POST['precio_semestral'] ?? $_POST['precio_mensual']);
-                $plan->setPrecioAnual($_POST['precio_anual'] ?? $_POST['precio_mensual']);
-                $plan->setMoneda($_POST['moneda']);
-                $plan->setMaxUsuarios($_POST['max_usuarios'] ?? 1);
-                $plan->setMaxArtistas($_POST['max_artistas'] ?? 5);
-                $plan->setMaxEventos($_POST['max_eventos'] ?? 10);
+            // Crear y configurar el objeto Plan
+            $plan = new Plan();
+            $plan->setNombre($_POST['nombre']);
+            $plan->setDescripcion($_POST['descripcion'] ?? '');
+            $plan->setTipoPlan($_POST['tipo_plan']);
+            $plan->setPrecioMensual($_POST['precio_mensual']);
+            $plan->setPrecioSemestral($_POST['precio_semestral'] ?? $_POST['precio_mensual']);
+            $plan->setPrecioAnual($_POST['precio_anual'] ?? $_POST['precio_mensual']);
+            $plan->setMoneda($_POST['moneda']);
+            $plan->setMaxUsuarios($_POST['max_usuarios'] ?? 1);
+            $plan->setMaxArtistas($_POST['max_artistas'] ?? 5);
+            $plan->setMaxEventos($_POST['max_eventos'] ?? 10);
 
+            // Procesar características
+            $caracteristicas = [
+                'soporte_prioritario' => isset($_POST['soporte_prioritario']) ? true : false,
+                'soporte_telefonico' => isset($_POST['soporte_telefonico']) ? true : false,
+                'copias_seguridad' => isset($_POST['copias_seguridad']) ? true : false,
+                'importar_contactos' => isset($_POST['importar_contactos']) ? true : false,
+                'exportar_pdf' => isset($_POST['exportar_pdf']) ? true : false,
+                'reportes_avanzados' => isset($_POST['reportes_avanzados']) ? true : false
+            ];
 
-                // Procesar características (actualizadas según la estructura de la base de datos)
-                $caracteristicas = [
-                    'soporte_prioritario' => isset($_POST['soporte_prioritario']) ? true : false,
-                    'soporte_telefonico' => isset($_POST['soporte_telefonico']) ? true : false,
-                    'copias_seguridad' => isset($_POST['copias_seguridad']) ? true : false,
-                    'importar_contactos' => isset($_POST['importar_contactos']) ? true : false,
-                    'exportar_pdf' => isset($_POST['exportar_pdf']) ? true : false,
-                    'reportes_avanzados' => isset($_POST['reportes_avanzados']) ? true : false
-                ];
+            // Si hay características personalizadas, agregarlas
+            if (!empty($_POST['caracteristicas_adicionales'])) {
+                $caracteristicas['adicionales'] = $_POST['caracteristicas_adicionales'];
+            }
 
-                // Si hay características personalizadas, agregarlas
-                if (!empty($_POST['caracteristicas_adicionales'])) {
-                    $caracteristicas['adicionales'] = $_POST['caracteristicas_adicionales'];
-                }
+            $plan->setCaracteristicas(json_encode($caracteristicas));
+            $plan->setEstado($_POST['estado'] ?? 'Activo');
+            $plan->setVisible($_POST['visible'] ?? 'Si');
 
-                $plan->setCaracteristicas(json_encode($caracteristicas));
-                $plan->setEstado($_POST['estado'] ?? 'Activo');
-                $plan->setVisible($_POST['visible'] ?? 'Si');
+            // Guardar el plan
+            $resultado = $plan->save();
 
-                // Guardar el plan
-                $resultado = $plan->save();
-
-                if ($resultado) {
-                    $_SESSION['success_message'] = "Plan creado correctamente";
-                    $this->redirectTo("plan/index");
-                } else {
-                    $_SESSION['error_message'] = "Error al crear el plan";
-                    $this->redirectTo("plan/crear");
-                }
-            } catch (Exception $e) {
-                // Registrar el error
-                error_log("Error guardando plan: " . $e->getMessage());
-                $_SESSION['error_message'] = "Error al crear el plan: " . $e->getMessage();
+            if ($resultado) {
+                $_SESSION['success_message'] = "Plan creado correctamente";
+                $this->redirectTo("plan/index");
+            } else {
+                $_SESSION['error_message'] = "Error al crear el plan. Verifique los registros del servidor.";
                 $this->redirectTo("plan/crear");
             }
-        } else {
-            // Si no es POST, redirigir al formulario
+        } catch (Exception $e) {
+            // Registrar el error
+            error_log("Error guardando plan: " . $e->getMessage());
+            $_SESSION['error_message'] = "Error al crear el plan: " . $e->getMessage();
             $this->redirectTo("plan/crear");
         }
     }
@@ -144,11 +136,6 @@ class PlanController
      */
     private function redirectTo($path)
     {
-        // Limpiar el buffer de salida
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
-
         // Verificar que no se hayan enviado headers aún
         if (!headers_sent()) {
             header("Location: " . base_url . $path);
@@ -210,19 +197,18 @@ class PlanController
      */
     public function update()
     {
-        // Iniciar buffer de salida
-        ob_start();
-
-        // Verificar si se ha enviado el formulario
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        try {
+            // Verificar si se ha enviado el formulario
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $this->redirectTo("plan/index");
+                return;
+            }
 
             // Verificar token CSRF
-            if (isset($_POST['csrf_token'])) {
-                if (!validateCsrfToken($_POST['csrf_token'])) {
-                    $_SESSION['error_message'] = "Error de seguridad: token inválido";
-                    $this->redirectTo("plan/index");
-                    return;
-                }
+            if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+                $_SESSION['error_message'] = "Error de seguridad: token inválido";
+                $this->redirectTo("plan/index");
+                return;
             }
 
             // Verificar ID del plan
@@ -257,8 +243,7 @@ class PlanController
             $planObj->setMaxArtistas($_POST['max_artistas'] ?? 5);
             $planObj->setMaxEventos($_POST['max_eventos'] ?? 10);
 
-
-            // Procesar características (actualizadas según la estructura de la base de datos)
+            // Procesar características
             $caracteristicas = [
                 'soporte_prioritario' => isset($_POST['soporte_prioritario']) ? true : false,
                 'soporte_telefonico' => isset($_POST['soporte_telefonico']) ? true : false,
@@ -287,8 +272,10 @@ class PlanController
                 $_SESSION['error_message'] = "Error al actualizar el plan";
                 $this->redirectTo("plan/editar/" . $id);
             }
-        } else {
-            // Si no es POST, redirigir al listado
+        } catch (Exception $e) {
+            // Registrar el error
+            error_log("Error actualizando plan: " . $e->getMessage());
+            $_SESSION['error_message'] = "Error al actualizar el plan: " . $e->getMessage();
             $this->redirectTo("plan/index");
         }
     }

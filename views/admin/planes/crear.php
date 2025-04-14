@@ -31,7 +31,7 @@ if (!isAdminLoggedIn()) {
             <?php endif; ?>
 
             <!-- Formulario de creación de plan -->
-            <form id="formCrearPlan" class="form-horizontal" method="post" action="<?= base_url ?>plan/save">
+            <form id="formCrearPlan" class="form-horizontal" method="post" action="<?= base_url ?>plan/guardar">
                 <!-- Token CSRF para seguridad -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 
