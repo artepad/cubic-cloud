@@ -36,7 +36,7 @@ if (!isset($plan) || !$plan) {
             <?php endif; ?>
 
             <!-- Formulario de edición de plan -->
-            <form id="formEditarPlan" class="form-horizontal" method="post" action="<?= base_url ?>plan/update">
+            <form id="formEditarPlan" class="form-horizontal" method="post" action="<?= base_url ?>plan/actualizar">
                 <!-- Token CSRF para seguridad -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                 <input type="hidden" name="id" value="<?= $plan->id ?>">

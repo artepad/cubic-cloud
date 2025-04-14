@@ -96,7 +96,7 @@ if (!isAdminLoggedIn()) {
                                             <i class="fa fa-eye"></i>
                                         </a>
                                         
-                                        <a href="<?= base_url ?>plan/editar?id=<?= $plan->id ?>" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
+                                        <a href="<?= base_url ?>plan/editar/<?= $plan->id ?>" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
                                             <i class="fa fa-pencil"></i>
                                         </a>
                                         

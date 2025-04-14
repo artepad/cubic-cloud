@@ -195,7 +195,7 @@ class PlanController
     /**
      * Procesa el formulario de edición de plan
      */
-    public function update()
+    public function actualizar()
     {
         try {
             // Verificar si se ha enviado el formulario
@@ -283,7 +283,7 @@ class PlanController
     /**
      * Elimina un plan
      */
-    public function delete($id = null)
+    public function eliminar($id = null)
     {
         // Si se pasó un array de parámetros en lugar de un ID directo
         if (is_array($id) && isset($id['id'])) {

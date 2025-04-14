@@ -50,10 +50,10 @@ Router::add('empresa/ver/:id', 'EmpresaController', 'ver', 'auth');
 // Rutas para el controlador de Planes
 Router::add('plan/index', 'PlanController', 'index', 'auth');
 Router::add('plan/crear', 'PlanController', 'crear', 'auth');
-Router::add('plan/guardar', 'PlanController', 'guardar', 'auth');      // Corregido de 'guardar' a 'save'
+Router::add('plan/guardar', 'PlanController', 'guardar', 'auth');     
 Router::add('plan/editar/:id', 'PlanController', 'editar', 'auth');
-Router::add('plan/update', 'PlanController', 'update', 'auth');  // Corregido de 'actualizar' a 'update'
-Router::add('plan/delete/:id', 'PlanController', 'delete', 'auth'); // Corregido de 'eliminar' a 'delete'
+Router::add('plan/actualizar', 'PlanController', 'actualizar', 'auth'); 
+Router::add('plan/eliminar/:id', 'PlanController', 'eliminar', 'auth');
 Router::add('plan/cambiarEstado/:id/:estado', 'PlanController', 'cambiarEstado', 'auth');
 Router::add('plan/cambiarVisibilidad/:id/:visibilidad', 'PlanController', 'cambiarVisibilidad', 'auth');
 Router::add('plan/ver/:id', 'PlanController', 'ver', 'auth');
