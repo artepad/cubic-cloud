@@ -93,9 +93,9 @@ if (!isAdminLoggedIn()) {
                                 <div class="input-group">
                                     <span class="input-group-addon" id="simbolo-moneda">$</span>
                                     <input type="number" class="form-control" name="precio_mensual" id="precio_mensual" required 
-                                           step="0.01" min="0" placeholder="0.00">
+                                           min="0" placeholder="0">
                                 </div>
-                                <small class="help-block">Precio para facturación mensual</small>
+                                <small class="help-block">Precio para facturación mensual (valor entero sin decimales)</small>
                             </div>
                         </div>
                         <div class="form-group">
@@ -104,9 +104,9 @@ if (!isAdminLoggedIn()) {
                                 <div class="input-group">
                                     <span class="input-group-addon" id="simbolo-moneda-semestral">$</span>
                                     <input type="number" class="form-control" name="precio_semestral" id="precio_semestral" 
-                                           step="0.01" min="0" placeholder="0.00">
+                                           min="0" placeholder="0">
                                 </div>
-                                <small class="help-block">Precio mensual para facturación semestral (opcional)</small>
+                                <small class="help-block">Precio total para el período semestral (calculado automáticamente, pero puede modificarse)</small>
                             </div>
                         </div>
                         <div class="form-group">
@@ -115,9 +115,9 @@ if (!isAdminLoggedIn()) {
                                 <div class="input-group">
                                     <span class="input-group-addon" id="simbolo-moneda-anual">$</span>
                                     <input type="number" class="form-control" name="precio_anual" id="precio_anual" 
-                                           step="0.01" min="0" placeholder="0.00">
+                                           min="0" placeholder="0">
                                 </div>
-                                <small class="help-block">Precio mensual para facturación anual (opcional)</small>
+                                <small class="help-block">Precio total para el período anual (calculado automáticamente, pero puede modificarse)</small>
                             </div>
                         </div>
                     </div>
@@ -225,8 +225,8 @@ if (!isAdminLoggedIn()) {
                 </div>
 
                 <!-- Botones de acción -->
-                <div class="form-group m-b-0">
-                    <div class="col-md-offset-3 col-md-9">
+                <div class="form-group m-b-0 text-center">
+                    <div class="col-md-12">
                         <button type="submit" class="btn btn-success waves-effect waves-light">
                             <i class="fa fa-check"></i> Guardar Plan
                         </button>
@@ -272,25 +272,47 @@ document.addEventListener('DOMContentLoaded', function() {
     actualizarSimbolos();
     monedaSelect.addEventListener('change', actualizarSimbolos);
     
-    // Sugerir precios con descuento para semestral/anual
+    // Calcular precios semestral y anual cuando cambie el precio mensual
     const precioMensual = document.getElementById('precio_mensual');
     const precioSemestral = document.getElementById('precio_semestral');
     const precioAnual = document.getElementById('precio_anual');
     
-    precioMensual.addEventListener('change', function() {
-        // Sugerir 10% de descuento para semestral, 20% para anual
-        if (precioMensual.value && precioMensual.value > 0) {
-            if (!precioSemestral.value) {
-                const descuentoSemestral = parseFloat(precioMensual.value) * 0.9;
-                precioSemestral.value = descuentoSemestral.toFixed(2);
+    // Variable para rastrear si los precios fueron modificados manualmente
+    let precioSemestralModificado = false;
+    let precioAnualModificado = false;
+    
+    function calcularPrecios() {
+        if (precioMensual.value && !isNaN(precioMensual.value)) {
+            const valorMensual = parseInt(precioMensual.value);
+            
+            // Solo actualizar si no han sido modificados manualmente
+            if (!precioSemestralModificado) {
+                // Precio semestral: precio mensual * 6
+                precioSemestral.value = (valorMensual * 6);
             }
             
-            if (!precioAnual.value) {
-                const descuentoAnual = parseFloat(precioMensual.value) * 0.8;
-                precioAnual.value = descuentoAnual.toFixed(2);
+            if (!precioAnualModificado) {
+                // Precio anual: precio mensual * 12
+                precioAnual.value = (valorMensual * 12);
             }
+        } else {
+            if (!precioSemestralModificado) precioSemestral.value = '';
+            if (!precioAnualModificado) precioAnual.value = '';
         }
+    }
+    
+    // Detectar si los precios semestral o anual se modifican manualmente
+    precioSemestral.addEventListener('input', function() {
+        precioSemestralModificado = true;
     });
+    
+    precioAnual.addEventListener('input', function() {
+        precioAnualModificado = true;
+    });
+    
+    // Calcular precios al cargar y cuando cambie el precio mensual
+    calcularPrecios();
+    precioMensual.addEventListener('input', calcularPrecios);
     
     // Validar formulario antes de enviar
     document.getElementById('formCrearPlan').addEventListener('submit', function(e) {
@@ -368,5 +390,12 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 .checkbox input[type="checkbox"] {
     margin-left: -25px;
+}
+.text-center {
+    text-align: center;
+}
+.form-group.text-center button,
+.form-group.text-center a {
+    margin: 0 5px;
 }
 </style>
