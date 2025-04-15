@@ -148,7 +148,7 @@ class PlanController
         }
         exit();
     }
-    
+
     /**
      * Muestra el formulario para editar un plan existente
      */
@@ -329,7 +329,7 @@ class PlanController
             $id = null;
             $estado = null;
         } else if ($id === null || $estado === null) {
-            // Para mantener compatibilidad con el formato anterior
+            // Para mantener compatibilidad con el formato anterior (query string)
             if (isset($_GET['id']) && isset($_GET['estado'])) {
                 $id = (int)$_GET['id'];
                 $estado = $_GET['estado'];
@@ -369,7 +369,7 @@ class PlanController
     {
         // Título de la página
         $pageTitle = "Detalles del Plan";
-        
+
         // Si se pasó un array de parámetros en lugar de un ID directo
         if (is_array($id) && isset($id['id'])) {
             $id = (int)$id['id'];

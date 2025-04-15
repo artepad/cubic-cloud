@@ -10,7 +10,7 @@ if (!isAdminLoggedIn()) {
         <div class="white-box">
             <h3 class="box-title">Gestión de Planes</h3>
             <p class="text-muted">Administra los planes de suscripción disponibles en el sistema</p>
-            
+
             <!-- Mensajes de éxito y error -->
             <?php if (isset($_SESSION['success_message'])): ?>
                 <div class="alert alert-success alert-dismissible">
@@ -36,7 +36,7 @@ if (!isAdminLoggedIn()) {
                     </a>
                 </div>
             </div>
-            
+
             <!-- Tabla de planes -->
             <div class="table-responsive">
                 <table class="table table-striped">
@@ -65,9 +65,15 @@ if (!isAdminLoggedIn()) {
                                         <?php
                                         $simbolo = '';
                                         switch ($plan->moneda) {
-                                            case 'CLP': $simbolo = '$'; break;
-                                            case 'USD': $simbolo = 'US$'; break;
-                                            case 'EUR': $simbolo = '€'; break;
+                                            case 'CLP':
+                                                $simbolo = '$';
+                                                break;
+                                            case 'USD':
+                                                $simbolo = 'US$';
+                                                break;
+                                            case 'EUR':
+                                                $simbolo = '€';
+                                                break;
                                         }
                                         echo $simbolo . number_format($plan->precio_mensual, 0, ',', '.');
                                         ?>
@@ -79,9 +85,15 @@ if (!isAdminLoggedIn()) {
                                         <?php
                                         $estado_class = '';
                                         switch ($plan->estado) {
-                                            case 'Activo': $estado_class = 'label-success'; break;
-                                            case 'Inactivo': $estado_class = 'label-warning'; break;
-                                            case 'Descontinuado': $estado_class = 'label-danger'; break;
+                                            case 'Activo':
+                                                $estado_class = 'label-success';
+                                                break;
+                                            case 'Inactivo':
+                                                $estado_class = 'label-warning';
+                                                break;
+                                            case 'Descontinuado':
+                                                $estado_class = 'label-danger';
+                                                break;
                                         }
                                         ?>
                                         <span class="label <?= $estado_class ?>"><?= $plan->estado ?></span>
@@ -95,11 +107,11 @@ if (!isAdminLoggedIn()) {
                                         <a href="<?= base_url ?>plan/ver/<?= $plan->id ?>" class="btn btn-info btn-circle" data-toggle="tooltip" data-original-title="Ver detalles">
                                             <i class="fa fa-eye"></i>
                                         </a>
-                                        
+
                                         <a href="<?= base_url ?>plan/editar/<?= $plan->id ?>" class="btn btn-warning btn-circle" data-toggle="tooltip" data-original-title="Editar">
                                             <i class="fa fa-pencil"></i>
                                         </a>
-                                        
+
                                         <?php if ($plan->estado == 'Activo'): ?>
                                             <a href="javascript:void(0);" onclick="confirmarCambioEstado(<?= $plan->id ?>, 'Inactivo')" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Desactivar">
                                                 <i class="fa fa-ban"></i>
@@ -109,7 +121,7 @@ if (!isAdminLoggedIn()) {
                                                 <i class="fa fa-check"></i>
                                             </a>
                                         <?php endif; ?>
-                                        
+
                                         <a href="javascript:void(0);" onclick="confirmarEliminar(<?= $plan->id ?>)" class="btn btn-danger btn-circle" data-toggle="tooltip" data-original-title="Eliminar">
                                             <i class="fa fa-trash"></i>
                                         </a>
@@ -136,7 +148,8 @@ if (!isAdminLoggedIn()) {
             $('[data-toggle="tooltip"]').tooltip();
         }
     });
-    
+
+
     // Confirmar cambio de estado
     function confirmarCambioEstado(id, nuevoEstado) {
         var mensaje = '';
@@ -147,16 +160,17 @@ if (!isAdminLoggedIn()) {
         } else {
             mensaje = '¿Estás seguro de que deseas cambiar el estado del plan a ' + nuevoEstado + '?';
         }
-        
+
         if (confirm(mensaje)) {
-            window.location.href = '<?= base_url ?>plan/cambiarEstado?id=' + id + '&estado=' + nuevoEstado;
+            // URL en formato compatible con las rutas definidas
+            window.location.href = '<?= base_url ?>plan/cambiarEstado/' + id + '/' + nuevoEstado;
         }
     }
-    
+
     // Confirmar eliminación
     function confirmarEliminar(id) {
         if (confirm('¿Estás seguro de que deseas eliminar este plan? Esta acción no se puede deshacer.')) {
-            window.location.href = '<?= base_url ?>plan/delete?id=' + id;
+            window.location.href = '<?= base_url ?>plan/eliminar/' + id;
         }
     }
 </script>
