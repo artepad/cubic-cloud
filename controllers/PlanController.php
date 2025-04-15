@@ -407,20 +407,20 @@ class PlanController
     /**
      * Cambia la visibilidad de un plan (Si, No)
      */
-    public function cambiarVisibilidad($id = null, $visible = null)
+    public function cambiarVisibilidad($id = null, $visibilidad = null)
     {
-        // Si se pasó un array de parámetros en lugar de ID y visible directos
+        // Si se pasó un array de parámetros en lugar de ID y visibilidad directos
         if (is_array($id) && isset($id['id']) && isset($id['visibilidad'])) {
-            $visible = $id['visibilidad'];
+            $visibilidad = $id['visibilidad'];
             $id = (int)$id['id'];
         } elseif (is_array($id)) {
             $id = null;
-            $visible = null;
-        } else if ($id === null || $visible === null) {
+            $visibilidad = null;
+        } else if ($id === null || $visibilidad === null) {
             // Para mantener compatibilidad con el formato anterior
-            if (isset($_GET['id']) && isset($_GET['visible'])) {
+            if (isset($_GET['id']) && isset($_GET['visibilidad'])) {
                 $id = (int)$_GET['id'];
-                $visible = $_GET['visible'];
+                $visibilidad = $_GET['visibilidad'];
             } else {
                 $_SESSION['error_message'] = "Parámetros insuficientes";
                 $this->redirectTo("plan/index");
@@ -429,14 +429,14 @@ class PlanController
         }
 
         // Validar visibilidad
-        if ($visible !== 'Si' && $visible !== 'No') {
+        if ($visibilidad !== 'Si' && $visibilidad !== 'No') {
             $_SESSION['error_message'] = "Valor de visibilidad no válido";
             $this->redirectTo("plan/index");
             return;
         }
 
         // Cambiar visibilidad
-        $resultado = $this->planModel->cambiarVisibilidad($id, $visible);
+        $resultado = $this->planModel->cambiarVisibilidad($id, $visibilidad);
 
         if ($resultado) {
             $_SESSION['success_message'] = "Visibilidad del plan actualizada correctamente";

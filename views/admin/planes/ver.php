@@ -94,9 +94,15 @@ if (!isset($plan->caracteristicas_array) && isset($plan->caracteristicas)) {
                         // Determinar símbolo de moneda
                         $simbolo = '';
                         switch ($plan->moneda) {
-                            case 'CLP': $simbolo = '$'; break;
-                            case 'USD': $simbolo = 'US$'; break;
-                            case 'EUR': $simbolo = '€'; break;
+                            case 'CLP':
+                                $simbolo = '$';
+                                break;
+                            case 'USD':
+                                $simbolo = 'US$';
+                                break;
+                            case 'EUR':
+                                $simbolo = '€';
+                                break;
                         }
                         ?>
 
@@ -178,7 +184,7 @@ if (!isset($plan->caracteristicas_array) && isset($plan->caracteristicas)) {
                             <div class="col-md-12">
                                 <ul class="list-group">
                                     <?php if (isset($plan->caracteristicas_array)): ?>
-                                        <?php 
+                                        <?php
                                         // Mostrar características principales
                                         $caracteristicas = [
                                             'soporte_prioritario' => 'Soporte Prioritario',
@@ -188,33 +194,33 @@ if (!isset($plan->caracteristicas_array) && isset($plan->caracteristicas)) {
                                             'exportar_pdf' => 'Exportar a PDF',
                                             'reportes_avanzados' => 'Reportes Avanzados'
                                         ];
-                                        
-                                        foreach ($caracteristicas as $key => $label): 
+
+                                        foreach ($caracteristicas as $key => $label):
                                             if (isset($plan->caracteristicas_array[$key]) && $plan->caracteristicas_array[$key]):
                                         ?>
-                                            <li class="list-group-item">
-                                                <i class="fa fa-check text-success"></i> <?= $label ?>
-                                            </li>
-                                        <?php 
+                                                <li class="list-group-item">
+                                                    <i class="fa fa-check text-success"></i> <?= $label ?>
+                                                </li>
+                                            <?php
                                             else:
-                                        ?>
-                                            <li class="list-group-item">
-                                                <i class="fa fa-times text-danger"></i> <?= $label ?>
-                                            </li>
-                                        <?php 
+                                            ?>
+                                                <li class="list-group-item">
+                                                    <i class="fa fa-times text-danger"></i> <?= $label ?>
+                                                </li>
+                                                <?php
                                             endif;
-                                        endforeach; 
-                                        
+                                        endforeach;
+
                                         // Mostrar características adicionales si existen
                                         if (isset($plan->caracteristicas_array['adicionales']) && !empty($plan->caracteristicas_array['adicionales'])):
                                             $adicionales = explode(',', $plan->caracteristicas_array['adicionales']);
                                             foreach ($adicionales as $adicional):
                                                 if (trim($adicional) !== ''):
-                                        ?>
-                                            <li class="list-group-item">
-                                                <i class="fa fa-check text-success"></i> <?= htmlspecialchars(trim($adicional)) ?>
-                                            </li>
-                                        <?php 
+                                                ?>
+                                                    <li class="list-group-item">
+                                                        <i class="fa fa-check text-success"></i> <?= htmlspecialchars(trim($adicional)) ?>
+                                                    </li>
+                                        <?php
                                                 endif;
                                             endforeach;
                                         endif;
@@ -236,12 +242,18 @@ if (!isset($plan->caracteristicas_array) && isset($plan->caracteristicas)) {
                                     <label class="control-label col-md-4">Estado:</label>
                                     <div class="col-md-8">
                                         <p class="form-control-static">
-                                            <?php 
+                                            <?php
                                             $estado_class = '';
                                             switch ($plan->estado) {
-                                                case 'Activo': $estado_class = 'label-success'; break;
-                                                case 'Inactivo': $estado_class = 'label-warning'; break;
-                                                case 'Descontinuado': $estado_class = 'label-danger'; break;
+                                                case 'Activo':
+                                                    $estado_class = 'label-success';
+                                                    break;
+                                                case 'Inactivo':
+                                                    $estado_class = 'label-warning';
+                                                    break;
+                                                case 'Descontinuado':
+                                                    $estado_class = 'label-danger';
+                                                    break;
                                             }
                                             ?>
                                             <span class="label <?= $estado_class ?>"><?= $plan->estado ?></span>
@@ -298,21 +310,21 @@ if (!isset($plan->caracteristicas_array) && isset($plan->caracteristicas)) {
                                             <li><a href="<?= base_url ?>plan/editar/<?= $plan->id ?>" style="color: #333;"><i class="fa fa-pencil"></i> Editar</a></li>
                                             <?php if ($plan->estado == 'Activo'): ?>
                                                 <li><a href="<?= base_url ?>plan/cambiarEstado/<?= $plan->id ?>/Inactivo" class="text-danger" onclick="return confirm('¿Está seguro que desea desactivar este plan?')">
-                                                    <i class="fa fa-ban"></i> Desactivar
-                                                </a></li>
+                                                        <i class="fa fa-ban"></i> Desactivar
+                                                    </a></li>
                                             <?php else: ?>
                                                 <li><a href="<?= base_url ?>plan/cambiarEstado/<?= $plan->id ?>/Activo" class="text-success" onclick="return confirm('¿Está seguro que desea activar este plan?')">
-                                                    <i class="fa fa-check"></i> Activar
-                                                </a></li>
+                                                        <i class="fa fa-check"></i> Activar
+                                                    </a></li>
                                             <?php endif; ?>
                                             <?php if ($plan->visible == 'Si'): ?>
                                                 <li><a href="<?= base_url ?>plan/cambiarVisibilidad/<?= $plan->id ?>/No" class="text-danger" onclick="return confirm('¿Está seguro que desea ocultar este plan?')">
-                                                    <i class="fa fa-eye-slash"></i> Ocultar
-                                                </a></li>
+                                                        <i class="fa fa-eye-slash"></i> Ocultar
+                                                    </a></li>
                                             <?php else: ?>
                                                 <li><a href="<?= base_url ?>plan/cambiarVisibilidad/<?= $plan->id ?>/Si" class="text-success" onclick="return confirm('¿Está seguro que desea hacer visible este plan?')">
-                                                    <i class="fa fa-eye"></i> Hacer visible
-                                                </a></li>
+                                                        <i class="fa fa-eye"></i> Hacer visible
+                                                    </a></li>
                                             <?php endif; ?>
                                         </ul>
                                     </div>
@@ -343,30 +355,30 @@ if (!isset($plan->caracteristicas_array) && isset($plan->caracteristicas)) {
 
 <!-- Estilos personalizados -->
 <style>
-.panel-info > .panel-heading {
-    background-color: #41b3f9;
-    border-color: #41b3f9;
-    color: #fff;
-}
+    .panel-info>.panel-heading {
+        background-color: #41b3f9;
+        border-color: #41b3f9;
+        color: #fff;
+    }
 
-.box-title {
-    font-weight: 600;
-    font-size: 18px;
-    margin-bottom: 5px;
-}
+    .box-title {
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
 
-.form-control-static {
-    min-height: auto;
-    padding-top: 0;
-    font-size: 14px;
-}
+    .form-control-static {
+        min-height: auto;
+        padding-top: 0;
+        font-size: 14px;
+    }
 
-.list-group-item {
-    border-radius: 0;
-    padding: 10px 15px;
-}
+    .list-group-item {
+        border-radius: 0;
+        padding: 10px 15px;
+    }
 
-.list-group-item i {
-    margin-right: 10px;
-}
+    .list-group-item i {
+        margin-right: 10px;
+    }
 </style>
