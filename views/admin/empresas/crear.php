@@ -39,7 +39,7 @@ $planes = $plan_model->getPlanesPublicados();
             <?php endif; ?>
 
             <!-- Formulario de creación de empresa -->
-            <form id="formCrearEmpresa" class="form-horizontal" method="post" action="<?= base_url ?>empresa/guardar" enctype="multipart/form-data">    
+            <form id="formCrearEmpresa" class="form-horizontal" method="post" action="<?= base_url ?>empresa/guardar" enctype="multipart/form-data">
                 <!-- Token CSRF para seguridad -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 
@@ -78,40 +78,40 @@ $planes = $plan_model->getPlanesPublicados();
                         <div class="form-group">
                             <label class="col-md-3 control-label">Nombre <span class="text-danger">*</span></label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="nombre" id="nombre" required 
-                                       placeholder="Nombre o razón social de la empresa">
+                                <input type="text" class="form-control" name="nombre" id="nombre" required
+                                    placeholder="Nombre o razón social de la empresa">
                                 <small class="help-block">Nombre oficial o razón social de la empresa</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Identificación Fiscal</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="identificacion_fiscal" id="identificacion_fiscal" 
-                                       placeholder="RUT, NIF, EIN, etc.">
+                                <input type="text" class="form-control" name="identificacion_fiscal" id="identificacion_fiscal"
+                                    placeholder="RUT, NIF, EIN, etc.">
                                 <small class="help-block">Identificación fiscal según el país (RUT, NIF, EIN, etc.)</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Dirección <span class="text-danger">*</span></label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="direccion" id="direccion" required 
-                                       placeholder="Dirección física de la empresa">
+                                <input type="text" class="form-control" name="direccion" id="direccion" required
+                                    placeholder="Dirección física de la empresa">
                                 <small class="help-block">Dirección completa, incluyendo ciudad y código postal</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Teléfono</label>
                             <div class="col-md-6">
-                                <input type="tel" class="form-control" name="telefono" id="telefono" 
-                                       placeholder="+56 9 1234 5678">
+                                <input type="tel" class="form-control" name="telefono" id="telefono"
+                                    placeholder="+56 9 1234 5678">
                                 <small class="help-block">Número de contacto principal de la empresa</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Email de Contacto</label>
                             <div class="col-md-6">
-                                <input type="email" class="form-control" name="email_contacto" id="email_contacto" 
-                                       placeholder="contacto@empresa.com">
+                                <input type="email" class="form-control" name="email_contacto" id="email_contacto"
+                                    placeholder="contacto@empresa.com">
                                 <small class="help-block">Email de contacto principal</small>
                             </div>
                         </div>
@@ -151,46 +151,46 @@ $planes = $plan_model->getPlanesPublicados();
                         <div class="form-group">
                             <label class="col-md-3 control-label">Razón Social</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="razon_social_facturacion" id="razon_social_facturacion" 
-                                       placeholder="Razón social para facturación">
+                                <input type="text" class="form-control" name="razon_social_facturacion" id="razon_social_facturacion"
+                                    placeholder="Razón social para facturación">
                                 <small class="help-block">Nombre para facturación (si es diferente al nombre de la empresa)</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Dirección de Facturación</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="direccion_facturacion" id="direccion_facturacion" 
-                                       placeholder="Dirección para facturación">
+                                <input type="text" class="form-control" name="direccion_facturacion" id="direccion_facturacion"
+                                    placeholder="Dirección para facturación">
                                 <small class="help-block">Dirección a la que se enviarán las facturas</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Ciudad</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="ciudad_facturacion" id="ciudad_facturacion" 
-                                       placeholder="Ciudad para facturación">
+                                <input type="text" class="form-control" name="ciudad_facturacion" id="ciudad_facturacion"
+                                    placeholder="Ciudad para facturación">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Código Postal</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="codigo_postal" id="codigo_postal" 
-                                       placeholder="Código postal para facturación">
+                                <input type="text" class="form-control" name="codigo_postal" id="codigo_postal"
+                                    placeholder="Código postal para facturación">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Email de Facturación</label>
                             <div class="col-md-6">
-                                <input type="email" class="form-control" name="email_facturacion" id="email_facturacion" 
-                                       placeholder="facturacion@empresa.com">
+                                <input type="email" class="form-control" name="email_facturacion" id="email_facturacion"
+                                    placeholder="facturacion@empresa.com">
                                 <small class="help-block">Email al que se enviarán los comprobantes de pago</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Contacto de Facturación</label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="contacto_facturacion" id="contacto_facturacion" 
-                                       placeholder="Nombre del contacto para facturación">
+                                <input type="text" class="form-control" name="contacto_facturacion" id="contacto_facturacion"
+                                    placeholder="Nombre del contacto para facturación">
                                 <small class="help-block">Persona de contacto para temas de facturación</small>
                             </div>
                         </div>
@@ -301,15 +301,15 @@ $planes = $plan_model->getPlanesPublicados();
                             <div class="form-group">
                                 <label class="col-md-3 control-label">Inicio de Demo</label>
                                 <div class="col-md-6">
-                                    <input type="date" class="form-control" name="demo_inicio" id="demo_inicio" 
-                                           value="<?= date('Y-m-d') ?>">
+                                    <input type="date" class="form-control" name="demo_inicio" id="demo_inicio"
+                                        value="<?= date('Y-m-d') ?>">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-md-3 control-label">Fin de Demo</label>
                                 <div class="col-md-6">
-                                    <input type="date" class="form-control" name="demo_fin" id="demo_fin" 
-                                           value="<?= date('Y-m-d', strtotime('+30 days')) ?>">
+                                    <input type="date" class="form-control" name="demo_fin" id="demo_fin"
+                                        value="<?= date('Y-m-d', strtotime('+30 days')) ?>">
                                 </div>
                             </div>
                         </div>
@@ -317,8 +317,8 @@ $planes = $plan_model->getPlanesPublicados();
                 </div>
 
                 <!-- Botones de acción -->
-                <div class="form-group m-b-0">
-                    <div class="col-md-offset-3 col-md-9">
+                <div class="form-group m-b-0 text-center">
+                    <div class="col-md-12">
                         <button type="submit" class="btn btn-success waves-effect waves-light">
                             <i class="fa fa-check"></i> Guardar Empresa
                         </button>
@@ -334,119 +334,138 @@ $planes = $plan_model->getPlanesPublicados();
 
 <!-- JavaScript para la validación y comportamiento del formulario -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Cambiar el código de país automáticamente al seleccionar un país
-    const paisSelect = document.getElementById('pais');
-    const codigoPaisInput = document.getElementById('codigo_pais');
-    
-    paisSelect.addEventListener('change', function() {
-        const selectedOption = paisSelect.options[paisSelect.selectedIndex];
-        const codigoPais = selectedOption.getAttribute('data-codigo');
-        codigoPaisInput.value = codigoPais || '';
-    });
-    
-    // Mostrar/ocultar fechas de demo
-    const esDemo = document.getElementById('es_demo');
-    const demoFechas = document.getElementById('demo_fechas');
-    
-    esDemo.addEventListener('change', function() {
-        demoFechas.style.display = esDemo.checked ? 'block' : 'none';
-    });
-    
-    // Validar formulario antes de enviar
-    document.getElementById('formCrearEmpresa').addEventListener('submit', function(e) {
-        const nombre = document.getElementById('nombre').value.trim();
-        const usuarioId = document.getElementById('usuario_id').value;
-        const direccion = document.getElementById('direccion').value.trim();
-        const pais = document.getElementById('pais').value;
-        const planId = document.getElementById('plan_id').value;
-        
-        let isValid = true;
-        let errorMessage = '';
-        
-        // Validar campos obligatorios
-        if (!nombre) {
-            errorMessage = 'El nombre de la empresa es obligatorio';
-            isValid = false;
-        } else if (!usuarioId) {
-            errorMessage = 'Debe seleccionar un administrador';
-            isValid = false;
-        } else if (!direccion) {
-            errorMessage = 'La dirección es obligatoria';
-            isValid = false;
-        } else if (!pais) {
-            errorMessage = 'Debe seleccionar un país';
-            isValid = false;
-        } else if (!planId) {
-            errorMessage = 'Debe seleccionar un plan';
-            isValid = false;
-        }
-        
-        // Validar fechas de demo si es cuenta demo
-        if (esDemo.checked) {
-            const demoInicio = new Date(document.getElementById('demo_inicio').value);
-            const demoFin = new Date(document.getElementById('demo_fin').value);
-            
-            if (demoFin <= demoInicio) {
-                errorMessage = 'La fecha de fin de demo debe ser posterior a la fecha de inicio';
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cambiar el código de país automáticamente al seleccionar un país
+        const paisSelect = document.getElementById('pais');
+        const codigoPaisInput = document.getElementById('codigo_pais');
+
+        paisSelect.addEventListener('change', function() {
+            const selectedOption = paisSelect.options[paisSelect.selectedIndex];
+            const codigoPais = selectedOption.getAttribute('data-codigo');
+            codigoPaisInput.value = codigoPais || '';
+        });
+
+        // Mostrar/ocultar fechas de demo
+        const esDemo = document.getElementById('es_demo');
+        const demoFechas = document.getElementById('demo_fechas');
+
+        esDemo.addEventListener('change', function() {
+            demoFechas.style.display = esDemo.checked ? 'block' : 'none';
+        });
+
+        // Validar formulario antes de enviar
+        document.getElementById('formCrearEmpresa').addEventListener('submit', function(e) {
+            const nombre = document.getElementById('nombre').value.trim();
+            const usuarioId = document.getElementById('usuario_id').value;
+            const direccion = document.getElementById('direccion').value.trim();
+            const pais = document.getElementById('pais').value;
+            const planId = document.getElementById('plan_id').value;
+
+            let isValid = true;
+            let errorMessage = '';
+
+            // Validar campos obligatorios
+            if (!nombre) {
+                errorMessage = 'El nombre de la empresa es obligatorio';
+                isValid = false;
+            } else if (!usuarioId) {
+                errorMessage = 'Debe seleccionar un administrador';
+                isValid = false;
+            } else if (!direccion) {
+                errorMessage = 'La dirección es obligatoria';
+                isValid = false;
+            } else if (!pais) {
+                errorMessage = 'Debe seleccionar un país';
+                isValid = false;
+            } else if (!planId) {
+                errorMessage = 'Debe seleccionar un plan';
                 isValid = false;
             }
-        }
-        
-        if (!isValid) {
-            e.preventDefault();
-            alert(errorMessage);
-            return false;
-        }
+
+            // Validar fechas de demo si es cuenta demo
+            if (esDemo.checked) {
+                const demoInicio = new Date(document.getElementById('demo_inicio').value);
+                const demoFin = new Date(document.getElementById('demo_fin').value);
+
+                if (demoFin <= demoInicio) {
+                    errorMessage = 'La fecha de fin de demo debe ser posterior a la fecha de inicio';
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                alert(errorMessage);
+                return false;
+            }
+        });
     });
-});
 </script>
 
 <!-- Estilos personalizados -->
 <style>
-.panel {
-    border-radius: 5px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-}
-.panel-heading {
-    background-color: #f5f5f5;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-}
-.panel-title {
-    margin: 0;
-    font-size: 16px;
-    color: #333;
-    font-weight: 600;
-}
-.panel-body {
-    padding: 15px;
-}
-.form-group {
-    margin-bottom: 20px;
-}
-.control-label {
-    text-align: right;
-    padding-top: 7px;
-}
-.help-block {
-    font-size: 12px;
-    color: #737373;
-    margin-top: 5px;
-}
-.text-danger {
-    color: #f33155;
-}
-.checkbox {
-    margin-top: 0;
-}
-.checkbox label {
-    padding-left: 25px;
-}
-.checkbox input[type="checkbox"] {
-    margin-left: -25px;
-}
+    .panel {
+        border-radius: 5px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    }
+
+    .panel-heading {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .panel-title {
+        margin: 0;
+        font-size: 16px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .panel-body {
+        padding: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .control-label {
+        text-align: right;
+        padding-top: 7px;
+    }
+
+    .help-block {
+        font-size: 12px;
+        color: #737373;
+        margin-top: 5px;
+    }
+
+    .text-danger {
+        color: #f33155;
+    }
+
+    .checkbox {
+        margin-top: 0;
+    }
+
+    .checkbox label {
+        padding-left: 25px;
+    }
+
+    .checkbox input[type="checkbox"] {
+        margin-left: -25px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .form-group.text-center button,
+    .form-group.text-center a {
+        margin: 0 5px;
+    }
 </style>

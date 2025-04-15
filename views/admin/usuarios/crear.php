@@ -51,32 +51,32 @@ $pageTitle = "Crear Usuario";
                         <div class="form-group">
                             <label class="col-md-3 control-label">Nombre <span class="text-danger">*</span></label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="nombre" id="nombre" required 
-                                       placeholder="Ingrese el nombre">
+                                <input type="text" class="form-control" name="nombre" id="nombre" required
+                                    placeholder="Ingrese el nombre">
                                 <small class="help-block">Nombre del usuario</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Apellido <span class="text-danger">*</span></label>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" name="apellido" id="apellido" required 
-                                       placeholder="Ingrese el apellido">
+                                <input type="text" class="form-control" name="apellido" id="apellido" required
+                                    placeholder="Ingrese el apellido">
                                 <small class="help-block">Apellido del usuario</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Email <span class="text-danger">*</span></label>
                             <div class="col-md-6">
-                                <input type="email" class="form-control" name="email" id="email" required 
-                                       placeholder="ejemplo@dominio.com">
+                                <input type="email" class="form-control" name="email" id="email" required
+                                    placeholder="ejemplo@dominio.com">
                                 <small class="help-block">Esta dirección se usará para iniciar sesión y recuperar contraseña</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-3 control-label">Teléfono</label>
                             <div class="col-md-6">
-                                <input type="tel" class="form-control" name="telefono" id="telefono" 
-                                       placeholder="+56 9 1234 5678">
+                                <input type="tel" class="form-control" name="telefono" id="telefono"
+                                    placeholder="+56 9 1234 5678">
                                 <small class="help-block">Opcional: Número de contacto</small>
                             </div>
                         </div>
@@ -116,8 +116,8 @@ $pageTitle = "Crear Usuario";
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <input type="text" class="form-control" name="numero_identificacion" id="numero_identificacion" 
-                                       placeholder="Número de identificación">
+                                <input type="text" class="form-control" name="numero_identificacion" id="numero_identificacion"
+                                    placeholder="Número de identificación">
                             </div>
                         </div>
                     </div>
@@ -136,7 +136,7 @@ $pageTitle = "Crear Usuario";
                                 <small class="help-block">Este usuario tendrá permisos de administrador</small>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="col-md-3 control-label">Estado <span class="text-danger">*</span></label>
                             <div class="col-md-6">
@@ -147,7 +147,7 @@ $pageTitle = "Crear Usuario";
                                 <small class="help-block">El usuario inactivo no podrá iniciar sesión</small>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="col-md-3 control-label">Contraseña <span class="text-danger">*</span></label>
                             <div class="col-md-6">
@@ -168,7 +168,7 @@ $pageTitle = "Crear Usuario";
                                 <small class="help-block">Mínimo 8 caracteres, debe incluir mayúsculas, minúsculas y números</small>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="col-md-3 control-label">Confirmar Contraseña <span class="text-danger">*</span></label>
                             <div class="col-md-6">
@@ -191,8 +191,8 @@ $pageTitle = "Crear Usuario";
 
 
                 <!-- Botones de acción -->
-                <div class="form-group m-b-0">
-                    <div class="col-md-offset-3 col-md-9">
+                <div class="form-group m-b-0 text-center">
+                    <div class="col-md-12">
                         <button type="submit" class="btn btn-success waves-effect waves-light">
                             <i class="fa fa-check"></i> Guardar Usuario
                         </button>
@@ -208,252 +208,333 @@ $pageTitle = "Crear Usuario";
 
 <!-- JavaScript para la validación y comportamiento del formulario -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Variables para los campos de contraseña
-    const password = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirm_password');
-    const passwordStrengthBar = document.getElementById('password-strength-bar');
-    const passwordStrengthText = document.getElementById('password-strength-text');
-    const passwordMatch = document.getElementById('password-match');
-    const togglePassword = document.getElementById('togglePassword');
-    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-    
-    // Mostrar/ocultar contraseña
-    togglePassword.addEventListener('click', function() {
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        this.querySelector('i').classList.toggle('fa-eye');
-        this.querySelector('i').classList.toggle('fa-eye-slash');
-    });
-    
-    toggleConfirmPassword.addEventListener('click', function() {
-        const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
-        confirmPassword.setAttribute('type', type);
-        this.querySelector('i').classList.toggle('fa-eye');
-        this.querySelector('i').classList.toggle('fa-eye-slash');
-    });
-    
-    // Función para actualizar los tipos de identificación según el país
-    function actualizarTiposIdentificacion() {
-        const pais = document.getElementById('pais').value;
-        const tipoIdentificacion = document.getElementById('tipo_identificacion');
-        
-        // Limpiar el select
-        tipoIdentificacion.innerHTML = '';
-        
-        // Definir opciones por país
-        const opciones = {
-            'Chile': [
-                {valor: 'RUT', texto: 'RUT (Chile)'}
-            ],
-            'Argentina': [
-                {valor: 'DNI', texto: 'DNI (Argentina)'},
-                {valor: 'CUIT', texto: 'CUIT'},
-                {valor: 'Pasaporte', texto: 'Pasaporte'}
-            ],
-            'Colombia': [
-                {valor: 'CC', texto: 'Cédula de Ciudadanía'},
-                {valor: 'CE', texto: 'Cédula de Extranjería'},
-                {valor: 'NIT', texto: 'NIT'},
-                {valor: 'Pasaporte', texto: 'Pasaporte'}
-            ],
-            'México': [
-                {valor: 'CURP', texto: 'CURP'},
-                {valor: 'RFC', texto: 'RFC'},
-                {valor: 'Pasaporte', texto: 'Pasaporte'}
-            ],
-            'Perú': [
-                {valor: 'DNI', texto: 'DNI (Perú)'},
-                {valor: 'RUC', texto: 'RUC'},
-                {valor: 'Pasaporte', texto: 'Pasaporte'}
-            ],
-            'España': [
-                {valor: 'DNI', texto: 'DNI (España)'},
-                {valor: 'NIE', texto: 'NIE'},
-                {valor: 'CIF', texto: 'CIF'},
-                {valor: 'Pasaporte', texto: 'Pasaporte'}
-            ],
-            'Estados Unidos': [
-                {valor: 'SSN', texto: 'Social Security Number'},
-                {valor: 'EIN', texto: 'Employer ID Number'},
-                {valor: 'Pasaporte', texto: 'Pasaporte'}
-            ]
-        };
-        
-        // Opciones por defecto si no hay opciones específicas para el país
-        let opcionesPais = opciones[pais] || [
-            {valor: 'ID', texto: 'Documento de Identidad'},
-            {valor: 'Pasaporte', texto: 'Pasaporte'}
-        ];
-        
-        // Añadir opciones al select
-        opcionesPais.forEach(function(opcion) {
-            const option = document.createElement('option');
-            option.value = opcion.valor;
-            option.textContent = opcion.texto;
-            tipoIdentificacion.appendChild(option);
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variables para los campos de contraseña
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const passwordStrengthBar = document.getElementById('password-strength-bar');
+        const passwordStrengthText = document.getElementById('password-strength-text');
+        const passwordMatch = document.getElementById('password-match');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+        // Mostrar/ocultar contraseña
+        togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
         });
-    }
-    
-    // Función para evaluar la fortaleza de la contraseña
-    function evaluarFortalezaPassword(pass) {
-        let score = 0;
-        
-        // Longitud mínima
-        if (pass.length >= 8) score += 20;
-        
-        // Letras mayúsculas y minúsculas
-        if (/[A-Z]/.test(pass)) score += 20;
-        if (/[a-z]/.test(pass)) score += 20;
-        
-        // Números
-        if (/\d/.test(pass)) score += 20;
-        
-        // Caracteres especiales
-        if (/[^A-Za-z0-9]/.test(pass)) score += 20;
-        
-        return score;
-    }
-    
-    // Función para actualizar la visualización de la fortaleza de la contraseña
-    function actualizarFortalezaPassword() {
-        const value = password.value;
-        const score = evaluarFortalezaPassword(value);
-        
-        passwordStrengthBar.style.width = score + '%';
-        
-        // Cambiar color según fortaleza
-        if (score >= 80) {
-            passwordStrengthBar.className = 'progress-bar progress-bar-success';
-            passwordStrengthText.textContent = 'Contraseña muy fuerte';
-            passwordStrengthText.className = 'text-success';
-        } else if (score >= 60) {
-            passwordStrengthBar.className = 'progress-bar progress-bar-info';
-            passwordStrengthText.textContent = 'Contraseña fuerte';
-            passwordStrengthText.className = 'text-info';
-        } else if (score >= 40) {
-            passwordStrengthBar.className = 'progress-bar progress-bar-warning';
-            passwordStrengthText.textContent = 'Contraseña moderada';
-            passwordStrengthText.className = 'text-warning';
-        } else {
-            passwordStrengthBar.className = 'progress-bar progress-bar-danger';
-            passwordStrengthText.textContent = 'Contraseña débil';
-            passwordStrengthText.className = 'text-danger';
+
+        toggleConfirmPassword.addEventListener('click', function() {
+            const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPassword.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+
+        // Función para actualizar los tipos de identificación según el país
+        function actualizarTiposIdentificacion() {
+            const pais = document.getElementById('pais').value;
+            const tipoIdentificacion = document.getElementById('tipo_identificacion');
+
+            // Limpiar el select
+            tipoIdentificacion.innerHTML = '';
+
+            // Definir opciones por país
+            const opciones = {
+                'Chile': [{
+                    valor: 'RUT',
+                    texto: 'RUT (Chile)'
+                }],
+                'Argentina': [{
+                        valor: 'DNI',
+                        texto: 'DNI (Argentina)'
+                    },
+                    {
+                        valor: 'CUIT',
+                        texto: 'CUIT'
+                    },
+                    {
+                        valor: 'Pasaporte',
+                        texto: 'Pasaporte'
+                    }
+                ],
+                'Colombia': [{
+                        valor: 'CC',
+                        texto: 'Cédula de Ciudadanía'
+                    },
+                    {
+                        valor: 'CE',
+                        texto: 'Cédula de Extranjería'
+                    },
+                    {
+                        valor: 'NIT',
+                        texto: 'NIT'
+                    },
+                    {
+                        valor: 'Pasaporte',
+                        texto: 'Pasaporte'
+                    }
+                ],
+                'México': [{
+                        valor: 'CURP',
+                        texto: 'CURP'
+                    },
+                    {
+                        valor: 'RFC',
+                        texto: 'RFC'
+                    },
+                    {
+                        valor: 'Pasaporte',
+                        texto: 'Pasaporte'
+                    }
+                ],
+                'Perú': [{
+                        valor: 'DNI',
+                        texto: 'DNI (Perú)'
+                    },
+                    {
+                        valor: 'RUC',
+                        texto: 'RUC'
+                    },
+                    {
+                        valor: 'Pasaporte',
+                        texto: 'Pasaporte'
+                    }
+                ],
+                'España': [{
+                        valor: 'DNI',
+                        texto: 'DNI (España)'
+                    },
+                    {
+                        valor: 'NIE',
+                        texto: 'NIE'
+                    },
+                    {
+                        valor: 'CIF',
+                        texto: 'CIF'
+                    },
+                    {
+                        valor: 'Pasaporte',
+                        texto: 'Pasaporte'
+                    }
+                ],
+                'Estados Unidos': [{
+                        valor: 'SSN',
+                        texto: 'Social Security Number'
+                    },
+                    {
+                        valor: 'EIN',
+                        texto: 'Employer ID Number'
+                    },
+                    {
+                        valor: 'Pasaporte',
+                        texto: 'Pasaporte'
+                    }
+                ]
+            };
+
+            // Opciones por defecto si no hay opciones específicas para el país
+            let opcionesPais = opciones[pais] || [{
+                    valor: 'ID',
+                    texto: 'Documento de Identidad'
+                },
+                {
+                    valor: 'Pasaporte',
+                    texto: 'Pasaporte'
+                }
+            ];
+
+            // Añadir opciones al select
+            opcionesPais.forEach(function(opcion) {
+                const option = document.createElement('option');
+                option.value = opcion.valor;
+                option.textContent = opcion.texto;
+                tipoIdentificacion.appendChild(option);
+            });
         }
-    }
-    
-    // Función para verificar si las contraseñas coinciden
-    function verificarPasswordsCoinciden() {
-        if (confirmPassword.value === '') {
-            passwordMatch.textContent = '';
-            passwordMatch.className = 'help-block';
-            return;
+
+        // Función para evaluar la fortaleza de la contraseña
+        function evaluarFortalezaPassword(pass) {
+            let score = 0;
+
+            // Longitud mínima
+            if (pass.length >= 8) score += 20;
+
+            // Letras mayúsculas y minúsculas
+            if (/[A-Z]/.test(pass)) score += 20;
+            if (/[a-z]/.test(pass)) score += 20;
+
+            // Números
+            if (/\d/.test(pass)) score += 20;
+
+            // Caracteres especiales
+            if (/[^A-Za-z0-9]/.test(pass)) score += 20;
+
+            return score;
         }
-        
-        if (password.value === confirmPassword.value) {
-            passwordMatch.textContent = 'Las contraseñas coinciden';
-            passwordMatch.className = 'help-block text-success';
-            confirmPassword.setCustomValidity('');
-        } else {
-            passwordMatch.textContent = 'Las contraseñas no coinciden';
-            passwordMatch.className = 'help-block text-danger';
-            confirmPassword.setCustomValidity('Las contraseñas no coinciden');
-        }
-    }
-    
-    // Registrar eventos
-    document.getElementById('pais').addEventListener('change', actualizarTiposIdentificacion);
-    password.addEventListener('input', function() {
-        actualizarFortalezaPassword();
-        verificarPasswordsCoinciden();
-    });
-    confirmPassword.addEventListener('input', verificarPasswordsCoinciden);
-    
-    // Validación del formulario antes de enviar
-    document.getElementById('formCrearUsuario').addEventListener('submit', function(event) {
-        // Verificar si las contraseñas coinciden
-        if (password.value !== confirmPassword.value) {
-            event.preventDefault();
-            passwordMatch.textContent = 'Las contraseñas no coinciden';
-            passwordMatch.className = 'help-block text-danger';
-            confirmPassword.focus();
-            return false;
-        }
-        
-        // Verificar fortaleza de la contraseña
-        const score = evaluarFortalezaPassword(password.value);
-        if (score < 60) {
-            if (!confirm('La contraseña no es muy segura. ¿Desea continuar de todos modos?')) {
-                event.preventDefault();
-                password.focus();
-                return false;
+
+        // Función para actualizar la visualización de la fortaleza de la contraseña
+        function actualizarFortalezaPassword() {
+            const value = password.value;
+            const score = evaluarFortalezaPassword(value);
+
+            passwordStrengthBar.style.width = score + '%';
+
+            // Cambiar color según fortaleza
+            if (score >= 80) {
+                passwordStrengthBar.className = 'progress-bar progress-bar-success';
+                passwordStrengthText.textContent = 'Contraseña muy fuerte';
+                passwordStrengthText.className = 'text-success';
+            } else if (score >= 60) {
+                passwordStrengthBar.className = 'progress-bar progress-bar-info';
+                passwordStrengthText.textContent = 'Contraseña fuerte';
+                passwordStrengthText.className = 'text-info';
+            } else if (score >= 40) {
+                passwordStrengthBar.className = 'progress-bar progress-bar-warning';
+                passwordStrengthText.textContent = 'Contraseña moderada';
+                passwordStrengthText.className = 'text-warning';
+            } else {
+                passwordStrengthBar.className = 'progress-bar progress-bar-danger';
+                passwordStrengthText.textContent = 'Contraseña débil';
+                passwordStrengthText.className = 'text-danger';
             }
         }
-    });
-    
-    // Inicializar el formulario
-    actualizarTiposIdentificacion();
-});
 
-// Función para confirmar cancelación
-function confirmCancel() {
-    if (confirm('¿Está seguro que desea cancelar? Los cambios no guardados se perderán.')) {
-        window.location.href = '<?= base_url ?>admin/usuarios';
+        // Función para verificar si las contraseñas coinciden
+        function verificarPasswordsCoinciden() {
+            if (confirmPassword.value === '') {
+                passwordMatch.textContent = '';
+                passwordMatch.className = 'help-block';
+                return;
+            }
+
+            if (password.value === confirmPassword.value) {
+                passwordMatch.textContent = 'Las contraseñas coinciden';
+                passwordMatch.className = 'help-block text-success';
+                confirmPassword.setCustomValidity('');
+            } else {
+                passwordMatch.textContent = 'Las contraseñas no coinciden';
+                passwordMatch.className = 'help-block text-danger';
+                confirmPassword.setCustomValidity('Las contraseñas no coinciden');
+            }
+        }
+
+        // Registrar eventos
+        document.getElementById('pais').addEventListener('change', actualizarTiposIdentificacion);
+        password.addEventListener('input', function() {
+            actualizarFortalezaPassword();
+            verificarPasswordsCoinciden();
+        });
+        confirmPassword.addEventListener('input', verificarPasswordsCoinciden);
+
+        // Validación del formulario antes de enviar
+        document.getElementById('formCrearUsuario').addEventListener('submit', function(event) {
+            // Verificar si las contraseñas coinciden
+            if (password.value !== confirmPassword.value) {
+                event.preventDefault();
+                passwordMatch.textContent = 'Las contraseñas no coinciden';
+                passwordMatch.className = 'help-block text-danger';
+                confirmPassword.focus();
+                return false;
+            }
+
+            // Verificar fortaleza de la contraseña
+            const score = evaluarFortalezaPassword(password.value);
+            if (score < 60) {
+                if (!confirm('La contraseña no es muy segura. ¿Desea continuar de todos modos?')) {
+                    event.preventDefault();
+                    password.focus();
+                    return false;
+                }
+            }
+        });
+
+        // Inicializar el formulario
+        actualizarTiposIdentificacion();
+    });
+
+    // Función para confirmar cancelación
+    function confirmCancel() {
+        if (confirm('¿Está seguro que desea cancelar? Los cambios no guardados se perderán.')) {
+            window.location.href = '<?= base_url ?>admin/usuarios';
+        }
     }
-}
 </script>
 
 <!-- Estilos personalizados -->
 <style>
-.panel {
-    border-radius: 5px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-}
-.panel-heading {
-    background-color: #f5f5f5;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-}
-.panel-title {
-    margin: 0;
-    font-size: 16px;
-    color: #333;
-    font-weight: 600;
-}
-.panel-body {
-    padding: 15px;
-}
-.form-group {
-    margin-bottom: 20px;
-}
-.control-label {
-    text-align: right;
-    padding-top: 7px;
-}
-.help-block {
-    font-size: 12px;
-    color: #737373;
-    margin-top: 5px;
-}
-.text-danger {
-    color: #f33155;
-}
-.checkbox {
-    margin-top: 0;
-}
-.checkbox label {
-    padding-left: 25px;
-}
-.checkbox input[type="checkbox"] {
-    margin-left: -25px;
-}
-.password-strength {
-    margin-top: 5px;
-}
-.mt-2 {
-    margin-top: 8px;
-}
+    .panel {
+        border-radius: 5px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    }
+
+    .panel-heading {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .panel-title {
+        margin: 0;
+        font-size: 16px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .panel-body {
+        padding: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .control-label {
+        text-align: right;
+        padding-top: 7px;
+    }
+
+    .help-block {
+        font-size: 12px;
+        color: #737373;
+        margin-top: 5px;
+    }
+
+    .text-danger {
+        color: #f33155;
+    }
+
+    .checkbox {
+        margin-top: 0;
+    }
+
+    .checkbox label {
+        padding-left: 25px;
+    }
+
+    .checkbox input[type="checkbox"] {
+        margin-left: -25px;
+    }
+
+    .password-strength {
+        margin-top: 5px;
+    }
+
+    .mt-2 {
+        margin-top: 8px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .form-group.text-center button,
+    .form-group.text-center a {
+        margin: 0 5px;
+    }
 </style>
