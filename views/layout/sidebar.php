@@ -17,8 +17,8 @@ $empresas_count = $empresaModel->countAll();
                 <p class="profile-text m-t-15 font-16">
                     <?php if (isset($_SESSION['admin'])): ?>
                         <a href="javascript:void(0);"><?= $_SESSION['admin']->nombre ?> <?= $_SESSION['admin']->apellido ?></a>
-                    <?php elseif (isset($_SESSION['usuario'])): ?>
-                        <a href="javascript:void(0);"><?= $_SESSION['usuario']->nombre ?> <?= $_SESSION['usuario']->apellido ?></a>
+                    <?php elseif (isset($_SESSION['user'])): ?>
+                        <a href="javascript:void(0);"><?= $_SESSION['user']->nombre ?> <?= $_SESSION['user']->apellido ?></a>
                     <?php else: ?>
                         <a href="javascript:void(0);">Cubic Cloud</a>
                     <?php endif; ?>
@@ -69,9 +69,9 @@ $empresas_count = $empresaModel->countAll();
                             <span class="hide-menu"> Configuración</span>
                         </a>
                     </li>
-                <?php elseif (isset($_SESSION['usuario'])): ?>
+                <?php elseif (isset($_SESSION['user'])): ?>
                     <!-- Menú para usuarios normales -->
-                    <?php if ($_SESSION['usuario']->tipo_usuario == 'ADMIN'): ?>
+                    <?php if ($_SESSION['user']->tipo_usuario == 'ADMIN'): ?>
                         <!-- Menú específico para administradores de empresa -->
                         <li>
                             <a class="waves-effect" href="<?= base_url ?>empresas/dashboard" aria-expanded="false">
@@ -117,7 +117,7 @@ $empresas_count = $empresaModel->countAll();
                                 <span class="hide-menu">Configuración</span>
                             </a>
                         </li>
-                    <?php elseif ($_SESSION['usuario']->tipo_usuario == 'VENDEDOR'): ?>
+                    <?php elseif ($_SESSION['user']->tipo_usuario == 'VENDEDOR'): ?>
                         <!-- Menú específico para vendedores -->
                         <li>
                             <a class="waves-effect" href="<?= base_url ?>ventas/dashboard" aria-expanded="false">
@@ -143,7 +143,7 @@ $empresas_count = $empresaModel->countAll();
                                 <span class="hide-menu"> Reportes</span>
                             </a>
                         </li>
-                    <?php elseif ($_SESSION['usuario']->tipo_usuario == 'TOUR_MANAGER'): ?>
+                    <?php elseif ($_SESSION['user']->tipo_usuario == 'TOUR_MANAGER'): ?>
                         <!-- Menú específico para gestores de eventos -->
                         <li>
                             <a class="waves-effect" href="<?= base_url ?>eventos/dashboard" aria-expanded="false">
@@ -188,18 +188,18 @@ $empresas_count = $empresaModel->countAll();
                     <a href="<?= base_url ?>empresa/crear" class="btn btn-info m-b-10 btn-block">Nueva Empresa</a>
                     <a href="<?= base_url ?>plan/crear" class="btn btn-primary m-b-10 btn-block">Nuevo Plan</a>
                     <a href="<?= base_url ?>admin/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
-                <?php elseif (isset($_SESSION['usuario'])): ?>
-                    <?php if ($_SESSION['usuario']->tipo_usuario == 'ADMIN' || $_SESSION['usuario']->tipo_usuario == 'VENDEDOR'): ?>
+                <?php elseif (isset($_SESSION['user'])): ?>
+                    <?php if ($_SESSION['user']->tipo_usuario == 'ADMIN' || $_SESSION['user']->tipo_usuario == 'VENDEDOR'): ?>
                         <a href="<?= base_url ?>cliente/crear" class="btn btn-info m-b-10 btn-block">Nuevo Cliente</a>
                         <a href="<?= base_url ?>evento/crear" class="btn btn-success btn-block">Nuevo Evento</a>
-                    <?php elseif ($_SESSION['usuario']->tipo_usuario == 'TOUR_MANAGER'): ?>
+                    <?php elseif ($_SESSION['user']->tipo_usuario == 'TOUR_MANAGER'): ?>
                         <a href="<?= base_url ?>eventos/nuevo" class="btn btn-info m-b-10 btn-block">Nuevo Evento</a>
                         <a href="<?= base_url ?>eventos/recursos/solicitar" class="btn btn-success btn-block">Solicitar Recursos</a>
                     <?php endif; ?>
-                    <a href="<?= base_url ?>usuario/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
+                    <a href="<?= base_url ?>user/logout" class="btn btn-danger m-t-15 btn-block">Cerrar Sesión</a>
                 <?php else: ?>
-                    <a href="<?= base_url ?>usuario/login" class="btn btn-info m-b-10 btn-block">Iniciar Sesión</a>
-                    <a href="<?= base_url ?>usuario/registro" class="btn btn-success btn-block">Registrarse</a>
+                    <a href="<?= base_url ?>user/login" class="btn btn-info m-b-10 btn-block">Iniciar Sesión</a>
+                    <a href="<?= base_url ?>user/registro" class="btn btn-success btn-block">Registrarse</a>
                 <?php endif; ?>
             </span>
         </div>

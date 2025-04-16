@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Clase Router
  * 
@@ -11,18 +12,18 @@ class Router
      * [ruta => [controlador, acción, middleware]]
      */
     private static $routes = [];
-    
+
     /**
      * Almacena las rutas que usan parámetros
      * [patrón => [ruta, params]]
      */
     private static $paramRoutes = [];
-    
+
     /**
      * Ruta por defecto cuando ninguna otra coincide
      */
     private static $defaultRoute = null;
-    
+
     /**
      * Registra una nueva ruta
      * 
@@ -36,17 +37,17 @@ class Router
     {
         // Asegurarse que la ruta comienza sin '/'
         $route = ltrim($route, '/');
-        
+
         // Verificar si la ruta contiene parámetros (indicados con :)
         if (strpos($route, ':') !== false) {
             // Crear un patrón para hacer coincidir la ruta con parámetros
             $pattern = preg_replace('/:([^\/]+)/', '([^/]+)', $route);
             $pattern = str_replace('/', '\/', $pattern);
             $pattern = '/^' . $pattern . '$/';
-            
+
             // Extraer nombres de parámetros
             preg_match_all('/:([^\/]+)/', $route, $paramNames);
-            
+
             // Guardar la ruta con parámetros
             self::$paramRoutes[$pattern] = [
                 'route' => $route,
@@ -64,7 +65,7 @@ class Router
             ];
         }
     }
-    
+
     /**
      * Establece la ruta por defecto
      * 
@@ -80,7 +81,7 @@ class Router
             'middleware' => null
         ];
     }
-    
+
     /**
      * Resuelve la ruta actual y devuelve el controlador y acción
      * 
@@ -91,38 +92,38 @@ class Router
     {
         // Eliminar la base URL y query string
         $uri = self::getCleanUri($uri);
-        
+
         // Comprobar si existe una ruta directa
         if (isset(self::$routes[$uri])) {
             $route = self::$routes[$uri];
-            
+
             // Verificar middleware si existe
             if ($route['middleware'] && !self::checkMiddleware($route['middleware'], $route['controller'], $route['action'])) {
                 // Redirección o error según la configuración
                 header("Location: " . base_url . "admin/login");
                 exit();
             }
-            
+
             return [
                 'controller' => $route['controller'],
                 'action' => $route['action'],
                 'params' => []
             ];
         }
-        
+
         // Comprobar rutas con parámetros
         foreach (self::$paramRoutes as $pattern => $routeData) {
             if (preg_match($pattern, $uri, $matches)) {
                 // Eliminar la coincidencia completa
                 array_shift($matches);
-                
+
                 // Verificar middleware si existe
                 if ($routeData['middleware'] && !self::checkMiddleware($routeData['middleware'], $routeData['controller'], $routeData['action'])) {
                     // Redirección o error según la configuración
                     header("Location: " . base_url . "admin/login");
                     exit();
                 }
-                
+
                 // Crear array asociativo de parámetros
                 $params = [];
                 foreach ($routeData['params'] as $index => $paramName) {
@@ -130,7 +131,7 @@ class Router
                         $params[$paramName] = $matches[$index];
                     }
                 }
-                
+
                 return [
                     'controller' => $routeData['controller'],
                     'action' => $routeData['action'],
@@ -138,7 +139,7 @@ class Router
                 ];
             }
         }
-        
+
         // Si no hay coincidencias, usar ruta por defecto
         if (self::$defaultRoute) {
             return [
@@ -147,7 +148,7 @@ class Router
                 'params' => []
             ];
         }
-        
+
         // Si no hay ruta por defecto, mostrar error 404
         return [
             'controller' => 'ErrorController',
@@ -155,7 +156,7 @@ class Router
             'params' => []
         ];
     }
-    
+
     /**
      * Verifica si el middleware permite el acceso a la ruta
      * 
@@ -169,15 +170,17 @@ class Router
         switch ($middleware) {
             case 'auth':
                 return isAdminLoggedIn();
+            case 'user_auth':
+                return isUserLoggedIn();
             case 'guest':
-                return !isAdminLoggedIn();
+                return true; // Permitir acceso a todos
             case 'public':
                 return true;
             default:
                 return isPublicRoute($controller, $action);
         }
     }
-    
+
     /**
      * Limpia la URI para el procesamiento
      * 
@@ -188,14 +191,14 @@ class Router
     {
         // Obtener solo la parte de la ruta (sin query string)
         $uri = parse_url($uri, PHP_URL_PATH);
-        
+
         // Eliminar la base URL
         $baseDir = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
         $uri = substr($uri, strlen($baseDir));
-        
+
         // Eliminar barras al inicio y final
         $uri = trim($uri, '/');
-        
+
         return $uri;
     }
 }

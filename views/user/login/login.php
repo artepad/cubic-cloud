@@ -46,7 +46,7 @@
                 <?php unset($_SESSION['success_message']);
                 endif; ?>
 
-                <form class="form-horizontal form-material" id="loginform" action="<?= base_url ?>user/login" method="POST">
+                <form class="form-horizontal form-material" id="loginform" action="<?= base_url ?>user/validate" method="POST">
                     <h3 class="box-title m-b-20">Acceso de Usuarios</h3>
 
                     <!-- Token CSRF para seguridad -->
@@ -68,7 +68,7 @@
                                 <input id="checkbox-signup" type="checkbox" name="remember" value="1">
                                 <label for="checkbox-signup"> Recuérdame </label>
                             </div>
-                            <a href="<?= base_url ?>usuario/recover" class="text-dark pull-right"><i class="fa fa-lock m-r-5"></i> ¿Olvidaste la contraseña?</a>
+                            <a href="<?= base_url ?>user/recover" class="text-dark pull-right"><i class="fa fa-lock m-r-5"></i> ¿Olvidaste la contraseña?</a>
                         </div>
                     </div>
                     <div class="form-group text-center m-t-20">
@@ -80,7 +80,7 @@
                     <!-- Enlace para registro de usuario (si aplica) -->
                     <div class="form-group m-b-0">
                         <div class="col-sm-12 text-center">
-                            <p>¿No tienes una cuenta? <a href="<?= base_url ?>usuario/registro" class="text-primary m-l-5"><b>Regístrate</b></a></p>
+                            <p>¿No tienes una cuenta? <a href="<?= base_url ?>user/registro" class="text-primary m-l-5"><b>Regístrate</b></a></p>
                         </div>
                     </div>
                 </form>
