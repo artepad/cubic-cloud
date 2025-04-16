@@ -70,3 +70,19 @@ Router::add('suscripcion/historial/:id', 'SuscripcionController', 'historial', '
 Router::add('suscripcion/generarFactura/:id', 'SuscripcionController', 'generarFactura', 'auth');
 Router::add('suscripcion/verFactura/:id', 'SuscripcionController', 'verFactura', 'auth');
 Router::add('suscripcion/ver/:id', 'SuscripcionController', 'ver', 'auth');
+
+
+// Rutas para UserController (login y operaciones de usuario)
+Router::add('user', 'UserController', 'index', 'guest');
+Router::add('user/login', 'UserController', 'login', 'guest');
+Router::add('user/validate', 'UserController', 'validate', 'guest');
+Router::add('user/recover', 'UserController', 'recover', 'guest');
+Router::add('user/requestReset', 'UserController', 'requestReset', 'guest');
+Router::add('user/reset', 'UserController', 'reset', 'guest');
+Router::add('user/doReset', 'UserController', 'doReset', 'guest');
+Router::add('user/logout', 'UserController', 'logout', 'user_auth');
+Router::add('user/dashboard', 'UserController', 'dashboard', 'user_auth');
+Router::add('user/profile', 'UserController', 'profile', 'user_auth');
+Router::add('user/updateProfile', 'UserController', 'updateProfile', 'user_auth');
+Router::add('user/changePassword', 'UserController', 'changePassword', 'user_auth');
+Router::add('user/updatePassword', 'UserController', 'updatePassword', 'user_auth');
