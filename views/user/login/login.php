@@ -46,7 +46,7 @@
                 <?php unset($_SESSION['success_message']);
                 endif; ?>
 
-                <form class="form-horizontal form-material" id="loginform" action="<?= base_url ?>usuario/validate" method="POST">
+                <form class="form-horizontal form-material" id="loginform" action="<?= base_url ?>user/login" method="POST">
                     <h3 class="box-title m-b-20">Acceso de Usuarios</h3>
 
                     <!-- Token CSRF para seguridad -->

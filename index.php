@@ -119,7 +119,8 @@ function show_error() {
  */
 function determinarSiEsLoginRoute($controller, $action) {
     $login_routes = [
-        'AdminController' => ['login', 'validate', 'recover', 'requestReset', 'reset', 'doReset', 'logout']
+        'AdminController' => ['login', 'validate', 'recover', 'requestReset', 'reset', 'doReset', 'logout'],
+        'UserController' => ['login', 'validate', 'recover', 'requestReset', 'reset', 'doReset', 'logout']
     ];
     
     return (isset($login_routes[$controller]) && in_array($action, $login_routes[$controller]));

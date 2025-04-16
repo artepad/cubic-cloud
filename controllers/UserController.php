@@ -81,6 +81,114 @@ class UserController
     }
 
     /**
+     * Valida las credenciales del usuario
+     * Procesa el formulario de login
+     */
+    public function validate()
+    {
+        // No permitir acceso a esta acción si ya está logueado
+        if (isUserLoggedIn()) {
+            header("Location: " . base_url . "user/dashboard");
+            exit();
+        }
+
+        if (isset($_POST['email']) && isset($_POST['password'])) {
+            // Validar los campos obligatorios
+            if (empty($_POST['email']) || empty($_POST['password'])) {
+                $this->setLoginError("Todos los campos son obligatorios");
+                header("Location: " . base_url . "user/login");
+                exit();
+            }
+
+            // Obtener y sanitizar datos del formulario
+            $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+            $password = $_POST['password']; // No sanitizar contraseña para no alterarla
+            $remember = isset($_POST['remember']) ? true : false;
+
+            // Verificar formato de email
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->setLoginError("El formato del email no es válido");
+                header("Location: " . base_url . "user/login");
+                exit();
+            }
+
+            // Verificar token CSRF si está habilitado
+            if (isset($_POST['csrf_token'])) {
+                if (!validateCsrfToken($_POST['csrf_token'])) {
+                    $this->setLoginError("Error de seguridad: token inválido");
+                    header("Location: " . base_url . "user/login");
+                    exit();
+                }
+            }
+
+            // Usar el modelo para verificar las credenciales
+            $usuario = $this->userModel->login($email, $password);
+
+            if ($usuario) {
+                // Crear sesión con los datos del usuario
+                $_SESSION['user'] = $usuario;
+
+                // Regenerar ID de sesión para prevenir session fixation
+                regenerateSession();
+
+                // Si se seleccionó "Recuérdame", crear token y cookie
+                if ($remember) {
+                    $this->createRememberMeCookie($usuario->id);
+                }
+
+                // Redirigir al dashboard
+                header("Location: " . base_url . "user/dashboard");
+                exit();
+            } else {
+                // Agregar un pequeño delay para prevenir timing attacks
+                sleep(1);
+                $this->setLoginError("Email o contraseña incorrectos");
+                header("Location: " . base_url . "user/login");
+                exit();
+            }
+        } else {
+            $this->setLoginError("Todos los campos son obligatorios");
+            header("Location: " . base_url . "user/login");
+            exit();
+        }
+    }
+
+    /**
+     * Cierra la sesión del usuario
+     */
+    public function logout()
+    {
+        // Iniciar buffer de salida para evitar el envío prematuro de headers
+        ob_start();
+
+        // Verificar que el usuario está logueado
+        if (isUserLoggedIn()) {
+            $user_id = $_SESSION['user']->id;
+
+            // Registrar el cierre de sesión en la base de datos
+            $this->userModel->registerLogout($user_id);
+
+            // Limpiar el token de "Recuérdame" 
+            $this->userModel->clearRememberToken($user_id);
+
+            // Eliminar la cookie de "Recuérdame"
+            if (isset($_COOKIE['user_remember'])) {
+                $this->deleteRememberMeCookie();
+            }
+
+            // Destruir la sesión de forma segura
+            session_unset();
+            session_destroy();
+        }
+
+        // Mostrar la vista de logout
+        require_once 'views/user/login/logout.php';
+
+        // Limpia el buffer y envía el contenido
+        ob_end_flush();
+    }
+
+    /**
      * Muestra y edita el perfil del usuario
      */
     public function profile()
@@ -96,6 +204,292 @@ class UserController
     }
 
     /**
+     * Procesa la actualización del perfil de usuario
+     */
+    public function updateProfile()
+    {
+        // Verificar que el formulario se ha enviado
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Validar token CSRF
+            if (isset($_POST['csrf_token']) && !validateCsrfToken($_POST['csrf_token'])) {
+                $_SESSION['error_message'] = "Error de seguridad: token inválido";
+                header("Location: " . base_url . "user/profile");
+                exit();
+            }
+
+            // Obtener datos del formulario y sanitizarlos
+            $nombre = isset($_POST['nombre']) ? filter_var($_POST['nombre'], FILTER_SANITIZE_STRING) : '';
+            $apellido = isset($_POST['apellido']) ? filter_var($_POST['apellido'], FILTER_SANITIZE_STRING) : '';
+            $telefono = isset($_POST['telefono']) ? filter_var($_POST['telefono'], FILTER_SANITIZE_STRING) : '';
+
+            // Actualizar el perfil usando el modelo
+            $user_id = $_SESSION['user']->id;
+            
+            // Aquí iría el código para guardar los datos en el modelo
+
+            // Actualizar los datos en la sesión
+            $usuario_actualizado = $this->userModel->getById($user_id);
+            if ($usuario_actualizado) {
+                $_SESSION['user'] = $usuario_actualizado;
+                $_SESSION['success_message'] = "Perfil actualizado correctamente";
+            } else {
+                $_SESSION['error_message'] = "Error al actualizar el perfil";
+            }
+        }
+
+        // Redirigir al perfil
+        header("Location: " . base_url . "user/profile");
+        exit();
+    }
+
+    /**
+     * Muestra el formulario para cambiar contraseña
+     */
+    public function changePassword()
+    {
+        // Configurar el título de la página
+        $pageTitle = "Cambiar Contraseña";
+
+        // Incluir la vista
+        require_once 'views/user/dashboard/change_password.php';
+    }
+
+    /**
+     * Procesa el cambio de contraseña
+     */
+    public function updatePassword()
+    {
+        // Verificar que el formulario se ha enviado
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Validar token CSRF
+            if (isset($_POST['csrf_token']) && !validateCsrfToken($_POST['csrf_token'])) {
+                $_SESSION['error_message'] = "Error de seguridad: token inválido";
+                header("Location: " . base_url . "user/changePassword");
+                exit();
+            }
+
+            // Obtener datos del formulario
+            $current_password = isset($_POST['current_password']) ? $_POST['current_password'] : '';
+            $new_password = isset($_POST['new_password']) ? $_POST['new_password'] : '';
+            $confirm_password = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
+
+            // Validar que todos los campos están completos
+            if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+                $_SESSION['error_message'] = "Todos los campos son obligatorios";
+                header("Location: " . base_url . "user/changePassword");
+                exit();
+            }
+
+            // Verificar que las contraseñas nuevas coinciden
+            if ($new_password !== $confirm_password) {
+                $_SESSION['error_message'] = "Las contraseñas nuevas no coinciden";
+                header("Location: " . base_url . "user/changePassword");
+                exit();
+            }
+
+            // Validar requisitos de contraseña
+            if (!validatePasswordStrength($new_password)) {
+                $_SESSION['error_message'] = "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número";
+                header("Location: " . base_url . "user/changePassword");
+                exit();
+            }
+
+            // Verificar contraseña actual
+            $user_id = $_SESSION['user']->id;
+            $usuario = $this->userModel->getById($user_id);
+
+            if (password_verify($current_password, $usuario->password)) {
+                // Actualizar contraseña
+                $result = $this->userModel->updatePassword($user_id, $new_password);
+
+                if ($result) {
+                    $_SESSION['success_message'] = "Contraseña actualizada correctamente";
+                } else {
+                    $_SESSION['error_message'] = "Error al actualizar la contraseña";
+                }
+            } else {
+                $_SESSION['error_message'] = "La contraseña actual es incorrecta";
+            }
+        }
+
+        // Redirigir
+        header("Location: " . base_url . "user/changePassword");
+        exit();
+    }
+
+    /**
+     * Muestra el formulario para solicitar recuperación de contraseña
+     */
+    public function recover()
+    {
+        // Si ya está logueado, redirigir al dashboard
+        if (isUserLoggedIn()) {
+            header("Location: " . base_url . "user/dashboard");
+            exit();
+        }
+
+        // Incluir vista de recuperación
+        require_once 'views/user/login/recover.php';
+    }
+
+    /**
+     * Procesa la solicitud de recuperación de contraseña
+     */
+    public function requestReset()
+    {
+        // No permitir acceso a esta acción si ya está logueado
+        if (isUserLoggedIn()) {
+            header("Location: " . base_url . "user/dashboard");
+            exit();
+        }
+
+        if (isset($_POST['email']) && !empty($_POST['email'])) {
+            // Sanitizar email
+            $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->setLoginError("El formato del email no es válido");
+                header("Location: " . base_url . "user/login");
+                exit();
+            }
+
+            // Verificar token CSRF si está habilitado
+            if (isset($_POST['csrf_token'])) {
+                if (!validateCsrfToken($_POST['csrf_token'])) {
+                    $this->setLoginError("Error de seguridad: token inválido");
+                    header("Location: " . base_url . "user/login");
+                    exit();
+                }
+            }
+
+            // Generar token de recuperación
+            $token = $this->userModel->generateRecoveryToken($email);
+
+            if ($token) {
+                // Intentar enviar el correo con el enlace
+                $sent = $this->userModel->sendRecoveryEmail($email, $token);
+
+                if ($sent) {
+                    $_SESSION['success_message'] = "Se ha enviado un correo con instrucciones para recuperar tu contraseña";
+                } else {
+                    $this->setLoginError("No se pudo enviar el correo. Por favor, contacta al administrador");
+                }
+            } else {
+                // No revelar si el email existe o no (seguridad)
+                $_SESSION['success_message'] = "Si el email existe en nuestro sistema, recibirás instrucciones para recuperar tu contraseña";
+            }
+        } else {
+            $this->setLoginError("Por favor, introduce tu correo electrónico");
+        }
+
+        // Redireccionar al login
+        header("Location: " . base_url . "user/login");
+        exit();
+    }
+
+    /**
+     * Muestra el formulario para restablecer la contraseña
+     */
+    public function reset()
+    {
+        // Si ya está logueado, redirigir al dashboard
+        if (isUserLoggedIn()) {
+            header("Location: " . base_url . "user/dashboard");
+            exit();
+        }
+
+        // Verificar que hay un token
+        if (!isset($_GET['token']) || empty($_GET['token'])) {
+            $this->setLoginError("Enlace de recuperación inválido");
+            header("Location: " . base_url . "user/login");
+            exit();
+        }
+
+        // Sanitizar token
+        $token = htmlspecialchars(trim($_GET['token']));
+
+        // Validar el token
+        $usuario = $this->userModel->validateRecoveryToken($token);
+
+        if (!$usuario) {
+            $this->setLoginError("El enlace ha expirado o no es válido");
+            header("Location: " . base_url . "user/login");
+            exit();
+        }
+
+        // Incluir vista para restablecer contraseña
+        require_once 'views/user/login/reset.php';
+    }
+
+    /**
+     * Procesa el restablecimiento de contraseña
+     */
+    public function doReset()
+    {
+        // Si ya está logueado, redirigir al dashboard
+        if (isUserLoggedIn()) {
+            header("Location: " . base_url . "user/dashboard");
+            exit();
+        }
+
+        // Verificar campos obligatorios
+        if (!isset($_POST['token']) || !isset($_POST['password']) || !isset($_POST['confirm_password'])) {
+            $this->setLoginError("Todos los campos son obligatorios");
+            header("Location: " . base_url . "user/login");
+            exit();
+        }
+
+        // Sanitizar token
+        $token = htmlspecialchars(trim($_POST['token']));
+        $password = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+
+        // Verificar token CSRF si está habilitado
+        if (isset($_POST['csrf_token'])) {
+            if (!validateCsrfToken($_POST['csrf_token'])) {
+                $this->setLoginError("Error de seguridad: token inválido");
+                header("Location: " . base_url . "user/reset?token=" . urlencode($token));
+                exit();
+            }
+        }
+
+        // Validar que las contraseñas coinciden
+        if ($password !== $confirm_password) {
+            $this->setLoginError("Las contraseñas no coinciden");
+            header("Location: " . base_url . "user/reset?token=" . urlencode($token));
+            exit();
+        }
+
+        // Validar requisitos de contraseña
+        if (!validatePasswordStrength($password)) {
+            $this->setLoginError("La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número");
+            header("Location: " . base_url . "user/reset?token=" . urlencode($token));
+            exit();
+        }
+
+        // Validar el token
+        $usuario = $this->userModel->validateRecoveryToken($token);
+
+        if (!$usuario) {
+            $this->setLoginError("El enlace ha expirado o no es válido");
+            header("Location: " . base_url . "user/login");
+            exit();
+        }
+
+        // Actualizar la contraseña
+        $result = $this->userModel->updatePassword($usuario->id, $password);
+
+        if ($result) {
+            $_SESSION['success_message'] = "Contraseña actualizada correctamente. Ya puedes iniciar sesión";
+        } else {
+            $this->setLoginError("Error al actualizar la contraseña. Inténtalo de nuevo");
+        }
+
+        header("Location: " . base_url . "user/login");
+        exit();
+    }
+
+    /**
      * Establece un mensaje de error para el login
      * @param string $message Mensaje de error
      */
@@ -104,6 +498,27 @@ class UserController
         $_SESSION['error_login'] = $message;
     }
 
+    /**
+     * Crea una cookie "Recuérdame" segura
+     * @param int $user_id ID del usuario
+     */
+    private function createRememberMeCookie($user_id)
+    {
+        $token = $this->userModel->createRememberToken($user_id, COOKIE_LIFETIME);
+        if ($token) {
+            // Crear cookie segura
+            $secure = isset($_SERVER['HTTPS']); // true si es HTTPS
+            $httponly = true; // Evita acceso mediante JavaScript
+            setcookie('user_remember', $token, [
+                'expires' => time() + (86400 * COOKIE_LIFETIME),
+                'path' => '/',
+                'domain' => '',
+                'secure' => $secure,
+                'httponly' => $httponly,
+                'samesite' => 'Lax' // Previene CSRF
+            ]);
+        }
+    }
 
     /**
      * Elimina la cookie "Recuérdame"
