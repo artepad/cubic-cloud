@@ -80,6 +80,7 @@ Router::add('user/recover', 'UserController', 'recover', 'guest');
 Router::add('user/requestReset', 'UserController', 'requestReset', 'guest');
 Router::add('user/reset', 'UserController', 'reset', 'guest');
 Router::add('user/doReset', 'UserController', 'doReset', 'guest');
+Router::add('user/welcome', 'UserController', 'welcome', 'user_auth');
 Router::add('user/logout', 'UserController', 'logout', 'user_auth');
 Router::add('user/dashboard', 'UserController', 'dashboard', 'user_auth');
 Router::add('user/profile', 'UserController', 'profile', 'user_auth');

@@ -66,6 +66,55 @@ class UserController
     }
 
     /**
+     * Vista de bienvenida después del login
+     */
+    public function welcome()
+    {
+        // Configurar el título de la página
+        $pageTitle = "Bienvenida al Sistema";
+
+        // Obtener datos del usuario actual
+        $user = $_SESSION['user'];
+        $ultimo_login = $user->ultimo_login ? date('d/m/Y H:i', strtotime($user->ultimo_login)) : 'Este es tu primer acceso';
+
+        // Inicializar variables por defecto
+        $empresa = null;
+        $plan = null;
+        $dias_restantes = 0;
+        $es_demo = false;
+
+        // Verificar si el usuario tiene empresa_id antes de intentar obtener datos
+        if (isset($user->empresa_id) && !empty($user->empresa_id)) {
+            // Obtener datos de la empresa del usuario
+            $empresa_id = $user->empresa_id;
+            $empresaModel = new Empresa();
+            $empresa = $empresaModel->getById($empresa_id);
+
+            // Verificar si se encontró la empresa
+            if ($empresa && isset($empresa->plan_id)) {
+                // Obtener información del plan
+                $planModel = new Plan();
+                $plan = $planModel->getById($empresa->plan_id);
+
+                // Calcular días restantes si es cuenta demo
+                if (isset($empresa->es_demo) && $empresa->es_demo && isset($empresa->demo_end_date)) {
+                    $es_demo = true;
+                    $fecha_fin = new DateTime($empresa->demo_end_date);
+                    $fecha_actual = new DateTime();
+                    $intervalo = $fecha_actual->diff($fecha_fin);
+                    $dias_restantes = $intervalo->days;
+                    // Si la fecha ya pasó, mostrar 0
+                    if ($fecha_fin < $fecha_actual) {
+                        $dias_restantes = 0;
+                    }
+                }
+            }
+        }
+
+        // Incluir la vista
+        require_once 'views/user/dashboard/welcome.php';
+    }
+    /**
      * Muestra la pantalla de login de usuario
      */
     public function login()
@@ -137,7 +186,7 @@ class UserController
                 }
 
                 // Redirigir al dashboard
-                header("Location: " . base_url . "user/dashboard");
+                header("Location: " . base_url . "user/welcome");
                 exit();
             } else {
                 // Agregar un pequeño delay para prevenir timing attacks
@@ -224,7 +273,7 @@ class UserController
 
             // Actualizar el perfil usando el modelo
             $user_id = $_SESSION['user']->id;
-            
+
             // Aquí iría el código para guardar los datos en el modelo
 
             // Actualizar los datos en la sesión
