@@ -3,7 +3,7 @@
 /**
  * Funciones auxiliares para autenticación y autorización
  * 
- * Este archivo contiene funciones para verificar si los administradores están autenticados
+ * Este archivo contiene funciones para verificar si los administradores o usuarios están autenticados
  * y determinar qué rutas son públicas o protegidas.
  */
 
@@ -18,7 +18,17 @@ function isAdminLoggedIn()
 }
 
 /**
- * Verifica si una ruta es pública (no requiere autenticación)
+ * Verifica si el usuario regular está logueado
+ * 
+ * @return bool True si el usuario está logueado
+ */
+function isUserLoggedIn()
+{
+    return isset($_SESSION['user']);
+}
+
+/**
+ * Verifica si una ruta es pública (no requiere autenticación de administrador)
  * 
  * @param string $controller Nombre del controlador
  * @param string $action Nombre de la acción
@@ -33,6 +43,24 @@ function isPublicRoute($controller, $action)
     ];
 
     return (isset($rutas_publicas[$controller]) && in_array($action, $rutas_publicas[$controller]));
+}
+
+/**
+ * Verifica si una ruta es pública para usuarios regulares
+ * 
+ * @param string $controller Nombre del controlador
+ * @param string $action Nombre de la acción
+ * @return bool True si la ruta es pública para usuarios
+ */
+function isUserPublicRoute($controller, $action)
+{
+    $rutas_publicas_usuario = [
+        'user' => ['login', 'validate', 'recover', 'requestReset', 'reset', 'doReset'],
+        'error' => ['index'],
+        // Otras rutas públicas para usuarios aquí
+    ];
+
+    return (isset($rutas_publicas_usuario[$controller]) && in_array($action, $rutas_publicas_usuario[$controller]));
 }
 
 /**
@@ -152,4 +180,26 @@ function checkRememberCookie($adminModel)
         }
     }
     return false;
+}
+
+/**
+ * Verifica si un middleware de autenticación está habilitado para una ruta
+ * 
+ * @param string $middleware Tipo de middleware a verificar
+ * @return bool True si la autenticación es requerida
+ */
+function checkMiddleware($middleware)
+{
+    switch ($middleware) {
+        case 'auth':
+            return isAdminLoggedIn();
+        case 'user_auth':
+            return isUserLoggedIn();
+        case 'guest':
+            return true;
+        case 'public':
+            return true;
+        default:
+            return false;
+    }
 }
