@@ -70,50 +70,61 @@ class UserController
      */
     public function welcome()
     {
-        // Configurar el título de la página
+        // Título de la página
         $pageTitle = "Bienvenida al Sistema";
 
         // Obtener datos del usuario actual
         $user = $_SESSION['user'];
         $ultimo_login = $user->ultimo_login ? date('d/m/Y H:i', strtotime($user->ultimo_login)) : 'Este es tu primer acceso';
 
-        // Inicializar variables por defecto
+        // Inicializar variables
         $empresa = null;
         $plan = null;
-        $dias_restantes = 0;
         $es_demo = false;
+        $dias_restantes = 0;
 
-        // Verificar si el usuario tiene empresa_id antes de intentar obtener datos
-        if (isset($user->empresa_id) && !empty($user->empresa_id)) {
-            // Obtener datos de la empresa del usuario
-            $empresa_id = $user->empresa_id;
-            $empresaModel = new Empresa();
-            $empresa = $empresaModel->getById($empresa_id);
+        // Buscar la empresa donde este usuario es el administrador
+        $empresaModel = new Empresa();
+        // Obtener conexión a la BD para consulta personalizada
+        $db = Database::connect();
+        $query = "SELECT * FROM empresas WHERE usuario_id = ?";
+        $stmt = $db->prepare($query);
+        $stmt->bind_param("i", $user->id);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-            // Verificar si se encontró la empresa
-            if ($empresa && isset($empresa->plan_id)) {
-                // Obtener información del plan
-                $planModel = new Plan();
-                $plan = $planModel->getById($empresa->plan_id);
+        if ($result && $result->num_rows > 0) {
+            $empresa = $result->fetch_object();
 
-                // Calcular días restantes si es cuenta demo
-                if (isset($empresa->es_demo) && $empresa->es_demo && isset($empresa->demo_end_date)) {
-                    $es_demo = true;
-                    $fecha_fin = new DateTime($empresa->demo_end_date);
-                    $fecha_actual = new DateTime();
-                    $intervalo = $fecha_actual->diff($fecha_fin);
-                    $dias_restantes = $intervalo->days;
-                    // Si la fecha ya pasó, mostrar 0
-                    if ($fecha_fin < $fecha_actual) {
-                        $dias_restantes = 0;
+            // Si hay empresa, determinar si es demo y obtener plan
+            if ($empresa) {
+                $es_demo = ($empresa->es_demo == 'Si');
+
+                // Obtener suscripción activa
+                $suscripcionModel = new Suscripcion();
+                $suscripcion = $suscripcionModel->getActivaByEmpresa($empresa->id);
+
+                if ($suscripcion) {
+                    // Obtener plan de la suscripción
+                    $planModel = new Plan();
+                    $plan = $planModel->getById($suscripcion->plan_id);
+
+                    // Calcular días restantes si es demo
+                    if ($es_demo && !empty($empresa->demo_fin)) {
+                        $fecha_fin = new DateTime($empresa->demo_fin);
+                        $fecha_actual = new DateTime();
+                        $intervalo = $fecha_actual->diff($fecha_fin);
+                        $dias_restantes = $intervalo->invert ? 0 : $intervalo->days;
                     }
                 }
             }
         }
+        $stmt->close();
 
         // Incluir la vista
         require_once 'views/user/dashboard/welcome.php';
     }
+
     /**
      * Muestra la pantalla de login de usuario
      */
@@ -174,7 +185,58 @@ class UserController
             $usuario = $this->userModel->login($email, $password);
 
             if ($usuario) {
-                // Crear sesión con los datos del usuario
+                // 1. Verificar si el usuario tiene empresa asociada
+                $db = Database::connect();
+                $query = "SELECT * FROM empresas WHERE usuario_id = ?";
+                $stmt = $db->prepare($query);
+                $stmt->bind_param("i", $usuario->id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows == 0) {
+                    $this->setLoginError("Usuario sin empresa asociada");
+                    header("Location: " . base_url . "user/login");
+                    exit();
+                }
+
+                $empresa = $result->fetch_object();
+                $stmt->close();
+
+                // 2. Verificar si la empresa está en modo demo y ya terminó el período
+                if ($empresa->es_demo == 'Si' && !empty($empresa->demo_fin)) {
+                    $fecha_fin = new DateTime($empresa->demo_fin);
+                    $fecha_actual = new DateTime();
+
+                    if ($fecha_actual > $fecha_fin) {
+                        $this->setLoginError("El período de prueba de su empresa ha finalizado");
+                        header("Location: " . base_url . "user/login");
+                        exit();
+                    }
+                }
+
+                // 3. Verificar si tiene suscripción activa y no caducada
+                $suscripcionModel = new Suscripcion();
+                $suscripcion = $suscripcionModel->getActivaByEmpresa($empresa->id);
+
+                if (!$suscripcion) {
+                    $this->setLoginError("Su empresa no cuenta con un plan activo");
+                    header("Location: " . base_url . "user/login");
+                    exit();
+                }
+
+                // Verificar que la suscripción no esté caducada
+                if ($suscripcion->fecha_siguiente_factura) {
+                    $fecha_siguiente = new DateTime($suscripcion->fecha_siguiente_factura);
+                    $fecha_actual = new DateTime();
+
+                    if ($fecha_actual > $fecha_siguiente && $suscripcion->estado != 'Pendiente') {
+                        $this->setLoginError("El plan de su empresa está caducado");
+                        header("Location: " . base_url . "user/login");
+                        exit();
+                    }
+                }
+
+                // Si pasó todas las validaciones, permitir el acceso
                 $_SESSION['user'] = $usuario;
 
                 // Regenerar ID de sesión para prevenir session fixation
