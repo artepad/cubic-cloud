@@ -116,7 +116,7 @@ CREATE TABLE usuarios (
     tipo_identificacion VARCHAR(20) DEFAULT 'RUT' COMMENT 'Tipo de documento de identificación (RUT, DNI, Pasaporte, etc.)',
     
     -- Configuración y permisos
-    tipo_usuario ENUM('ADMIN') NOT NULL DEFAULT 'ADMIN' COMMENT 'Rol del usuario en el sistema',
+    tipo_usuario ENUM('ADMIN', 'VENDEDOR', 'TOUR_MANAGER') NOT NULL DEFAULT 'ADMIN' COMMENT 'Rol del usuario en el sistema',
     password VARCHAR(255) NOT NULL COMMENT 'Contraseña encriptada',
     estado ENUM('Activo', 'Inactivo') NOT NULL DEFAULT 'Activo' COMMENT 'Estado del usuario',
     
