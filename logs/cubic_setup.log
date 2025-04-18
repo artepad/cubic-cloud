@@ -1,7 +1,0 @@
-[2025-04-18 20:17:42] IP: 127.0.0.1 | CREATE_ADMIN | Super Admin creado: admin@admin.cl
-[2025-04-18 20:17:42] IP: 127.0.0.1 | CREATE_USER | Usuario creado: admin@demo.cl
-[2025-04-18 20:17:42] IP: 127.0.0.1 | CREATE_USER | Usuario creado: vendedor@demo.cl
-[2025-04-18 20:17:43] IP: 127.0.0.1 | CREATE_USER | Usuario creado: tour@demo.cl
-[2025-04-18 20:17:43] IP: 127.0.0.1 | CREATE_EMPRESA | Empresa creada: Demo Producciones
-[2025-04-18 20:17:43] IP: 127.0.0.1 | CREATE_PLAN | Plan creado: Eco
-[2025-04-18 20:17:43] IP: 127.0.0.1 | CREATE_SUSCRIPCION | Suscripción creada para la empresa 1
