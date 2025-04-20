@@ -103,7 +103,7 @@ class ArtistaController
             // Verificar que el nombre no exista ya
             if ($this->artistaModel->nombreExists($_POST['nombre'], $this->empresa_id)) {
                 $_SESSION['error_message'] = "El nombre artístico ya está registrado para otro artista";
-                $this->redirectTo('artista/crear');
+                $this->redirectTo('artistas/crear');
                 return;
             }
 
@@ -139,14 +139,14 @@ class ArtistaController
 
             if ($save) {
                 $_SESSION['success_message'] = "Artista creado correctamente";
-                $this->redirectTo('artista/index');
+                $this->redirectTo('artistas/index');
             } else {
                 $_SESSION['error_message'] = "Error al crear el artista";
-                $this->redirectTo('artista/crear');
+                $this->redirectTo('artistas/crear');
             }
         } else {
             $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
-            $this->redirectTo('artista/crear');
+            $this->redirectTo('artistas/crear');
         }
 
         // Si algo falla, mostrar una página de redirección manual

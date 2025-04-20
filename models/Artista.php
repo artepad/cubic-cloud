@@ -127,7 +127,7 @@ class Artista
             $estado = $this->estado ?: 'Activo';
             
             $stmt->bind_param(
-                "issssss", 
+                "isssssss", // Añade un placeholder adicional
                 $this->empresa_id,
                 $this->nombre, 
                 $this->genero_musical, 
