@@ -24,7 +24,7 @@
             <!-- Acciones de gestión -->
             <div class="row m-t-20 m-b-20">
                 <div class="col-md-12">
-                    <a href="<?= base_url ?>artista/crear" class="btn btn-success waves-effect waves-light m-r-10">
+                    <a href="<?= base_url ?>artistas/crear" class="btn btn-success waves-effect waves-light m-r-10">
                         <i class="fa fa-plus"></i> Nuevo Artista
                     </a>
                 </div>
