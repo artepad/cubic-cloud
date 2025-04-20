@@ -64,15 +64,15 @@ class AgendaController
         $pageTitle = "Agenda de Eventos";
 
         // Obtener parámetros de filtro (si existen)
-       // $estado = isset($_GET['estado']) ? $_GET['estado'] : null;
-      //  $fecha_inicio = isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : null;
-     //   $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : null;
+        $estado = isset($_GET['estado']) ? $_GET['estado'] : null;
+        $fecha_inicio = isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : null;
+        $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : null;
 
         // Obtener todos los eventos de la empresa actual
-     //   $eventos = $this->agendaModel->getAllEventos($this->empresa_id, $estado, $fecha_inicio, $fecha_fin);
+        $eventos = $this->agendaModel->getAllEventos($this->empresa_id, $estado, $fecha_inicio, $fecha_fin);
 
         // Obtener contadores por estado para mostrar estadísticas
-      //  $contadores = $this->agendaModel->countEventosPorEstado($this->empresa_id);
+        $contadores = $this->agendaModel->countEventosPorEstado($this->empresa_id);
 
         // Incluir la vista
         require_once 'views/user/agenda/index.php';
