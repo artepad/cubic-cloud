@@ -9,6 +9,7 @@ class ClienteController
 {
     private $clienteModel;
     private $empresaModel;
+    private $empresa_id;
 
     /**
      * Constructor
@@ -23,13 +24,38 @@ class ClienteController
         require_once 'models/Empresa.php';
         $this->empresaModel = new Empresa();
 
-        // Verificar autenticación para todas las acciones excepto las públicas
-        $publicMethods = []; // Sin métodos públicos por ahora
-        $currentMethod = isset($_GET['action']) ? $_GET['action'] : 'index';
+        // Verificar autenticación - usuario o admin
+        if (!isUserLoggedIn() && !isAdminLoggedIn()) {
+            $_SESSION['error_login'] = "Acceso denegado. Se requiere iniciar sesión.";
+            header("Location:" . base_url . "user/login");
+            exit();
+        }
 
-        if (!in_array($currentMethod, $publicMethods) && !isAdminLoggedIn()) {
-            $_SESSION['error_login'] = "Acceso denegado. Se requiere cuenta de administrador.";
-            header("Location:" . base_url . "admin/login");
+        // Obtener el ID de empresa según el tipo de usuario
+        if (isAdminLoggedIn() && isset($_SESSION['admin_empresa_id'])) {
+            $this->empresa_id = $_SESSION['admin_empresa_id'];
+        } elseif (isUserLoggedIn()) {
+            // Buscar la empresa del usuario en la BD
+            $usuario = $_SESSION['user'];
+            $db = Database::connect();
+            $query = "SELECT id FROM empresas WHERE usuario_id = ?";
+            $stmt = $db->prepare($query);
+            $stmt->bind_param("i", $usuario->id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows == 0) {
+                $_SESSION['error_message'] = "No tienes una empresa asignada";
+                header("Location:" . base_url . "user/dashboard");
+                exit();
+            } else {
+                $empresa = $result->fetch_object();
+                $this->empresa_id = $empresa->id;
+            }
+            $stmt->close();
+        } else {
+            $_SESSION['error_message'] = "No se ha identificado una empresa válida";
+            header("Location:" . base_url . "user/dashboard");
             exit();
         }
     }
@@ -40,17 +66,14 @@ class ClienteController
     public function index()
     {
         $pageTitle = "Gestión de Clientes";
-
-        // Obtener la empresa del usuario actual
-        $empresa_id = $_SESSION['admin_empresa_id'] ?? null;
         
         // Preparar filtros
-        $filters = ['empresa_id' => $empresa_id];
+        $filters = ['empresa_id' => $this->empresa_id];
         
         // Obtener clientes de la base de datos
         $clientes = $this->clienteModel->getAll($filters);
 
-        require_once 'views/admin/clientes/index.php';
+        require_once 'views/user/clientes/index.php';
     }
 
     /**
@@ -76,17 +99,8 @@ class ClienteController
         // Verificar que se han enviado los datos del formulario
         if (isset($_POST['nombres']) && isset($_POST['apellidos']) && isset($_POST['genero'])) {
             
-            // Obtener la empresa del usuario actual
-            $empresa_id = $_SESSION['admin_empresa_id'] ?? null;
-            
-            if (!$empresa_id) {
-                $_SESSION['error_message'] = "No se ha identificado una empresa válida";
-                $this->redirectTo('cliente/crear');
-                return;
-            }
-
             // Verificar que el correo no exista ya (si se proporcionó)
-            if (!empty($_POST['correo']) && $this->clienteModel->correoExists($_POST['correo'], $empresa_id)) {
+            if (!empty($_POST['correo']) && $this->clienteModel->correoExists($_POST['correo'], $this->empresa_id)) {
                 $_SESSION['error_message'] = "El correo electrónico ya está registrado para otro cliente";
                 $this->redirectTo('cliente/crear');
                 return;
@@ -94,7 +108,7 @@ class ClienteController
 
             // Establecer los datos del cliente
             $cliente = new Cliente();
-            $cliente->setEmpresaId($empresa_id);
+            $cliente->setEmpresaId($this->empresa_id);
             $cliente->setNombres($_POST['nombres']);
             $cliente->setApellidos($_POST['apellidos']);
             $cliente->setNumeroIdentificacion($_POST['numero_identificacion'] ?? '');
@@ -145,13 +159,10 @@ class ClienteController
             $this->redirectTo('cliente/index');
             return;
         }
-
-        // Obtener la empresa del usuario actual
-        $empresa_id = $_SESSION['admin_empresa_id'] ?? null;
         
         $cliente = $this->clienteModel->getById($id);
 
-        if (!$cliente || $cliente->empresa_id != $empresa_id) {
+        if (!$cliente || $cliente->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
             $this->redirectTo('cliente/index');
             return;
@@ -184,13 +195,10 @@ class ClienteController
             $this->redirectTo('cliente/index');
             return;
         }
-
-        // Obtener la empresa del usuario actual
-        $empresa_id = $_SESSION['admin_empresa_id'] ?? null;
         
         $cliente = $this->clienteModel->getById($id);
 
-        if (!$cliente || $cliente->empresa_id != $empresa_id) {
+        if (!$cliente || $cliente->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
             $this->redirectTo('cliente/index');
             return;
@@ -219,12 +227,10 @@ class ClienteController
         }
 
         $id = (int)$_POST['id'];
-        // Obtener la empresa del usuario actual
-        $empresa_id = $_SESSION['admin_empresa_id'] ?? null;
         
         $cliente_actual = $this->clienteModel->getById($id);
 
-        if (!$cliente_actual || $cliente_actual->empresa_id != $empresa_id) {
+        if (!$cliente_actual || $cliente_actual->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
             $this->redirectTo('cliente/index');
             return;
@@ -234,7 +240,7 @@ class ClienteController
         if (
             !empty($_POST['correo']) && 
             $_POST['correo'] !== $cliente_actual->correo &&
-            $this->clienteModel->correoExists($_POST['correo'], $empresa_id, $id)
+            $this->clienteModel->correoExists($_POST['correo'], $this->empresa_id, $id)
         ) {
             $_SESSION['error_message'] = "El correo electrónico ya está registrado para otro cliente";
             $this->redirectTo('cliente/editar/' . $id);
@@ -244,7 +250,7 @@ class ClienteController
         // Establecer los datos del cliente
         $cliente = new Cliente();
         $cliente->setId($id);
-        $cliente->setEmpresaId($empresa_id);
+        $cliente->setEmpresaId($this->empresa_id);
         $cliente->setNombres(trim($_POST['nombres']));
         $cliente->setApellidos(trim($_POST['apellidos']));
         $cliente->setNumeroIdentificacion($_POST['numero_identificacion'] ?? '');
@@ -291,13 +297,10 @@ class ClienteController
             $this->redirectTo('cliente/index');
             return;
         }
-
-        // Obtener la empresa del usuario actual
-        $empresa_id = $_SESSION['admin_empresa_id'] ?? null;
         
         // Verificar si el cliente existe y pertenece a la empresa
         $cliente = $this->clienteModel->getById($id);
-        if (!$cliente || $cliente->empresa_id != $empresa_id) {
+        if (!$cliente || $cliente->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
             $this->redirectTo('cliente/index');
             return;
@@ -347,13 +350,10 @@ class ClienteController
             $this->redirectTo('cliente/index');
             return;
         }
-
-        // Obtener la empresa del usuario actual
-        $empresa_id = $_SESSION['admin_empresa_id'] ?? null;
         
         // Verificar si el cliente existe y pertenece a la empresa
         $cliente = $this->clienteModel->getById($id);
-        if (!$cliente || $cliente->empresa_id != $empresa_id) {
+        if (!$cliente || $cliente->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
             $this->redirectTo('cliente/index');
             return;

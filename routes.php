@@ -97,11 +97,11 @@ Router::add('agenda/fecha/:fecha', 'AgendaController', 'fecha', 'user_auth');
 Router::add('agenda/exportar', 'AgendaController', 'exportar', 'user_auth');
 
 // Rutas para el controlador de Clientes
-Router::add('cliente/index', 'ClienteController', 'index', 'auth');
-Router::add('cliente/crear', 'ClienteController', 'crear', 'auth');
-Router::add('cliente/guardar', 'ClienteController', 'guardar', 'auth');
-Router::add('cliente/editar/:id', 'ClienteController', 'editar', 'auth');
-Router::add('cliente/actualizar', 'ClienteController', 'actualizar', 'auth');
-Router::add('cliente/eliminar/:id', 'ClienteController', 'eliminar', 'auth');
-Router::add('cliente/cambiarEstado/:id/:estado', 'ClienteController', 'cambiarEstado', 'auth');
-Router::add('cliente/ver/:id', 'ClienteController', 'ver', 'auth');
+Router::add('cliente/index', 'ClienteController', 'index', 'user_auth');
+Router::add('cliente/crear', 'ClienteController', 'crear', 'user_auth');
+Router::add('cliente/guardar', 'ClienteController', 'guardar', 'user_auth');
+Router::add('cliente/editar/:id', 'ClienteController', 'editar', 'user_auth');
+Router::add('cliente/actualizar', 'ClienteController', 'actualizar', 'user_auth');
+Router::add('cliente/eliminar/:id', 'ClienteController', 'eliminar', 'user_auth');
+Router::add('cliente/cambiarEstado/:id/:estado', 'ClienteController', 'cambiarEstado', 'user_auth');
+Router::add('cliente/ver/:id', 'ClienteController', 'ver', 'user_auth');
