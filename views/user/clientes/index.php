@@ -116,7 +116,7 @@
 
     function confirmarEliminar(clienteId) {
         if (confirm('¿Está seguro que desea eliminar este cliente? Esta acción no se puede deshacer.')) {
-            window.location.href = '<?= base_url ?>cliente/eliminar/' + clienteId;
+            window.location.href = '<?= base_url ?>clientes/eliminar/' + clienteId;
         }
     }
 </script>

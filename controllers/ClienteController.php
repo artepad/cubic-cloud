@@ -102,7 +102,7 @@ class ClienteController
             // Verificar que el correo no exista ya (si se proporcionó)
             if (!empty($_POST['correo']) && $this->clienteModel->correoExists($_POST['correo'], $this->empresa_id)) {
                 $_SESSION['error_message'] = "El correo electrónico ya está registrado para otro cliente";
-                $this->redirectTo('cliente/crear');
+                $this->redirectTo('clientes/crear');
                 return;
             }
 
@@ -125,14 +125,14 @@ class ClienteController
 
             if ($save) {
                 $_SESSION['success_message'] = "Cliente creado correctamente";
-                $this->redirectTo('cliente/index');
+                $this->redirectTo('clientes/index');
             } else {
                 $_SESSION['error_message'] = "Error al crear el cliente";
-                $this->redirectTo('cliente/crear');
+                $this->redirectTo('clientes/crear');
             }
         } else {
             $_SESSION['error_message'] = "Todos los campos obligatorios deben ser completados";
-            $this->redirectTo('cliente/crear');
+            $this->redirectTo('clientes/crear');
         }
 
         // Si algo falla, mostrar una página de redirección manual
@@ -192,7 +192,7 @@ class ClienteController
 
         if (!$id) {
             $_SESSION['error_message'] = "ID de cliente no especificado";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
             return;
         }
         
@@ -200,12 +200,12 @@ class ClienteController
 
         if (!$cliente || $cliente->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
             return;
         }
 
         $pageTitle = "Editar Cliente";
-        require_once 'views/admin/clientes/editar.php';
+        require_once 'views/user/clientes/editar.php';
     }
 
     /**
@@ -222,7 +222,7 @@ class ClienteController
 
         if (!isset($_POST['id'])) {
             $_SESSION['error_message'] = "ID de cliente no especificado";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
             return;
         }
 
@@ -232,7 +232,7 @@ class ClienteController
 
         if (!$cliente_actual || $cliente_actual->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
             return;
         }
 
@@ -243,7 +243,7 @@ class ClienteController
             $this->clienteModel->correoExists($_POST['correo'], $this->empresa_id, $id)
         ) {
             $_SESSION['error_message'] = "El correo electrónico ya está registrado para otro cliente";
-            $this->redirectTo('cliente/editar/' . $id);
+            $this->redirectTo('clientes/editar/' . $id);
             return;
         }
 
@@ -267,10 +267,10 @@ class ClienteController
 
         if ($update) {
             $_SESSION['success_message'] = "Cliente actualizado correctamente";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
         } else {
             $_SESSION['error_message'] = "Error al actualizar el cliente";
-            $this->redirectTo('cliente/editar/' . $id);
+            $this->redirectTo('clientes/editar/' . $id);
         }
     }
 
@@ -294,7 +294,7 @@ class ClienteController
 
         if (!$id) {
             $_SESSION['error_message'] = "ID de cliente no especificado";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
             return;
         }
         
@@ -302,7 +302,7 @@ class ClienteController
         $cliente = $this->clienteModel->getById($id);
         if (!$cliente || $cliente->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
             return;
         }
 
@@ -315,7 +315,7 @@ class ClienteController
             $_SESSION['error_message'] = "Error al eliminar el cliente";
         }
 
-        $this->redirectTo('cliente/index');
+        $this->redirectTo('clientes/index');
     }
 
     /**
@@ -333,7 +333,7 @@ class ClienteController
                 $estado = $_GET['estado'];
             } else {
                 $_SESSION['error_message'] = "Parámetros insuficientes para cambiar el estado del cliente";
-                $this->redirectTo('cliente/index');
+                $this->redirectTo('clientes/index');
                 return;
             }
         }
@@ -347,7 +347,7 @@ class ClienteController
         // Validar estado
         if (!in_array($estado, ['Activo', 'Inactivo'])) {
             $_SESSION['error_message'] = "Estado no válido";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
             return;
         }
         
@@ -355,7 +355,7 @@ class ClienteController
         $cliente = $this->clienteModel->getById($id);
         if (!$cliente || $cliente->empresa_id != $this->empresa_id) {
             $_SESSION['error_message'] = "Cliente no encontrado o no pertenece a su empresa";
-            $this->redirectTo('cliente/index');
+            $this->redirectTo('clientes/index');
             return;
         }
 
@@ -368,7 +368,7 @@ class ClienteController
             $_SESSION['error_message'] = "Error al actualizar el estado del cliente";
         }
 
-        $this->redirectTo('cliente/index');
+        $this->redirectTo('clientes/index');
     }
 
     /**
