@@ -85,7 +85,7 @@ class ClienteController
         $pageTitle = "Crear Nuevo Cliente";
 
         // Incluir la vista
-        require_once 'views/admin/clientes/crear.php';
+        require_once 'views/user/clientes/crear.php';
     }
 
     /**
