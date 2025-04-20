@@ -87,3 +87,11 @@ Router::add('user/profile', 'UserController', 'profile', 'user_auth');
 Router::add('user/updateProfile', 'UserController', 'updateProfile', 'user_auth');
 Router::add('user/changePassword', 'UserController', 'changePassword', 'user_auth');
 Router::add('user/updatePassword', 'UserController', 'updatePassword', 'user_auth');
+
+//Rutas para AgendaController de Agendas
+Router::add('agenda/index', 'AgendaController', 'index', 'user_auth');
+Router::add('agenda/ver/:id', 'AgendaController', 'ver', 'user_auth');
+Router::add('agenda/calendario', 'AgendaController', 'calendario', 'user_auth');
+Router::add('agenda/proximos', 'AgendaController', 'proximos', 'user_auth');
+Router::add('agenda/fecha/:fecha', 'AgendaController', 'fecha', 'user_auth');
+Router::add('agenda/exportar', 'AgendaController', 'exportar', 'user_auth');

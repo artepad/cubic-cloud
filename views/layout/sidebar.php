@@ -82,7 +82,7 @@ $empresas_count = $empresaModel->countAll();
                             </a>
                         </li>
                         <li>
-                            <a href="<?= base_url ?>agenda/listar" aria-expanded="false">
+                            <a href="<?= base_url ?>agenda/index" aria-expanded="false">
                                 <i class="icon-notebook fa-fw"></i>
                                 <span class="hide-menu">Agenda
                                     <span class="label label-rounded label-warning pull-right">12</span>
