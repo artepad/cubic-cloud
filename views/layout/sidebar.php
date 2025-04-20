@@ -90,7 +90,7 @@ $empresas_count = $empresaModel->countAll();
                             </a>
                         </li>
                         <li>
-                            <a class="waves-effect" href="<?= base_url ?>cliente/index" aria-expanded="false">
+                            <a class="waves-effect" href="<?= base_url ?>clientes/index" aria-expanded="false">
                                 <i class="icon-user fa-fw"></i>
                                 <span class="hide-menu"> Clientes
                                     <span class="label label-rounded label-info pull-right">24</span>
@@ -98,7 +98,7 @@ $empresas_count = $empresaModel->countAll();
                             </a>
                         </li>
                         <li>
-                            <a class="waves-effect" href="<?= base_url ?>artista/listar" aria-expanded="false">
+                            <a class="waves-effect" href="<?= base_url ?>artistas/index" aria-expanded="false">
                                 <i class="icon-microphone fa-fw"></i>
                                 <span class="hide-menu">Artistas
                                     <span class="label label-rounded label-primary pull-right">18</span>

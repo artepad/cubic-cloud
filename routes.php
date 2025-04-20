@@ -97,11 +97,21 @@ Router::add('agenda/fecha/:fecha', 'AgendaController', 'fecha', 'user_auth');
 Router::add('agenda/exportar', 'AgendaController', 'exportar', 'user_auth');
 
 // Rutas para el controlador de Clientes
-Router::add('cliente/index', 'ClienteController', 'index', 'user_auth');
-Router::add('cliente/crear', 'ClienteController', 'crear', 'user_auth');
-Router::add('cliente/guardar', 'ClienteController', 'guardar', 'user_auth');
-Router::add('cliente/editar/:id', 'ClienteController', 'editar', 'user_auth');
-Router::add('cliente/actualizar', 'ClienteController', 'actualizar', 'user_auth');
-Router::add('cliente/eliminar/:id', 'ClienteController', 'eliminar', 'user_auth');
-Router::add('cliente/cambiarEstado/:id/:estado', 'ClienteController', 'cambiarEstado', 'user_auth');
-Router::add('cliente/ver/:id', 'ClienteController', 'ver', 'user_auth');
+Router::add('clientes/index', 'ClienteController', 'index', 'user_auth');
+Router::add('clientes/crear', 'ClienteController', 'crear', 'user_auth');
+Router::add('clientes/guardar', 'ClienteController', 'guardar', 'user_auth');
+Router::add('clientes/editar/:id', 'ClienteController', 'editar', 'user_auth');
+Router::add('clientes/actualizar', 'ClienteController', 'actualizar', 'user_auth');
+Router::add('clientes/eliminar/:id', 'ClienteController', 'eliminar', 'user_auth');
+Router::add('clientes/cambiarEstado/:id/:estado', 'ClienteController', 'cambiarEstado', 'user_auth');
+Router::add('clientes/ver/:id', 'ClienteController', 'ver', 'user_auth');
+
+// Rutas para el controlador de Artistas
+Router::add('artistas/index', 'ArtistaController', 'index', 'user_auth');
+Router::add('artistas/crear', 'ArtistaController', 'crear', 'user_auth');
+Router::add('artistas/guardar', 'ArtistaController', 'guardar', 'user_auth');
+Router::add('artistas/editar/:id', 'ArtistaController', 'editar', 'user_auth');
+Router::add('artistas/actualizar', 'ArtistaController', 'actualizar', 'user_auth');
+Router::add('artistas/eliminar/:id', 'ArtistaController', 'eliminar', 'user_auth');
+Router::add('artistas/cambiarEstado/:id/:estado', 'ArtistaController', 'cambiarEstado', 'user_auth');
+Router::add('artistas/ver/:id', 'ArtistaController', 'ver', 'user_auth');
