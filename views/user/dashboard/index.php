@@ -1,54 +1,9 @@
-<div class="row">
-    <div class="col-md-12">
-        <div class="white-box welcome-container">
-            <div class="welcome-header">
-                <div class="welcome-icon">
-                    <i class="fa fa-check-circle"></i>
-                </div>
-                <div class="welcome-title">
-                    <h2>¡Bienvenido a tu dashboard!</h2>
-                    <h3><?= $user->nombre ?> <?= $user->apellido ?></h3>
-                </div>
-            </div>
-            
-            <div class="welcome-content">
-                <p class="lead">Has accedido al panel de usuario de CUBIC Cloud.</p>
-                
-                <div class="welcome-features">
-                    <div class="feature-item">
-                        <i class="fa fa-calendar"></i>
-                        <span>Gestión de eventos</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fa fa-users"></i>
-                        <span>Gestión de clientes</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fa fa-file-text"></i>
-                        <span>Contratos y documentos</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fa fa-money"></i>
-                        <span>Cotizaciones</span>
-                    </div>
-                </div>
-                
-                <div class="welcome-footer">
-                    <div class="last-login">
-                        <i class="fa fa-clock-o"></i> Último acceso: <strong><?= $ultimo_login ?></strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Resumen de estadísticas -->
 <div class="row">
-    <!-- Eventos próximos -->
+    <!-- Eventos próximos (Verde) -->
     <div class="col-lg-3 col-sm-6 col-xs-12">
         <div class="stats-card">
-            <div class="stats-icon bg-primary">
+            <div class="stats-icon bg-success">
                 <i class="fa fa-calendar"></i>
             </div>
             <div class="stats-info">
@@ -71,114 +26,34 @@
         </div>
     </div>
     
-    <!-- Contratos pendientes -->
+    <!-- Agenda (en lugar de Contratos pendientes) -->
     <div class="col-lg-3 col-sm-6 col-xs-12">
         <div class="stats-card">
             <div class="stats-icon bg-warning">
-                <i class="fa fa-file-text"></i>
+                <i class="fa fa-calendar-check-o"></i>
             </div>
             <div class="stats-info">
-                <h3 class="counter">3</h3>
-                <p>Contratos pendientes</p>
+                <h3 class="counter">8</h3>
+                <p>Agenda</p>
             </div>
         </div>
     </div>
     
-    <!-- Cotizaciones recientes -->
+    <!-- Artistas (en lugar de Cotizaciones recientes) con color azul -->
     <div class="col-lg-3 col-sm-6 col-xs-12">
         <div class="stats-card">
-            <div class="stats-icon bg-success">
-                <i class="fa fa-money"></i>
+            <div class="stats-icon bg-primary">
+                <i class="fa fa-music"></i>
             </div>
             <div class="stats-info">
-                <h3 class="counter">7</h3>
-                <p>Cotizaciones recientes</p>
+                <h3 class="counter">15</h3>
+                <p>Artistas</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Próximos eventos y tareas pendientes -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="white-box">
-            <h3 class="box-title">Próximos Eventos</h3>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Fecha</th>
-                            <th>Cliente</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Festival Primavera</td>
-                            <td>25/04/2025</td>
-                            <td>Municipalidad Central</td>
-                            <td><span class="label label-success">Confirmado</span></td>
-                        </tr>
-                        <tr>
-                            <td>Concierto Benéfico</td>
-                            <td>10/05/2025</td>
-                            <td>Fundación Esperanza</td>
-                            <td><span class="label label-warning">Pendiente</span></td>
-                        </tr>
-                        <tr>
-                            <td>Lanzamiento Producto</td>
-                            <td>15/05/2025</td>
-                            <td>TechCompany Inc.</td>
-                            <td><span class="label label-info">En planificación</span></td>
-                        </tr>
-                        <tr>
-                            <td>Festival Verano</td>
-                            <td>05/06/2025</td>
-                            <td>Ayuntamiento Costa</td>
-                            <td><span class="label label-success">Confirmado</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="white-box">
-            <h3 class="box-title">Tareas Pendientes</h3>
-            <div class="message-center">
-                <a href="#">
-                    <div class="mail-contnet">
-                        <h5><span class="label label-danger">Urgente</span> Enviar cotización</h5>
-                        <span class="mail-desc">Preparar y enviar cotización para Empresa ABC</span>
-                        <span class="time">Vence: 18/04/2025</span>
-                    </div>
-                </a>
-                <a href="#">
-                    <div class="mail-contnet">
-                        <h5><span class="label label-warning">Importante</span> Confirmar proveedores</h5>
-                        <span class="mail-desc">Confirmar proveedores para Festival Primavera</span>
-                        <span class="time">Vence: 20/04/2025</span>
-                    </div>
-                </a>
-                <a href="#">
-                    <div class="mail-contnet">
-                        <h5><span class="label label-info">Pendiente</span> Actualizar contratos</h5>
-                        <span class="mail-desc">Revisar y actualizar contratos con artistas</span>
-                        <span class="time">Vence: 22/04/2025</span>
-                    </div>
-                </a>
-                <a href="#">
-                    <div class="mail-contnet">
-                        <h5><span class="label label-success">Programado</span> Reunión con cliente</h5>
-                        <span class="mail-desc">Reunión virtual con Fundación Esperanza</span>
-                        <span class="time">23/04/2025 10:00</span>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <style>
 /* Estilos para el bloque de bienvenida */

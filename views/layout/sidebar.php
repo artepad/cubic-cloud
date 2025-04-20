@@ -74,7 +74,7 @@ $empresas_count = $empresaModel->countAll();
                     <?php if ($_SESSION['user']->tipo_usuario == 'ADMIN'): ?>
                         <!-- Menú específico para administradores de empresa -->
                         <li>
-                            <a class="waves-effect" href="<?= base_url ?>empresas/dashboard" aria-expanded="false">
+                            <a class="waves-effect" href="<?= base_url ?>user/dashboard" aria-expanded="false">
                                 <i class="icon-screen-desktop fa-fw"></i>
                                 <span class="hide-menu"> Dashboard
                                     <span class="label label-rounded label-success pull-right">5</span>
