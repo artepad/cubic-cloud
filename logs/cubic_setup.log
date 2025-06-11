@@ -1,0 +1,7 @@
+[2025-05-31 20:20:10] IP: ::1 | CREATE_ADMIN | Super Admin creado: admin@admin.cl
+[2025-05-31 20:20:11] IP: ::1 | CREATE_USER | Usuario creado: admin@demo.cl
+[2025-05-31 20:20:11] IP: ::1 | CREATE_USER | Usuario creado: vendedor@demo.cl
+[2025-05-31 20:20:11] IP: ::1 | CREATE_USER | Usuario creado: tour@demo.cl
+[2025-05-31 20:20:11] IP: ::1 | CREATE_EMPRESA | Empresa creada: Demo Producciones
+[2025-05-31 20:20:11] IP: ::1 | CREATE_PLAN | Plan creado: Eco
+[2025-05-31 20:20:11] IP: ::1 | CREATE_SUSCRIPCION | Suscripción creada para la empresa 1

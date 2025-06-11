@@ -18,7 +18,7 @@ class UserController
     public function __construct()
     {
         // Cargar los modelos
-        $this->userModel = new User();
+        $this->userModel = new Usuario();
         $this->empresaModel = class_exists('Empresa') ? new Empresa() : null;
 
         // Verificar autenticación para acciones protegidas
@@ -263,7 +263,6 @@ class UserController
             exit();
         }
     }
-
     /**
      * Cierra la sesión del usuario
      */
@@ -332,17 +331,51 @@ class UserController
             $nombre = isset($_POST['nombre']) ? filter_var($_POST['nombre'], FILTER_SANITIZE_STRING) : '';
             $apellido = isset($_POST['apellido']) ? filter_var($_POST['apellido'], FILTER_SANITIZE_STRING) : '';
             $telefono = isset($_POST['telefono']) ? filter_var($_POST['telefono'], FILTER_SANITIZE_STRING) : '';
+            $pais = isset($_POST['pais']) ? filter_var($_POST['pais'], FILTER_SANITIZE_STRING) : '';
+            $codigo_pais = isset($_POST['codigo_pais']) ? filter_var($_POST['codigo_pais'], FILTER_SANITIZE_STRING) : '';
+            $numero_identificacion = isset($_POST['numero_identificacion']) ? filter_var($_POST['numero_identificacion'], FILTER_SANITIZE_STRING) : '';
+            $tipo_identificacion = isset($_POST['tipo_identificacion']) ? filter_var($_POST['tipo_identificacion'], FILTER_SANITIZE_STRING) : '';
 
-            // Actualizar el perfil usando el modelo
+            // Validar campos obligatorios
+            if (empty($nombre) || empty($apellido)) {
+                $_SESSION['error_message'] = "El nombre y apellido son obligatorios";
+                header("Location: " . base_url . "user/profile");
+                exit();
+            }
+
+            // Obtener ID del usuario actual
             $user_id = $_SESSION['user']->id;
 
-            // Aquí iría el código para guardar los datos en el modelo
+            // Crear instancia del modelo Usuario y establecer propiedades
+            $usuarioModel = new Usuario();
+            $usuarioModel->setId($user_id);
+            $usuarioModel->setNombre($nombre);
+            $usuarioModel->setApellido($apellido);
+            $usuarioModel->setTelefono($telefono);
+            $usuarioModel->setPais($pais);
+            $usuarioModel->setCodigoPais($codigo_pais);
+            $usuarioModel->setNumeroIdentificacion($numero_identificacion);
+            $usuarioModel->setTipoIdentificacion($tipo_identificacion);
 
-            // Actualizar los datos en la sesión
-            $usuario_actualizado = $this->userModel->getById($user_id);
-            if ($usuario_actualizado) {
-                $_SESSION['user'] = $usuario_actualizado;
-                $_SESSION['success_message'] = "Perfil actualizado correctamente";
+            // Mantener datos existentes que no se actualizan
+            $usuarioActual = $this->userModel->getById($user_id);
+            $usuarioModel->setEmail($usuarioActual->email);
+            $usuarioModel->setTipoUsuario($usuarioActual->tipo_usuario);
+            $usuarioModel->setEmpresaId($usuarioActual->empresa_id);
+            $usuarioModel->setEstado($usuarioActual->estado);
+
+            // Actualizar el perfil
+            $result = $usuarioModel->update();
+
+            if ($result) {
+                // Actualizar los datos en la sesión
+                $usuario_actualizado = $this->userModel->getById($user_id);
+                if ($usuario_actualizado) {
+                    $_SESSION['user'] = $usuario_actualizado;
+                    $_SESSION['success_message'] = "Perfil actualizado correctamente";
+                } else {
+                    $_SESSION['error_message'] = "Error al actualizar el perfil";
+                }
             } else {
                 $_SESSION['error_message'] = "Error al actualizar el perfil";
             }
@@ -427,7 +460,6 @@ class UserController
         header("Location: " . base_url . "user/changePassword");
         exit();
     }
-
     /**
      * Muestra el formulario para solicitar recuperación de contraseña
      */
@@ -601,6 +633,41 @@ class UserController
     }
 
     /**
+     * Verifica y procesa login automático con token "Recuérdame"
+     */
+    public function checkRememberToken()
+    {
+        // Solo verificar si no hay sesión activa y existe la cookie
+        if (!isUserLoggedIn() && isset($_COOKIE['user_remember'])) {
+            $token = $_COOKIE['user_remember'];
+            
+            // Validar el token
+            $usuario = $this->userModel->validateRememberToken($token);
+            
+            if ($usuario) {
+                // Iniciar sesión automáticamente
+                $_SESSION['user'] = $usuario;
+                
+                // Regenerar ID de sesión
+                regenerateSession();
+                
+                // Renovar token para mayor seguridad
+                $this->userModel->clearRememberToken($usuario->id);
+                $this->createRememberMeCookie($usuario->id);
+                
+                return true;
+            } else {
+                // Token inválido, eliminar cookie
+                $this->deleteRememberMeCookie();
+            }
+        }
+        
+        return false;
+    }
+
+    // ========== MÉTODOS PRIVADOS ==========
+
+    /**
      * Establece un mensaje de error para el login
      * @param string $message Mensaje de error
      */
@@ -615,13 +682,16 @@ class UserController
      */
     private function createRememberMeCookie($user_id)
     {
-        $token = $this->userModel->createRememberToken($user_id, COOKIE_LIFETIME);
+        $cookie_lifetime = defined('COOKIE_LIFETIME') ? COOKIE_LIFETIME : 30;
+        $token = $this->userModel->createRememberToken($user_id, $cookie_lifetime);
+        
         if ($token) {
             // Crear cookie segura
             $secure = isset($_SERVER['HTTPS']); // true si es HTTPS
             $httponly = true; // Evita acceso mediante JavaScript
+            
             setcookie('user_remember', $token, [
-                'expires' => time() + (86400 * COOKIE_LIFETIME),
+                'expires' => time() + (86400 * $cookie_lifetime),
                 'path' => '/',
                 'domain' => '',
                 'secure' => $secure,
@@ -644,5 +714,58 @@ class UserController
             'httponly' => true,
             'samesite' => 'Lax'
         ]);
+    }
+
+    /**
+     * Valida los datos del perfil antes de actualizar
+     * @param array $data Datos a validar
+     * @return array Array con errores encontrados
+     */
+    private function validateProfileData($data)
+    {
+        $errors = [];
+
+        // Validar nombre
+        if (empty($data['nombre']) || strlen(trim($data['nombre'])) < 2) {
+            $errors[] = "El nombre debe tener al menos 2 caracteres";
+        }
+
+        // Validar apellido
+        if (empty($data['apellido']) || strlen(trim($data['apellido'])) < 2) {
+            $errors[] = "El apellido debe tener al menos 2 caracteres";
+        }
+
+        // Validar teléfono si se proporciona
+        if (!empty($data['telefono'])) {
+            if (!preg_match('/^[\d\s\-\+\(\)]{8,20}$/', $data['telefono'])) {
+                $errors[] = "El formato del teléfono no es válido";
+            }
+        }
+
+        // Validar número de identificación si se proporciona
+        if (!empty($data['numero_identificacion'])) {
+            if (strlen(trim($data['numero_identificacion'])) < 3) {
+                $errors[] = "El número de identificación debe tener al menos 3 caracteres";
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Registra actividad del usuario para auditoría
+     * @param string $action Acción realizada
+     * @param array $details Detalles adicionales (opcional)
+     */
+    private function logUserActivity($action, $details = [])
+    {
+        if (isUserLoggedIn()) {
+            $user_id = $_SESSION['user']->id;
+            $ip = $_SERVER['REMOTE_ADDR'];
+            $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            
+            // Aquí se podría implementar un sistema de logs más robusto
+            error_log("User Activity - ID: {$user_id}, Action: {$action}, IP: {$ip}, Details: " . json_encode($details));
+        }
     }
 }
